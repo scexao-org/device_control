@@ -1,0 +1,38 @@
+# cpp objects
+obj
+*.o
+*.so
+
+#Ignore folder mac
+.DS_Store
+._.DS_Store
+
+# cython generated files
+build
+cython_debug
+
+# python
+*.pyc
+*.egg-info
+
+# specific param files
+shesha/par.pxi
+
+# Data files -- you can still git add them manually
+*.h5
+#*.fits
+
+# Eclipse/NSight/vscode project files
+.cproject
+.project
+.pydevproject
+.settings
+.vscode
+
+# Editors
+*.bak
+*.swp
+._*
+\#*#
+
+.venv
