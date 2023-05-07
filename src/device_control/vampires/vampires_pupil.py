@@ -1,14 +1,12 @@
 from docopt import docopt
 import os
 import sys
+from swmain.network.pyroclient import connect # Requires scxconf and will fetch the IP addresses there.
+from device_control.vampires import PYRO_KEYS
 
-from swmain.devices.multi_device import MultiDevice
+vampires_pupil = connect(PYRO_KEYS["pupil"])
 
-conf_dir = os.path.abspath(os.getenv("CONF_DIR", f"{os.getenv('HOME')}/src/software-main/conf/"))
-path = os.path.join(conf_dir, "devices/vampires/conf_vampires_pupil.toml")
-vampires_pupil = MultiDevice.from_config(path)
-
-units = [d.unit for d in vampires_pupil.devices.values()]
+units = ["step", "step", "deg"]
 lines = []
 for config in vampires_pupil.configurations:
     line = f"    {config['idx']:2d}: {config['name']:17s} {{"

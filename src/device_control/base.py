@@ -1,4 +1,4 @@
-import toml
+import tomli
 from typing import Union
 
 __all__ = ["MotionDevice"]
@@ -8,28 +8,60 @@ __all__ = ["MotionDevice"]
 class MotionDevice:
 
     def __init__(self, address, name="", unit=None, configurations=None, config_file=None, offset=0, **kwargs):
-        self.address = address
-        self.name = name
-        self.unit = unit
-        self.configurations = configurations
+        self._address = address
+        self._name = name
+        self._unit = unit
+        self._configurations = configurations
         self.config_file = config_file
         self.offset = offset
+        self.serial_kwargs = kwargs
+
+    @property
+    def configurations(self):
+        return self._configurations
+    
+    @configurations.setter
+    def configurations(self, value):
+        self._configurations = value
+
+    @property
+    def unit(self):
+        return self._unit
+    
+    @unit.setter
+    def unit(self, value):
+        self._unit = value
+
+    @property
+    def name(self):
+        return self._name
+    
+    @name.setter
+    def name(self, value: str):
+        self._name = value
+
+    @property
+    def address(self):
+        return self._address
+    
+    @address.setter
+    def address(self, value: str):
+        self._address = value
+
 
     @classmethod
     def from_config(__cls__, filename):
-        with open(filename, "r") as fh:
-            parameters = toml.load(fh)
-        address = parameters["address"]
-        name = parameters["name"]
-        unit = parameters.get("unit", None)
-        configurations = parameters.get("configurations", None)
-        return __cls__(address=address, name=name, unit=unit, configurations=configurations, config_file=filename)
+        with open(filename, "rb") as fh:
+            parameters = tomli.load(fh)
+        unit = parameters.pop("unit", None)
+        configurations = parameters.pop("configurations", None)
+        return __cls__(unit=unit, configurations=configurations, config_file=filename, **parameters)
 
     def load_config(self, filename):
         if filename is None:
             filename = self.config_file
-        with open(filename, "r") as fh:
-            parameters = toml.load(fh)
+        with open(filename, "rb") as fh:
+            parameters = tomli.load(fh)
         self.address = parameters["address"]
         self.name = parameters["name"]
         self.unit = parameters.get("unit", None)
@@ -40,7 +72,7 @@ class MotionDevice:
     def position(self):
         pos = self._position + self.offset
         # replace with status update
-        print(f"status of {self.name}: {pos} [{self.unit}]")
+        # print(f"status of {self.name}: {pos} [{self.unit}]")
         return pos
 
     @property

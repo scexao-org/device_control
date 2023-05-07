@@ -1,0 +1,17 @@
+name = "vampires_qwp"
+configurations = [
+    {idx=1, name="a", value={1=152, 2=165}},
+    {idx=2, name="b", value={1=128, 2=168}},
+]
+
+[vampires_qwp.1]
+type = "conex"
+address = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6WXETGZ-if00-port0"
+offset = -45
+unit = "deg"
+
+[vampires_qwp.2]
+type = "conex"
+address = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6VMT5XJ-if00-port0"
+offset = -85
+unit = "deg"

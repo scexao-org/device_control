@@ -2,11 +2,10 @@ from docopt import docopt
 import os
 import sys
 
-from swmain.devices.drivers.conex import CONEXDevice
+from swmain.network.pyroclient import connect # Requires scxconf and will fetch the IP addresses there.
+from device_control.vampires import PYRO_KEYS
 
-conf_dir = os.path.abspath(os.getenv("CONF_DIR", f"{os.getenv('HOME')}/src/software-main/conf/"))
-path = os.path.join(conf_dir, "devices/vampires/conf_vampires_focus.toml")
-vampires_focus = CONEXDevice.from_config(path)
+vampires_focus = connect(PYRO_KEYS["focus"])
 
 __doc__ = f"""Usage:
     vampires_focus [-h | --help]
@@ -17,11 +16,11 @@ Options:
     -w, --wait   Block command until position has been reached, for applicable commands
 
 Stage commands:
-    status          Returns the current position of the focus stage, in {vampires_focus.unit}
-    target          Returns the target position of the focus stage, in {vampires_focus.unit}
+    status          Returns the current position of the focus stage, in mm
+    target          Returns the target position of the focus stage, in mm
     home            Homes the focus stage
-    goto  <pos>     Move the focus stage to the given position, in {vampires_focus.unit}
-    nudge <pos>     Move the focus stage relatively by the given position, in {vampires_focus.unit}
+    goto  <pos>     Move the focus stage to the given position, in mm
+    nudge <pos>     Move the focus stage relatively by the given position, in mm
     stop            Stop the focus stage
     reset           Reset the focus stage"""
 

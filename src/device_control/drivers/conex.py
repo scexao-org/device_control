@@ -63,7 +63,7 @@ class CONEXDevice(MotionDevice):
     def send_command(self, command: str, returns=False):
         cmd = f"{self.device_address}{command}\r\n"
         self.logger.debug(f"sending command: {cmd[:-2]}")
-        with Serial(port=self.address, baudrate=921600, xonxoff=True) as serial:
+        with Serial(port=self.address, **self.serial_kwargs) as serial:
             serial.write(cmd.encode())
             if returns:
                 retval = serial.read_until(b"\r\n").decode()
@@ -72,62 +72,12 @@ class CONEXDevice(MotionDevice):
                 return retval[3:-2]
 
     @property
-    def corrector_deadband(self) -> float:
-        return float(self.send_command("DB?", returns=True))
-
-    @corrector_deadband.setter
-    def corrector_deadband(self, value: float):
-        # value >= 0 and value < 0.05
-        self.send_command(f"DB{value}")
-
-    @property
-    def home_search_type(self) -> int:
-        return int(self.send_command("HT?", returns=True))
-
-    @home_search_type.setter
-    def home_search_type(self, value: int):
-        # value in (1, 4)
-        self.send_command(f"HT{value}")
-
-    @property
     def stage_identifier(self) -> str:
         return self.send_command("ID?", returns=True)
 
     @stage_identifier.setter
     def stage_identifier(self, value: str):
         self.send_command(f"ID{value}")
-
-    @property
-    def interpolation_factor(self) -> int:
-        return int(self.send_command("IF?", returns=True))
-
-    @interpolation_factor.setter
-    def interpolation_factor(self, value: int):
-        self.send_command(f"IF{value}")
-
-    @property
-    def integral_gain(self) -> int:
-        return int(self.send_command("KI?", returns=True))
-
-    @integral_gain.setter
-    def integral_gain(self, value: int):
-        self.send_command(f"KI{value}")
-
-    @property
-    def proportional_gain(self) -> int:
-        return int(self.send_command("KP?", returns=True))
-
-    @proportional_gain.setter
-    def proportional_gain(self, value: int):
-        self.send_command(f"KP{value}")
-
-    @property
-    def low_pass_filter_frequency(self) -> int:
-        return int(self.send_command("LF?", returns=True))
-
-    @low_pass_filter_frequency.setter
-    def low_pass_filter_frequency(self, value: int):
-        self.send_command(f"LF{value}")
 
     @property
     def rs485_address(self) -> int:
@@ -202,12 +152,6 @@ class CONEXDevice(MotionDevice):
             while self.moving:
                 time.sleep(self.delay)
 
-    def enter_configuration(self):
-        self.send_command("PW1")
-
-    def exit_configuration(self):
-        self.send_command("PW0")
-
     def reset(self):
         self.send_command("RS")
 
@@ -215,7 +159,7 @@ class CONEXDevice(MotionDevice):
         self.send_command(f"RS{value}")
 
     @property
-    def target_position(self) -> float:
+    def _target_position(self) -> float:
         return float(self.send_command("TH?", returns=True))
 
     @property
@@ -232,15 +176,3 @@ class CONEXDevice(MotionDevice):
     def last_command_error(self) -> str:
         err = self.send_command("TE", returns=True)
         return self.error_string(err)
-
-    @property
-    def revision_information(self) -> str:
-        return self.send_command("VE", returns=True)
-
-    @property
-    def configuration_parameters(self) -> str:
-        self.send_command("ZT")
-        with Serial(port=self.address, baudrate=921600, timeout=1, xonxoff=True) as serial:
-            lines = serial.readlines()
-        ascii_lines = (l.decode().strip() for l in lines)
-        return "\n".join(f"{l[0]} | {l[1:3]}: {l[3:]}" for l in ascii_lines)

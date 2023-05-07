@@ -8,11 +8,35 @@ __all__ = ["MultiDevice"]
 class MultiDevice:
 
     def __init__(self, devices: dict, name="", configurations=None, config_file=None):
-        self.devices = devices
-        self.name = name
-        self.configurations = configurations
+        self._devices = devices
+        self._name = name
+        self._configurations = configurations
         self.current_config = None
         self.config_file = config_file
+
+    @property
+    def configurations(self):
+        return self._configurations
+    
+    @configurations.setter
+    def configurations(self, value):
+        self._configurations = value
+
+    @property
+    def name(self):
+        return self._name
+    
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def devices(self):
+        return self._devices
+    
+    @devices.setter
+    def devices(self, value):
+        self._devices = value
 
     @classmethod
     def from_config(__cls__, filename):
@@ -51,7 +75,7 @@ class MultiDevice:
                 raise ValueError(f"motion stage type not recognized: {device_config['type']}")
             self.devices[device_name] = device
 
-        self.configurations = parameters.get("configurations", None)
+        self._configurations = parameters.get("configurations", None)
         self.config_file = filename
 
     def __getitem__(self, key: str):

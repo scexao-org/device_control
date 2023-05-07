@@ -2,12 +2,10 @@ from docopt import docopt
 import os
 import sys
 
-from swmain.devices.drivers.conex import CONEXDevice
+from swmain.network.pyroclient import connect # Requires scxconf and will fetch the IP addresses there.
+from device_control.vampires import PYRO_KEYS
 
-conf_dir = os.path.abspath(os.getenv("CONF_DIR", f"{os.getenv('HOME')}/src/software-main/conf/"))
-path = os.path.join(conf_dir, "devices/vampires/conf_vampires_diffwheel.toml")
-vampires_diffwheel = CONEXDevice.from_config(path)
-
+vampires_diffwheel = connect(PYRO_KEYS["diffwheel"])
 configurations = "\n".join(f"    {c['idx']}: {c['name']:21s} {{{c['value']} {vampires_diffwheel.unit}}}" for c in vampires_diffwheel.configurations)
 
 __doc__ = f"""Usage:
@@ -20,11 +18,11 @@ Options:
     -w, --wait   Block command until position has been reached, for applicable commands
 
 Wheel commands:
-    status          Returns the current position of the differential filter wheel, in {vampires_diffwheel.unit}
-    target          Returns the target position of the differential filter wheel, in {vampires_diffwheel.unit}
+    status          Returns the current position of the differential filter wheel, in deg
+    target          Returns the target position of the differential filter wheel, in deg
     home            Homes the differential filter wheel
-    goto  <angle>   Move the differential filter wheel to the given angle, in {vampires_diffwheel.unit}
-    nudge <angle>   Move the differential filter wheel relatively by the given angle, in {vampires_diffwheel.unit}
+    goto  <angle>   Move the differential filter wheel to the given angle, in deg
+    nudge <angle>   Move the differential filter wheel relatively by the given angle, in deg
     stop            Stop the differential filter wheel
     reset           Reset the differential filter wheel
         
