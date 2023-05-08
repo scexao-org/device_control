@@ -5,7 +5,7 @@ from swmain.network.pyroserver_registerable import PyroServer
 
 from device_control.drivers.conex import CONEXDevice
 from device_control.drivers.zaber import ZaberDevice
-from device_control.drivers.thorlabs.filterwheel import ThorlabsWheel
+from device_control.drivers.thorlabs import ThorlabsWheel, ThorlabsFlipMount
 from device_control.vampires import PYRO_KEYS
 from device_control.multi_device import MultiDevice
 
@@ -40,6 +40,7 @@ def main():
         "qwp1": os.path.join(conf_dir, "devices/vampires/conf_vampires_qwp1.toml"),
         "qwp2": os.path.join(conf_dir, "devices/vampires/conf_vampires_qwp2.toml"),
         "filter": os.path.join(conf_dir, "devices/vampires/conf_vampires_filter.toml"),
+        "pupil": os.path.join(conf_dir, "devices/vampires/conf_vampires_pupil.toml"),
     }
     print("Initializing devices")
     devices = {
@@ -51,6 +52,7 @@ def main():
         "qwp1": CONEXDevice.from_config(conf_paths["qwp1"]),
         "qwp2": CONEXDevice.from_config(conf_paths["qwp2"]),
         "filter": ThorlabsWheel.from_config(conf_paths["filter"]),
+        # "pupil": ThrolabsFlipMount.from_config(conf_paths["pupil"]),
     }
     ## Add to Pyro server
     print("Adding devices to pyro", end="\n  ")

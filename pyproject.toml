@@ -39,6 +39,7 @@ vampires_fieldstop = "device_control.vampires.vampires_fieldstop:main"
 vampires_filter = "device_control.vampires.vampires_filter:main"
 vampires_mask = "device_control.vampires.vampires_mask:main"
 vampires_qwp = "device_control.vampires.vampires_qwp:main"
+vampires_pupil = "device_control.vampires.vampires_pupil:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "device_control.__version__"}

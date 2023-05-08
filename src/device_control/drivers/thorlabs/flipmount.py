@@ -71,7 +71,7 @@ class ThorlabsFlipMount:
             serial.write(COMMANDS["status"])
             result = serial.read(12)
             if result == STATUSES["down"]:
-                return "in"
+                return "IN"
             elif result == STATUSES["up"]:
-                return "out"
+                return "OUT"
             return "Unknown"
