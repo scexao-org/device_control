@@ -32,5 +32,6 @@ def main():
     elif args["<pos>"]:
         vampires_pupil.flip(args["<pos>"])
 
+
 if __name__ == "__main__":
     main()

@@ -1,4 +1,5 @@
 from .filterwheel import ThorlabsWheel
 from .flipmount import ThorlabsFlipMount
+from .tempcontroller import ThorlabsTC
 
-__all__ = ["ThorlabsWheel", "ThorlabsFlipMount"]
+__all__ = ["ThorlabsWheel", "ThorlabsFlipMount", "ThorlabsTC"]

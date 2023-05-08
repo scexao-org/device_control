@@ -7,4 +7,5 @@ PYRO_KEYS = {
     "qwp1": "VAMPIRES_QWP1",
     "qwp2": "VAMPIRES_QWP2",
     "filter": "VAMPIRES_FILTER",
+    "tc": "VAMPIRES_TC",
 }

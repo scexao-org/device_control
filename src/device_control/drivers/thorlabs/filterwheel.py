@@ -13,7 +13,6 @@ class ThorlabsWheel:
         self.serial = Serial(
             port=self.address,
             baudrate=115200,
-            # timeout=0.5,
             **kwargs,
         )
 
