@@ -4,7 +4,9 @@ import sys
 
 from swmain.devices.multi_device import MultiDevice
 
-conf_dir = os.path.abspath(os.getenv("CONF_DIR", f"{os.getenv('HOME')}/src/software-main/conf/"))
+conf_dir = os.path.abspath(
+    os.getenv("CONF_DIR", f"{os.getenv('HOME')}/src/software-main/conf/")
+)
 path = os.path.join(conf_dir, "devices/vampires/conf_vampires_fieldstop.toml")
 vampires_fieldstop = MultiDevice.from_config(path)
 
@@ -17,7 +19,7 @@ for config in vampires_fieldstop.configurations:
     line += "}"
     lines.append(line)
 configurations = "\n".join(lines)
-    
+
 
 __doc__ = f"""Usage:
     vampires_fieldstop [-h | --help]
@@ -69,7 +71,7 @@ def main():
         vampires_fieldstop[sub].stop()
     elif args["reset"]:
         vampires_fieldstop[sub].reset()
-   
+
 
 if __name__ == "__main__":
     main()

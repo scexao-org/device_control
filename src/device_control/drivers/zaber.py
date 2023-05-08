@@ -19,14 +19,9 @@ ZABER_UNITS = {
 
 Library.enable_device_db_store()
 
-class ZaberDevice(MotionDevice):
 
-    def __init__(
-        self,
-        device_address=1,
-        delay = 0.1,
-        **kwargs
-    ):
+class ZaberDevice(MotionDevice):
+    def __init__(self, device_address=1, delay=0.1, **kwargs):
         super().__init__(**kwargs)
         self.device_address = device_address
         self.zab_unit = ZABER_UNITS[self.unit]
@@ -39,15 +34,13 @@ class ZaberDevice(MotionDevice):
         device.identify()
         return device
 
-
     def __exit__(self, *args):
         self.connection.close()
 
     @property
     def _position(self):
-        with self as device:
-            val = device.get_position(self.zab_unit)
-        return val
+        with self as dev:
+            return dev.get_position(self.zab_unit)
 
     @property
     def _target_position(self):

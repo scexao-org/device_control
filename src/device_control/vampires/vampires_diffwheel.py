@@ -2,15 +2,21 @@ from docopt import docopt
 import os
 import sys
 
-from swmain.network.pyroclient import connect # Requires scxconf and will fetch the IP addresses there.
+from swmain.network.pyroclient import (
+    connect,
+)  # Requires scxconf and will fetch the IP addresses there.
 from device_control.vampires import PYRO_KEYS
 
 vampires_diffwheel = connect(PYRO_KEYS["diffwheel"])
-configurations = "\n".join(f"    {c['idx']}: {c['name']:21s} {{{c['value']} {vampires_diffwheel.unit}}}" for c in vampires_diffwheel.configurations)
+format_str = "{0}: {1:21s} {{{2:5.01f} deg}}"
+configurations = "\n".join(
+    f"    {format_str.format(c['idx'], c['name'], c['value'])}"
+    for c in vampires_diffwheel.configurations
+)
 
 __doc__ = f"""Usage:
     vampires_diffwheel [-h | --help]
-    vampires_diffwheel [-w | --wait] (status|target|home|goto|nudge|stop|reset) [<angle>]
+    vampires_diffwheel [-w | --wait] (status|position|home|goto|nudge|stop|reset) [<angle>]
     vampires_diffwheel [-w | --wait] <configuration>
 
 Options:
@@ -18,8 +24,8 @@ Options:
     -w, --wait   Block command until position has been reached, for applicable commands
 
 Wheel commands:
-    status          Returns the current position of the differential filter wheel, in deg
-    target          Returns the target position of the differential filter wheel, in deg
+    status          Returns the current status of the differential filter wheel
+    position        Returns the current position of the differential filter wheel, in deg
     home            Homes the differential filter wheel
     goto  <angle>   Move the differential filter wheel to the given angle, in deg
     nudge <angle>   Move the differential filter wheel relatively by the given angle, in deg
@@ -35,9 +41,10 @@ def main():
     if len(sys.argv) == 1:
         print(__doc__)
     if args["status"]:
+        idx, name = vampires_diffwheel.get_configuration()
+        print(format_str.format(idx, name, vampires_diffwheel.position))
+    elif args["position"]:
         print(vampires_diffwheel.position)
-    elif args["target"]:
-        print(vampires_diffwheel.target_position)
     elif args["home"]:
         vampires_diffwheel.home(wait=args["--wait"])
     elif args["goto"]:
@@ -53,6 +60,7 @@ def main():
     elif args["<configuration>"]:
         index = int(args["<configuration>"])
         vampires_diffwheel.move_configuration(index, wait=args["--wait"])
+
 
 if __name__ == "__main__":
     main()

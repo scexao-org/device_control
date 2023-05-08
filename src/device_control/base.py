@@ -1,13 +1,22 @@
 import tomli
 from typing import Union
+import numpy as np
 
 __all__ = ["MotionDevice"]
 
 # Interface for hardware devices- all subclasses must
 # implement this!
 class MotionDevice:
-
-    def __init__(self, address, name="", unit=None, configurations=None, config_file=None, offset=0, **kwargs):
+    def __init__(
+        self,
+        address,
+        name="",
+        unit=None,
+        configurations=None,
+        config_file=None,
+        offset=0,
+        **kwargs,
+    ):
         self._address = address
         self._name = name
         self._unit = unit
@@ -19,7 +28,7 @@ class MotionDevice:
     @property
     def configurations(self):
         return self._configurations
-    
+
     @configurations.setter
     def configurations(self, value):
         self._configurations = value
@@ -27,7 +36,7 @@ class MotionDevice:
     @property
     def unit(self):
         return self._unit
-    
+
     @unit.setter
     def unit(self, value):
         self._unit = value
@@ -35,7 +44,7 @@ class MotionDevice:
     @property
     def name(self):
         return self._name
-    
+
     @name.setter
     def name(self, value: str):
         self._name = value
@@ -43,11 +52,10 @@ class MotionDevice:
     @property
     def address(self):
         return self._address
-    
+
     @address.setter
     def address(self, value: str):
         self._address = value
-
 
     @classmethod
     def from_config(__cls__, filename):
@@ -55,7 +63,9 @@ class MotionDevice:
             parameters = tomli.load(fh)
         unit = parameters.pop("unit", None)
         configurations = parameters.pop("configurations", None)
-        return __cls__(unit=unit, configurations=configurations, config_file=filename, **parameters)
+        return __cls__(
+            unit=unit, configurations=configurations, config_file=filename, **parameters
+        )
 
     def load_config(self, filename):
         if filename is None:
@@ -71,8 +81,6 @@ class MotionDevice:
     @property
     def position(self):
         pos = self._position + self.offset
-        # replace with status update
-        # print(f"status of {self.name}: {pos} [{self.unit}]")
         return pos
 
     @property
@@ -114,9 +122,15 @@ class MotionDevice:
                 return self.move_absolute(row["value"], wait=wait)
         raise ValueError(f"No configuration saved at index {idx}")
 
-
     def move_configuration_name(self, name: str, wait=False):
         for row in self.configurations:
             if row["name"] == name:
                 return self.move_absolute(row["value"], wait=wait)
         raise ValueError(f"No configuration saved with name '{name}'")
+
+    def get_configuration(self, tol=1e-1):
+        position = self.position
+        for row in self.configurations:
+            if np.abs(position - row["value"]) <= tol:
+                return row["idx"], row["name"]
+        return None, "Unknown"

@@ -4,6 +4,7 @@ PYRO_KEYS = {
     "camfocus": "VAMPIRES_CAMFOCUS",
     "diffwheel": "VAMPIRES_DIFFWHEEL",
     "pupil": "VAMPIRES_PUPIL",
-    "qwp": "VAMPIRES_QWP",
+    "qwp1": "VAMPIRES_QWP1",
+    "qwp2": "VAMPIRES_QWP2",
     "filter": "VAMPIRES_FILTER",
 }

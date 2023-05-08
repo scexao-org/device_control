@@ -9,8 +9,8 @@ __all__ = ["CONEXDevice"]
 # CONEX programmer manual
 # https://www.newport.com/mam/celum/celum_assets/resources/CONEX-AGP_-_Controller_Documentation.pdf
 
-class CONEXState:
 
+class CONEXState:
     def __init__(self, previous=None):
         self.previous = previous
 
@@ -20,13 +20,34 @@ class CONEXState:
             output += f" from {self.previous}"
         return output
 
-class NotReferenced(CONEXState): pass
-class Configuration(CONEXState): pass
-class Homing(CONEXState): pass
-class Moving(CONEXState): pass
-class Ready(CONEXState): pass
-class Disable(CONEXState): pass
-class Reset(CONEXState): pass
+
+class NotReferenced(CONEXState):
+    pass
+
+
+class Configuration(CONEXState):
+    pass
+
+
+class Homing(CONEXState):
+    pass
+
+
+class Moving(CONEXState):
+    pass
+
+
+class Ready(CONEXState):
+    pass
+
+
+class Disable(CONEXState):
+    pass
+
+
+class Reset(CONEXState):
+    pass
+
 
 CONEX_STATES = {
     " a": NotReferenced(Reset()),
@@ -46,6 +67,7 @@ CONEX_STATES = {
     "3d": Disable(Moving()),
 }
 
+
 class CONEXDevice(MotionDevice):
     def __init__(
         self,
@@ -55,25 +77,35 @@ class CONEXDevice(MotionDevice):
     ):
         super().__init__(**kwargs)
         if device_address < 1 or device_address > 31:
-            raise ValueError(f"controller address must be between 1 and 31, got {device_address}")
+            raise ValueError(
+                f"controller address must be between 1 and 31, got {device_address}"
+            )
         self.device_address = device_address
         self.delay = delay
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.serial = Serial(port=self.address, **self.serial_kwargs)
 
-    def send_command(self, command: str, returns=False):
+    def send_command(self, command: str):
+        # pad command with CRLF ending
         cmd = f"{self.device_address}{command}\r\n"
         self.logger.debug(f"sending command: {cmd[:-2]}")
-        with Serial(port=self.address, **self.serial_kwargs) as serial:
+        with self.serial as serial:
             serial.write(cmd.encode())
-            if returns:
-                retval = serial.read_until(b"\r\n").decode()
-                self.logger.debug(f"received: {retval[:-2]}")
-                # strip command and \r\n from string
-                return retval[3:-2]
+
+    def ask_command(self, command: str):
+        # pad command with CRLF ending
+        cmd = f"{self.device_address}{command}\r\n"
+        self.logger.debug(f"sending command: {cmd[:-2]}")
+        with self.serial as serial:
+            serial.write(cmd.encode())
+            retval = serial.read_until(b"\r\n").decode()
+            self.logger.debug(f"received: {retval[:-2]}")
+            # strip command and \r\n from string
+            return retval[3:-2]
 
     @property
     def stage_identifier(self) -> str:
-        return self.send_command("ID?", returns=True)
+        return self.ask_command("ID?")
 
     @stage_identifier.setter
     def stage_identifier(self, value: str):
@@ -81,7 +113,7 @@ class CONEXDevice(MotionDevice):
 
     @property
     def rs485_address(self) -> int:
-        return int(self.send_command("SA?", returns=True))
+        return int(self.ask_command("SA?"))
 
     @rs485_address.setter
     def rs485_address(self, value: int):
@@ -89,7 +121,7 @@ class CONEXDevice(MotionDevice):
 
     @property
     def lower_limit(self) -> float:
-        return float(self.send_command("SA?", returns=True))
+        return float(self.ask_command("SA?"))
 
     @lower_limit.setter
     def lower_limit(self, value: float):
@@ -97,7 +129,7 @@ class CONEXDevice(MotionDevice):
 
     @property
     def upper_limit(self) -> float:
-        return float(self.send_command("SR?", returns=True))
+        return float(self.ask_command("SR?"))
 
     @upper_limit.setter
     def upper_limit(self, value: float):
@@ -105,7 +137,7 @@ class CONEXDevice(MotionDevice):
 
     @property
     def encoder_increment(self) -> float:
-        return float(self.send_command("SU?", returns=True))
+        return float(self.ask_command("SU?"))
 
     @encoder_increment.setter
     def encoder_increment(self, value: float):
@@ -125,7 +157,7 @@ class CONEXDevice(MotionDevice):
 
     @property
     def state(self) -> CONEXState:
-        return CONEX_STATES[self.send_command("MM?", returns=True)]
+        return CONEX_STATES[self.ask_command("MM?")]
 
     def disable(self):
         self.send_command("MM0")
@@ -160,19 +192,19 @@ class CONEXDevice(MotionDevice):
 
     @property
     def _target_position(self) -> float:
-        return float(self.send_command("TH?", returns=True))
+        return float(self.ask_command("TH?"))
 
     @property
     def _position(self) -> float:
-        return float(self.send_command("TP", returns=True))
+        return float(self.ask_command("TP"))
 
     def stop(self):
         self.send_command("ST")
 
     def error_string(self, code: str):
-        return self.send_command(f"TB{code}", returns=True)
+        return self.ask_command(f"TB{code}")
 
     @property
     def last_command_error(self) -> str:
-        err = self.send_command("TE", returns=True)
+        err = self.ask_command("TE")
         return self.error_string(err)

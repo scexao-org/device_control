@@ -1,9 +1,11 @@
 from serial import Serial
 import tomli
 
-class ThorlabsWheel:
 
-    def __init__(self, address, name="", configurations=None, config_file=None, **kwargs):
+class ThorlabsWheel:
+    def __init__(
+        self, address, name="", configurations=None, config_file=None, **kwargs
+    ):
         self._address = address
         self._name = name
         self._configurations = configurations
@@ -12,7 +14,7 @@ class ThorlabsWheel:
             port=self.address,
             baudrate=115200,
             # timeout=0.5,
-            **kwargs
+            **kwargs,
         )
 
     @property
@@ -39,13 +41,14 @@ class ThorlabsWheel:
     def address(self, value: str):
         self._address = value
 
-
     @classmethod
     def from_config(__cls__, filename):
         with open(filename, "rb") as fh:
             parameters = tomli.load(fh)
         configurations = parameters.pop("configurations", None)
-        return __cls__(configurations=configurations, config_file=filename, **parameters)
+        return __cls__(
+            configurations=configurations, config_file=filename, **parameters
+        )
 
     def load_config(self, filename=None):
         if filename is None:
@@ -60,12 +63,12 @@ class ThorlabsWheel:
 
     def send_command(self, cmd: str):
         with self.serial as serial:
-            serial.write(cmd.encode())
+            serial.write(f"{cmd}\r".encode())
             serial.read_until(b"\r")
 
     def ask_command(self, cmd: str):
         with self.serial as serial:
-            serial.write(cmd.encode())
+            serial.write(f"{cmd}\r".encode())
             serial.read_until(b"\r")
             return serial.read_until(b"\r").decode().strip()
 
@@ -78,7 +81,7 @@ class ThorlabsWheel:
             return self.move_configuration_name(index, wait=wait)
 
     def move_configuration_idx(self, idx: int, wait=False):
-        self.send_command(f"pos={idx}\r")
+        self.send_command(f"pos={idx}")
 
     def move_configuration_name(self, name: str, wait=False):
         for row in self.configurations:
@@ -87,7 +90,7 @@ class ThorlabsWheel:
         raise ValueError(f"No configuration saved with name '{name}'")
 
     def position(self):
-        result = self.ask_command("pos?\r")
+        result = self.ask_command("pos?")
         return int(result)
 
     def status(self):
@@ -98,30 +101,30 @@ class ThorlabsWheel:
         return "Unknown"
 
     def id(self):
-        result = self.ask_command("*idn?\r")
+        result = self.ask_command("*idn?")
         return result
 
     def speed(self):
-        result = self.ask_command("speed?\r")
+        result = self.ask_command("speed?")
         if result == "0":
             return "Slow speed (0)"
         elif result == "1":
             return "High speed (1)"
 
     def sensors(self):
-        result = self.ask_command("sensors?\r")
+        result = self.ask_command("sensors?")
         if result == "0":
             return "Off when idle (0)"
         elif result == "1":
             return "Always on (1)"
-        
+
     def trig(self):
-        result = self.ask_command("trig?\r")
+        result = self.ask_command("trig?")
         if result == "0":
             return "Input mode (0)"
         elif result == "1":
             return "Output mode (1)"
-        
+
     def count(self):
-        result = self.ask_command("pcount?\r")
+        result = self.ask_command("pcount?")
         return int(result)
