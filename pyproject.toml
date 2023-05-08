@@ -7,8 +7,8 @@ name = "device_control"
 description = "SCExAO device control"
 readme = "README.md"
 authors = [
-    {name = "Vincent Deo", email = "vdeo@naoj.org"},
-    {name = "Miles Lucas", email = "mdlucas@hawaii.edu"}
+    {name = "Miles Lucas", email = "mdlucas@hawaii.edu"},
+    {name = "Vincent Deo", email = "vdeo@naoj.org"}
 ]
 dependencies = [
     "docopt==0.6.*",
@@ -37,7 +37,7 @@ vampires_focus = "device_control.vampires.vampires_focus:main"
 vampires_camfocus = "device_control.vampires.vampires_camfocus:main"
 vampires_fieldstop = "device_control.vampires.vampires_fieldstop:main"
 vampires_filter = "device_control.vampires.vampires_filter:main"
-vampires_pupil = "device_control.vampires.vampires_pupil:main"
+vampires_mask = "device_control.vampires.vampires_mask:main"
 vampires_qwp = "device_control.vampires.vampires_qwp:main"
 
 [tool.setuptools.dynamic]

@@ -36,7 +36,7 @@ def main():
         "diffwheel": os.path.join(
             conf_dir, "devices/vampires/conf_vampires_diffwheel.toml"
         ),
-        "pupil": os.path.join(conf_dir, "devices/vampires/conf_vampires_pupil.toml"),
+        "mask": os.path.join(conf_dir, "devices/vampires/conf_vampires_mask.toml"),
         "qwp1": os.path.join(conf_dir, "devices/vampires/conf_vampires_qwp1.toml"),
         "qwp2": os.path.join(conf_dir, "devices/vampires/conf_vampires_qwp2.toml"),
         "filter": os.path.join(conf_dir, "devices/vampires/conf_vampires_filter.toml"),
@@ -47,7 +47,7 @@ def main():
         "focus": CONEXDevice.from_config(conf_paths["focus"]),
         "camfocus": ZaberDevice.from_config(conf_paths["camfocus"]),
         "diffwheel": CONEXDevice.from_config(conf_paths["diffwheel"]),
-        "pupil": MultiDevice.from_config(conf_paths["pupil"]),
+        "mask": MultiDevice.from_config(conf_paths["mask"]),
         "qwp1": CONEXDevice.from_config(conf_paths["qwp1"]),
         "qwp2": CONEXDevice.from_config(conf_paths["qwp2"]),
         "filter": ThorlabsWheel.from_config(conf_paths["filter"]),

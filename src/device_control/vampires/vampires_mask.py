@@ -6,21 +6,21 @@ from swmain.network.pyroclient import (
 )  # Requires scxconf and will fetch the IP addresses there.
 from device_control.vampires import PYRO_KEYS
 
-vampires_pupil = connect(PYRO_KEYS["pupil"])
+vampires_mask = connect(PYRO_KEYS["mask"])
 
 format_str = "{0}: {1:17s} {{x={2:6d} stp, y={3:6d} stp, th={4:5.1f} deg}}"
 configurations = "\n".join(
     f"    {format_str.format(c['idx'], c['name'], c['value']['x'], c['value']['y'], c['value']['theta'])}"
-    for c in vampires_pupil.configurations
+    for c in vampires_mask.configurations
 )
 
 __doc__ = f"""Usage:
-    vampires_pupil [-h | --help]
-    vampires_pupil [-h | --help] status
-    vampires_pupil [-w | --wait] x (status|position|home|goto|nudge|stop|reset) [<pos>]
-    vampires_pupil [-w | --wait] y (status|position|home|goto|nudge|stop|reset) [<pos>]
-    vampires_pupil [-w | --wait] theta (status|position|home|goto|nudge|stop|reset) [<pos>]
-    vampires_pupil [-w | --wait] <configuration>
+    vampires_mask [-h | --help]
+    vampires_mask [-h | --help] status
+    vampires_mask [-w | --wait] x (status|position|home|goto|nudge|stop|reset) [<pos>]
+    vampires_mask [-w | --wait] y (status|position|home|goto|nudge|stop|reset) [<pos>]
+    vampires_mask [-w | --wait] theta (status|position|home|goto|nudge|stop|reset) [<pos>]
+    vampires_mask [-w | --wait] <configuration>
 
 Options:
     -h, --help   Show this screen
@@ -44,20 +44,20 @@ def main():
     if len(sys.argv) == 1:
         print(__doc__)
     elif len(sys.argv) == 2 and args["status"]:
-        idx, name = vampires_pupil.get_configuration()
-        x = vampires_pupil.devices["x"].position
-        y = vampires_pupil.devices["y"].position
-        th = vampires_pupil.devices["theta"].position
+        idx, name = vampires_mask.get_configuration()
+        x = vampires_mask.devices["x"].position
+        y = vampires_mask.devices["y"].position
+        th = vampires_mask.devices["theta"].position
         print(format_str.format(idx, name, x, y, th))
     elif args["x"]:
-        substage = vampires_pupil.devices["x"]
+        substage = vampires_mask.devices["x"]
     elif args["y"]:
-        substage = vampires_pupil.devices["y"]
+        substage = vampires_mask.devices["y"]
     elif args["theta"]:
-        substage = vampires_pupil.devices["theta"]
+        substage = vampires_mask.devices["theta"]
     elif args["<configuration>"]:
         index = int(args["<configuration>"])
-        return vampires_pupil.move_configuration(index, wait=args["--wait"])
+        return vampires_mask.move_configuration(index, wait=args["--wait"])
     if args["status"] or args["position"]:
         print(substage.position)
     elif args["home"]:
