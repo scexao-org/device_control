@@ -7,6 +7,7 @@ from device_control.drivers.conex import CONEXDevice
 from device_control.drivers.zaber import ZaberDevice
 from device_control.drivers.thorlabs import ThorlabsWheel, ThorlabsFlipMount, ThorlabsTC
 from device_control.vampires import PYRO_KEYS
+from device_control.vampires.vampires_mask_wheel import VAMPIRESMaskWheel
 from device_control.multi_device import MultiDevice
 
 parser = ArgumentParser(
@@ -49,7 +50,7 @@ def main():
         "focus": CONEXDevice.from_config(conf_paths["focus"]),
         "camfocus": ZaberDevice.from_config(conf_paths["camfocus"]),
         "diffwheel": CONEXDevice.from_config(conf_paths["diffwheel"]),
-        "mask": MultiDevice.from_config(conf_paths["mask"]),
+        "mask": VAMPIRESMaskWheel.from_config(conf_paths["mask"]),
         "qwp1": CONEXDevice.from_config(conf_paths["qwp1"]),
         "qwp2": CONEXDevice.from_config(conf_paths["qwp2"]),
         "filter": ThorlabsWheel.from_config(conf_paths["filter"]),

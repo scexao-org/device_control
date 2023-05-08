@@ -45,16 +45,16 @@ def main():
         print(__doc__)
     elif len(sys.argv) == 2 and args["status"]:
         idx, name = vampires_mask.get_configuration()
-        x = vampires_mask.devices["x"].position
-        y = vampires_mask.devices["y"].position
-        th = vampires_mask.devices["theta"].position
+        x = vampires_mask.x.position
+        y = vampires_mask.y.position
+        th = vampires_mask.theta.position
         print(format_str.format(idx, name, x, y, th))
     elif args["x"]:
-        substage = vampires_mask.devices["x"]
+        substage = vampires_mask.x
     elif args["y"]:
-        substage = vampires_mask.devices["y"]
+        substage = vampires_mask.y
     elif args["theta"]:
-        substage = vampires_mask.devices["theta"]
+        substage = vampires_mask.theta
     elif args["<configuration>"]:
         index = int(args["<configuration>"])
         return vampires_mask.move_configuration(index, wait=args["--wait"])

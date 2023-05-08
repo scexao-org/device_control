@@ -32,7 +32,7 @@ def main():
         stat_dict = vampires_tc.status()
         enabled_str = "Enabled" if stat_dict["enabled"] else "Disabled"
         print(
-            f"{enabled_str}: Tact={vampires_tc.temp:4.01f} °C / Tset={vampires_tc.target:4.01f} °C"
+            f"{enabled_str}: Tact = {vampires_tc.temp:4.01f}°C / Tset = {vampires_tc.target:4.01f}°C"
         )
     elif args["<temp>"].lower() in ("temp"):
         print(vampires_tc.temp)
@@ -41,7 +41,7 @@ def main():
     elif args["<temp>"].lower() in ("disable", "dis"):
         vampires_tc.disable()
     elif args["<temp>"]:
-        vampires_tc.target = args["<temp>"]
+        vampires_tc.target = float(args["<temp>"])
 
 
 if __name__ == "__main__":
