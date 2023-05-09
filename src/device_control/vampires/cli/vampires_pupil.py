@@ -10,16 +10,16 @@ vampires_pupil = connect(PYRO_KEYS["pupil"])
 
 
 __doc__ = f"""Usage:
-    vampires_filter [-h | --help]
-    vampires_filter <pos>
-    vampires_filter status
+    vampires_pupil [-h | --help]
+    vampires_pupil <pos>
+    vampires_pupil status
 
 Options:
     -h, --help   Show this screen
     -w, --wait   Block command until position has been reached, for applicable commands
+    <pos>        Move the mount 'in' or 'out'
 
 Stage commands:
-    <pos>        Move the mount 'in' or 'out'
     status       Returns the current mount position"""
 
 # setp 4. action
@@ -28,7 +28,10 @@ def main():
     if len(sys.argv) == 1:
         print(__doc__)
     elif args["<pos>"].lower() in ("status", "st"):
-        print(vampires_pupil.status())
+        if vampires_pupil.configurations:
+            print("{}: {}".format(vampires_pupil.get_configuration()))
+        else:
+            print(vampires_pupil.position)
     elif args["<pos>"]:
         vampires_pupil.flip(args["<pos>"])
 
