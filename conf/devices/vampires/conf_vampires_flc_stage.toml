@@ -1,0 +1,8 @@
+address = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
+device_number = 3
+unit = "mm"
+
+configurations = [
+    {idx=1, name="IN", value=0},
+    {idx=2, name="OUT", value=45},
+]
