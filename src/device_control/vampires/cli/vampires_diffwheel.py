@@ -49,7 +49,7 @@ def main():
         vampires_diffwheel.home(wait=args["--wait"])
     elif args["goto"]:
         angle = float(args["<angle>"])
-        vampires_diffwheel.move_absolute(angle, wait=args["--wait"])
+        vampires_diffwheel.move_absolute(angle % 360, wait=args["--wait"])
     elif args["nudge"]:
         rel_angle = float(args["<angle>"])
         vampires_diffwheel.move_relative(rel_angle, wait=args["--wait"])

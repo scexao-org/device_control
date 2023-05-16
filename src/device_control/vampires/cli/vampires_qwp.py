@@ -51,7 +51,7 @@ def main():
         vampires_qwp.home(wait=args["--wait"])
     elif args["goto"]:
         pos = float(args["<pos>"])
-        vampires_qwp.move_absolute(pos, wait=args["--wait"])
+        vampires_qwp.move_absolute(pos % 360, wait=args["--wait"])
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
         vampires_qwp.move_relative(rel_pos, wait=args["--wait"])
