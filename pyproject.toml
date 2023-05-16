@@ -29,8 +29,6 @@ test = [
 [project.scripts]
 # daemons
 vampires_daemon = "device_control.daemons.vampires_daemon:main"
-vampires_qwp_daemon = "device_control.daemons.vampires_qwp_daemon:main"
-vampires_temp_daemon = "device_control.daemons.vampires_temp_daemon:main"
 # VAMPIRES devices
 vampires_diffwheel = "device_control.vampires.cli.vampires_diffwheel:main"
 vampires_beamsplitter = "device_control.vampires.cli.vampires_beamsplitter:main"

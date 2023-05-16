@@ -50,7 +50,7 @@ def main():
         beamsplitter.home(wait=args["--wait"])
     elif args["goto"]:
         angle = float(args["<angle>"])
-        beamsplitter.move_absolute(angle, wait=args["--wait"])
+        beamsplitter.move_absolute(angle % 360, wait=args["--wait"])
     elif args["nudge"]:
         rel_angle = float(args["<angle>"])
         beamsplitter.move_relative(rel_angle, wait=args["--wait"])

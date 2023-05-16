@@ -64,7 +64,10 @@ def main():
         substage.home(wait=args["--wait"])
     elif args["goto"]:
         pos = float(args["<pos>"])
-        substage.move_absolute(pos, wait=args["--wait"])
+        if args["theta"]:
+            substage.move_absolute(pos % 360, wait=args["--wait"])
+        else:
+            substage.move_absolute(pos, wait=args["--wait"])
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
         substage.move_relative(rel_pos, wait=args["--wait"])
