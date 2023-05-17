@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 import os
 from scxconf import PYRONS3_HOST, PYRONS3_PORT, IP_VAMPIRES
 from swmain.network.pyroserver_registerable import PyroServer
+from pathlib import Path
 
 from device_control.drivers.conex import CONEXDevice
 from device_control.drivers.zaber import ZaberDevice
@@ -15,47 +16,78 @@ parser = ArgumentParser(
     description="Launch the daemon for the devices controlled by the VAMPIRES computer.",
 )
 
+conf_dir = Path(os.getenv("CONF_DIR", f"{os.getenv('HOME')}/src/device_control/conf/"))
+
+## First step, divide into individual functions
+def launch_beamsplitter():
+    config = conf_dir / "devices/vampires/conf_vampires_beamsplitter.toml"
+    beamsplitter = CONEXDevice.from_config(config)
+    return beamsplitter
+
+def launch_focus():
+    config = conf_dir / "devices/vampires/conf_vampires_focus.toml"
+    focus = CONEXDevice.from_config(config)
+    return focus
+
+def launch_camfocus():
+    config = conf_dir / "devices/vampires/conf_vampires_camfocus.toml"
+    camfocus = ZaberDevice.from_config(config)
+    return camfocus
+
+def launch_diffwheel():
+    config = conf_dir / "devices/vampires/conf_vampires_diffwheel.toml"
+    diffwheel = CONEXDevice.from_config(config)
+    return diffwheel
+
+
+def launch_mask():
+    config = conf_dir / "devices/vampires/conf_vampires_mask.toml"
+    mask = VAMPIRESMaskWheel.from_config(config)
+    return mask
+
+def launch_qwp1():
+    config = conf_dir / "devices/vampires/conf_vampires_qwp1.toml"
+    qwp1 = CONEXDevice.from_config(config)
+    return qwp1
+
+def launch_qwp2():
+    config = conf_dir / "devices/vampires/conf_vampires_qwp2.toml"
+    qwp2 = CONEXDevice.from_config(config)
+    return qwp2
+
+def launch_filter():
+    config = conf_dir / "devices/vampires/conf_vampires_filter.toml"
+    filter = ThorlabsWheel.from_config(config)
+    return filter
+
+def launch_pupil():
+    config = conf_dir / "devices/vampires/conf_vampires_pupil.toml"
+    pupil = ThorlabsFlipMount.from_config(config)
+    return pupil
+
+def launch_tc():
+    config = conf_dir / "devices/vampires/conf_vampires_tc.toml"
+    tc = ThorlabsTC.from_config(config)
+    return tc    
 
 def main():
     args = parser.parse_args()
-
     server = PyroServer(bindTo=(IP_VAMPIRES, 0), nsAddress=(PYRONS3_HOST, PYRONS3_PORT))
-
-    conf_dir = os.path.abspath(
-        os.getenv("CONF_DIR", f"{os.getenv('HOME')}/src/device_control/conf/")
-    )
-
     ## create device objects
-    conf_paths = {
-        "beamsplitter": os.path.join(
-            conf_dir, "devices/vampires/conf_vampires_beamsplitter.toml"
-        ),
-        "focus": os.path.join(conf_dir, "devices/vampires/conf_vampires_focus.toml"),
-        "camfocus": os.path.join(
-            conf_dir, "devices/vampires/conf_vampires_camfocus.toml"
-        ),
-        "diffwheel": os.path.join(
-            conf_dir, "devices/vampires/conf_vampires_diffwheel.toml"
-        ),
-        "mask": os.path.join(conf_dir, "devices/vampires/conf_vampires_mask.toml"),
-        "qwp1": os.path.join(conf_dir, "devices/vampires/conf_vampires_qwp1.toml"),
-        "qwp2": os.path.join(conf_dir, "devices/vampires/conf_vampires_qwp2.toml"),
-        "filter": os.path.join(conf_dir, "devices/vampires/conf_vampires_filter.toml"),
-        "pupil": os.path.join(conf_dir, "devices/vampires/conf_vampires_pupil.toml"),
-        "tc": os.path.join(conf_dir, "devices/vampires/conf_vampires_tc.toml"),
-    }
     print("Initializing devices")
+
+
     devices = {
-        "beamsplitter": CONEXDevice.from_config(conf_paths["beamsplitter"]),
-        "focus": CONEXDevice.from_config(conf_paths["focus"]),
-        "camfocus": ZaberDevice.from_config(conf_paths["camfocus"]),
-        "diffwheel": CONEXDevice.from_config(conf_paths["diffwheel"]),
-        "mask": VAMPIRESMaskWheel.from_config(conf_paths["mask"]),
-        "qwp1": CONEXDevice.from_config(conf_paths["qwp1"]),
-        "qwp2": CONEXDevice.from_config(conf_paths["qwp2"]),
-        "filter": ThorlabsWheel.from_config(conf_paths["filter"]),
-        # "pupil": ThrolabsFlipMount.from_config(conf_paths["pupil"]),
-        "tc": ThorlabsTC.from_config(conf_paths["tc"]),
+        "beamsplitter": launch_beamsplitter(),
+        "focus": launch_focus(),
+        "camfocus": launch_camfocus(),
+        "diffwheel": launch_diffwheel(),
+        "mask": launch_mask(),
+        "qwp1": launch_qwp1(),
+        "qwp2": launch_qwp2(),
+        "filter": launch_filter(),
+        "tc": launch_tc(),
+        # "pupil": launch_pupil(),
     }
     ## Add to Pyro server
     print("Adding devices to pyro", end="\n  ")
