@@ -22,7 +22,7 @@ class MotionDevice:
         self._unit = unit
         self._configurations = configurations
         self.config_file = config_file
-        self.offset = offset
+        self._offset = offset
         self.serial_kwargs = kwargs
 
     @property
@@ -56,6 +56,14 @@ class MotionDevice:
     @address.setter
     def address(self, value: str):
         self._address = value
+
+    @property
+    def offset(self):
+        return self._offset
+    
+    @offset.setter
+    def offset(self, value):
+        self._offset = value
 
     @classmethod
     def from_config(__cls__, filename):

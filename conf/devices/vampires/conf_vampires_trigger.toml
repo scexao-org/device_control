@@ -1,0 +1,6 @@
+address = "/dev/by-id/"
+
+[timing]
+pulse_width = 100 # us
+flc_offset = 20 # us
+trigger_mode = 1
