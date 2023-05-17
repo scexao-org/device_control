@@ -2,17 +2,18 @@
 #define BAUDRATE 115200
 #define TIMEOUT 500 // ms
 // Pin mapping
-#define CAMERA_TRIGGER_PIN -1
-#define FLC_CONTROL_PIN -1
-#define FLC_TRIGGER_PIN -1
+#define CAMERA_TRIGGER_PIN 2
+#define FLC_CONTROL_PIN 4
+#define FLC_TRIGGER_PIN 6
 #define AUX_PIN_A -1 // unused dig I/O pin
 #define AUX_PIN_B -1 // unused dig I/O pin
 #define AUX_PIN_C -1 // unused dig I/O pin
 
 // FYI C people: Arduino int is 16bit, long is 32 bits.
 // We use unsigned long for everything time-related in microseconds.
-unsigned long max_integration_time = 1000000;
-unsigned long min_integration_time = 100;
+const unsigned long max_integration_time = 1600000000;
+const unsigned long max_flc_integration_time = 1000000;
+const unsigned long min_integration_time = 8; // 7.2 us line read time
 unsigned long last_loop_finish;
 unsigned long last_reset;
 unsigned long dt1;
@@ -21,18 +22,18 @@ unsigned long dt3;
 unsigned long dt4;
 unsigned long dt5;
 unsigned long dt6;
+
 unsigned long integration_time;
 unsigned long pulse_width;
 unsigned long flc_offset;
-
 int trigger_mode;
+int cmd_code;
 
 
 int sweep_mode = 0;
 int auto_reset_mode = 0;
 unsigned long next_reset = 0;
 bool loop_enabled = false;
-int cmd_code;
 
 void setup()
 {
@@ -40,6 +41,9 @@ void setup()
     pinMode(CAMERA_TRIGGER_PIN, OUTPUT);
     pinMode(FLC_TRIGGER_PIN, OUTPUT);
     pinMode(FLC_CONTROL_PIN, OUTPUT);
+    pinMode(13, OUTPUT);
+    digitalWrite(13, loop_enabled);
+
 
     // reset outputs to low
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
@@ -54,7 +58,7 @@ void setup()
     last_reset = micros();
 }
 
-void set(int _integration_time, int _pulse_width, int _flc_offset, int _flc_trigger_mode)
+void set(int _integration_time, int _pulse_width, int _flc_offset, int _trigger_mode)
 {
     // argument checking
     if (_integration_time > max_integration_time)
@@ -62,14 +66,18 @@ void set(int _integration_time, int _pulse_width, int _flc_offset, int _flc_trig
         Serial.println("ERROR - frequency too low.");
         return;
     }
+    else if ((_integration_time > max_flc_integration_time) && (_trigger_mode & 0x1)) {
+      Serial.println("Error - frequency too low to use FLC");
+      return;
+    }
     else if (_integration_time < min_integration_time)
     {
-        Serial.println("ERROR - frequency too high.");
+        Serial.println("ERROR - frequency too high");
         return;
     }
     else if (_flc_offset < 0 || _flc_offset + _pulse_width >= _integration_time)
     {
-        Serial.println("ERROR - flc_offset invalid: > 0 and < width+period");
+        Serial.println("ERROR - invalid FLC offset must be positive and < width+period");
         return;
     }
     // set global variables
@@ -97,55 +105,6 @@ void get()
     Serial.println(trigger_mode);
 }
 
-/*
-  SerialEvent occurs whenever a new data comes in the hardware serial RX. This
-  routine is run between each time loop() runs, so using delay inside loop can
-  delay response. Multiple bytes of data may be available.
-*/
-void serialEvent()
-{
-    // allowed commands (LF terminated):
-    // DISABLE
-    // ENABLE
-    // FLC_DISABLE
-    // FLC_ENABLE
-    // SET <integration time> <pulse width> <FLC offset> <FLC trigger mode>
-    // GET
-    if (Serial.available())
-    {
-        cmd_code = Serial.parseInt();
-        switch (cmd_code) {
-            case 0: // GET
-                get()
-                break;
-            case 1: // SET
-                // set parameters
-                set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
-                // reset loop
-                prepareLoop();
-                break;
-            case 2: // DISABLE
-                loop_enabled = false;
-                break;
-            case 3: // ENABLE
-                prepareLoop();
-                loop_enabled = true;
-                break;
-            case 4: // FLC_DISABLE
-                digitalWrite(FLC_CONTROL_PIN, LOW);
-                break;
-            case 5: // FLC_ENABLE
-                digitalWrite(FLC_CONTROL_PIN, HIGH);
-                break;
-            default:
-                Serial.println("ERROR - invalid command")
-                break;
-        }
-        // flush input in case there's any leftover data
-        Serial.flush();
-    }
-}
-
 void prepareLoop() {
     // Compute values for loop
     dt1 = flc_offset;
@@ -163,24 +122,58 @@ void prepareLoop() {
 
 void loop()
 {
+    if (Serial.available()) {
+      cmd_code = Serial.parseInt();
+        switch (cmd_code) {
+            case 0: // GET
+                get();
+                break;
+            case 1: // SET
+                // set parameters
+                set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
+                // reset loop
+                prepareLoop();
+                break;
+            case 2: // DISABLE
+                loop_enabled = false;
+                digitalWrite(13, LOW);
+                break;
+            case 3: // ENABLE
+                prepareLoop();
+                loop_enabled = true;
+                digitalWrite(13, HIGH);
+                break;
+            case 4: // FLC_DISABLE
+                digitalWrite(FLC_CONTROL_PIN, LOW);
+                break;
+            case 5: // FLC_ENABLE
+                digitalWrite(FLC_CONTROL_PIN, HIGH);
+                break;
+            default:
+                Serial.println("ERROR - invalid command");
+                break;
+        }
+        // flush input in case there's any leftover data
+        Serial.flush();
+    }
     // One loop pass covers 2 exposure times with 2 polarizations
     if (loop_enabled)
     {
         // First pola flc_pin LOW
         for (; micros() - last_loop_finish < dt1;) {} // This way of testing works around micros() overflowing
-        digitalWrite(camera_pin_p, HIGH);
+        digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
         for (; micros() - last_loop_finish < dt2;) {}
-        digitalWrite(camera_pin_p, LOW);
+        digitalWrite(CAMERA_TRIGGER_PIN, LOW);
         for (; micros() - last_loop_finish < dt3;) {}
 
         // Second pola flc_pin HIGH
-        digitalWrite(flc_pin, HIGH);
+        digitalWrite(FLC_TRIGGER_PIN, HIGH);
         for (; micros() - last_loop_finish < dt4;) {}
-        digitalWrite(camera_pin_p, HIGH);
+        digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
         for (; micros() - last_loop_finish < dt5;) {}
-        digitalWrite(camera_pin_p, LOW);
+        digitalWrite(CAMERA_TRIGGER_PIN, LOW);
         for (; micros() - last_loop_finish < dt6;) {}
-        digitalWrite(flc_pin, LOW);
+        digitalWrite(FLC_TRIGGER_PIN, LOW);
 
         // Sweep mode
         if (sweep_mode)
