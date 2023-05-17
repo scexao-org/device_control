@@ -4,9 +4,6 @@ from device_control.drivers.conex import CONEXDevice
 from device_control.drivers.zaber import ZaberDevice
 import numpy as np
 
-__all__ = ["MultiDevice"]
-
-
 class VAMPIRESMaskWheel:
     def __init__(self, x, y, theta, name="", configurations=None, config_file=None):
         self._x = x
