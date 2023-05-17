@@ -77,22 +77,17 @@ void set(int _integration_time, int _pulse_width, int _flc_offset, int _flc_trig
     pulse_width = _pulse_width;
     flc_offset = _flc_offset;
     trigger_mode = _trigger_mode;
-    // Use LSB to determine FLC usage
-    digitalWrite(FLC_CONTROL_PIN, trigger_mode & 0x1);
-    // Use 2nd bit for sweep
-    if (trigger_mode & 0x2)
+    // Use LSB for sweep
+    if (trigger_mode & 0x1)
     {
         sweep_mode = 1;
-    }
-    // Use 3rd bit for auto-reset (for EDT FG).
-    if (trigger_mode & 0x4)
-    {
-        auto_reset_mode = 1;
     }
 }
 
 void get()
 {
+    Serial.print(loop_enabled);
+    Serial.print(" ");
     Serial.print(integration_time);
     Serial.print(" ");
     Serial.print(flc_offset);
