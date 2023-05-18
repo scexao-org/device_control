@@ -1,6 +1,3 @@
-address = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A60QBY6C-if00-port0"
-baudrate = 921600
-xonxoff = true
 name = "vampires_beamsplitter"
 unit = "deg"
 configurations = [
@@ -13,3 +10,7 @@ configurations = [
     {idx=7, name="Open", value=270},
     {idx=8, name="750SP", value=315},
 ]
+[serial]
+port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A60QBY6C-if00-port0"
+baudrate = 921600
+xonxoff = true

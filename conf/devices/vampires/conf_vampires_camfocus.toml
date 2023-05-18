@@ -1,4 +1,6 @@
-address = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
 device_number = 3
 name = "vampires_camfocus"
 unit = "mm"
+
+[serial]
+port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"

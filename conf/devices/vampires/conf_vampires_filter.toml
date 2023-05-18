@@ -1,10 +1,11 @@
-address = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A900c3rB-if00-port0"
 name = "vampires_filter"
 configurations = [
-    {idx=1, name="Open"},
-    {idx=2, name="625-50"},
-    {idx=3, name="675-50"},
-    {idx=4, name="725-50"},
-    {idx=5, name="750-50"},
-    {idx=6, name="775-50"},
+    {idx=1, name="Open", value=1},
+    {idx=2, name="625-50", value=2},
+    {idx=3, name="675-50", value=3},
+    {idx=4, name="725-50", value=4},
+    {idx=5, name="750-50", value=5},
+    {idx=6, name="775-50", value=6},
 ]
+[serial]
+port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A900c3rB-if00-port0"

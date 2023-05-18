@@ -1,3 +1,5 @@
-address = "/dev/by-id/"
 pulse_width = 10 # us
 flc_offset = 20 # us
+
+[serial]
+port = "/dev/by-id/"

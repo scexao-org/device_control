@@ -1,6 +1,3 @@
-address = "/dev/serial/by-id/usb-FTDI_USB-RS422_Cable_FT0B42PZ-if00-port0"
-baudrate = 921600
-xonxoff = true
 name = "vampires_diffwheel"
 unit = "deg"
 configurations = [
@@ -13,3 +10,7 @@ configurations = [
     {idx=7, name="675-25 / 775-25", value=270},
     {idx=8, name="H-alpha / Continuum", value=315},
 ]
+[serial]
+port = "/dev/serial/by-id/usb-FTDI_USB-RS422_Cable_FT0B42PZ-if00-port0"
+baudrate = 921600
+xonxoff = true
