@@ -43,15 +43,13 @@ unsigned long flc_offset;
 unsigned int trigger_mode;
 unsigned int cmd_code;
 
-
-unsigned int sweep_mode;
-unsigned long next_reset;
+bool sweep_mode;
 bool loop_enabled;
 bool flc_enabled;
 
 void setup()
 {    // variable resets
-    sweep_mode = next_reset = 0;
+    sweep_mode = false;
     loop_enabled = false;
     flc_enabled = true;
     integration_time = min_integration_time;
@@ -93,7 +91,7 @@ void set(int _integration_time, int _pulse_width, int _flc_offset, int _trigger_
         return;
     }
     else if ((_integration_time > max_flc_integration_time) && (_trigger_mode & 0x1)) {
-      Serial.println("Error - frequency too low to use FLC");
+      Serial.println("ERROR - frequency too low to use FLC");
       return;
     }
     else if (_integration_time < min_integration_time)
@@ -103,7 +101,7 @@ void set(int _integration_time, int _pulse_width, int _flc_offset, int _trigger_
     }
     else if (_flc_offset < 0 || _flc_offset + _pulse_width >= _integration_time)
     {
-        Serial.println("ERROR - invalid FLC offset: must be positive and < width+period");
+        Serial.println("ERROR - invalid FLC offset: must be positive and < width + period");
         return;
     }
     // set global variables
@@ -111,17 +109,19 @@ void set(int _integration_time, int _pulse_width, int _flc_offset, int _trigger_
     pulse_width = _pulse_width;
     flc_offset = _flc_offset;
     trigger_mode = _trigger_mode;
+    // `trigger_mode` LSB is FLC enable
     flc_enabled = trigger_mode & 0x1;
     digitalWrite(FLC_CONTROL_PIN, flc_enabled);
 #if DEBUG_MODE
     digitalWrite(LED_PIN, flc_enabled);
 #endif
 
-    // Use LSB for sweep
+    // 'trigger_mode' 2nd bit is sweep mode enable
     if (trigger_mode & 0x2)
     {
         sweep_mode = 1;
     }
+    Serial.println("OK")
 }
 
 void get()
