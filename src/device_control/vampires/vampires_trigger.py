@@ -89,7 +89,9 @@ class VAMPIRESTrigger:
             self.flc_offset,
             trigger_mode
         )
-        self.send_command(cmd)
+        result = self.ask_command(cmd)
+        if result != "OK":
+            raise ValueError(result)
         # self.update_keys()
 
     def set_tint(self, tint):
