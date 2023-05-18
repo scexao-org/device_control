@@ -27,8 +27,13 @@ class ZaberDevice(MotionDevice):
         self.zab_unit = ZABER_UNITS[self.unit]
         self.delay = delay
 
+    def _config_extras(self):
+        extras = super()._config_extras()
+        extras["device_address"] = self.device_address
+        return extras
+
     def __enter__(self):
-        self.connection = Connection.open_serial_port(self.address)
+        self.connection = Connection.open_serial_port(self.serial_kwargs["port"])
         device = self.connection.get_device(self.device_address)
         device.identify()
         return device
