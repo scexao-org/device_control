@@ -1,10 +1,10 @@
 from logging import getLogger
 from pathlib import Path
+import tomli
+import tomli_w
 from typing import Union
 
 import numpy as np
-import tomli
-import tomli_w
 from serial import Serial
 
 __all__ = ["MotionDevice"]
@@ -30,12 +30,22 @@ class ConfigurableDevice:
         self.logger = getLogger(self.__class__.__name__)
 
     @classmethod
+<<<<<<< HEAD
     def from_config(__cls__, filename, **kwargs):
         with open(filename, "rb") as fh:
             parameters = tomli.load(fh)
         serial_kwargs = parameters.pop("serial", None)
         parameters.update(kwargs)
         return __cls__(serial_kwargs=serial_kwargs, config_file=filename, **parameters)
+=======
+    def from_config(__cls__, filename):
+        with open(filename, "rb") as fh:
+            parameters = tomli.load(fh)
+        serial_kwargs = parameters.pop("serial", None)
+        return __cls__(
+            serial_kwargs=serial_kwargs, **parameters
+        )
+>>>>>>> 9b1d4ee (remove properties from base motion device and add plugin for configurable devices)
 
     def save_config(self, filename=None):
         if filename is None:
