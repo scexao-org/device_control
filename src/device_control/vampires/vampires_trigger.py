@@ -62,8 +62,8 @@ class VAMPIRESTrigger:
             return serial.readline()
 
     def get_parameters(self):
-        resp = self.ask_command(0)
-        tokens = resp.split()
+        response = self.ask_command(0)
+        tokens = response.split()
         enabled = bool(tokens[0])
         self.tint = int(tokens[1])
         self.pulse_width = int(tokens[2])
@@ -89,9 +89,9 @@ class VAMPIRESTrigger:
             self.flc_offset,
             trigger_mode
         )
-        result = self.ask_command(cmd)
-        if result != "OK":
-            raise ValueError(result)
+        response = self.ask_command(cmd)
+        if response != "OK":
+            raise ValueError(response)
         # self.update_keys()
 
     def set_tint(self, tint):
