@@ -17,7 +17,9 @@ STATUSES = {
 
 
 class ThorlabsFlipMount:
-    def __init__(self, address, configurations=None, name="", config_file=None, **kwargs):
+    def __init__(
+        self, address, configurations=None, name="", config_file=None, **kwargs
+    ):
         self._address = address
         self._name = name
         self.config_file = config_file
@@ -59,7 +61,9 @@ class ThorlabsFlipMount:
             parameters = tomli.load(fh)
         configurations = parameters.pop("configurations", None)
 
-        return __cls__(configurations=configurations, config_file=filename, **parameters)
+        return __cls__(
+            configurations=configurations, config_file=filename, **parameters
+        )
 
     def load_config(self, filename=None):
         if filename is None:
@@ -83,11 +87,13 @@ class ThorlabsFlipMount:
         elif position.lower() == "up":
             cmd = COMMANDS["up"]
         else:
-            raise ValueError(f"Position should be either 'up' or 'down', got '{position}'")
+            raise ValueError(
+                f"Position should be either 'up' or 'down', got '{position}'"
+            )
 
         with self.serial as serial:
             serial.write(cmd)
-    
+
     @property
     def position(self):
         with self.serial as serial:

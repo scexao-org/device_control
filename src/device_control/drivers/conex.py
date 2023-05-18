@@ -1,6 +1,7 @@
 import logging
-from serial import Serial
 import time
+
+from serial import Serial
 
 from ..base import MotionDevice
 

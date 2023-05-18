@@ -1,7 +1,8 @@
-from zaber_motion import Units, Library
-from zaber_motion.binary import Connection, CommandCode, BinarySettings
 import logging
 import time
+
+from zaber_motion import Library, Units
+from zaber_motion.binary import BinarySettings, CommandCode, Connection
 
 from ..base import MotionDevice
 

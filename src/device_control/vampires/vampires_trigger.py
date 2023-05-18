@@ -1,9 +1,10 @@
-import tomli
-from typing import Union
-import numpy as np
-from serial import Serial
 from dataclasses import dataclass
+from typing import Union
+
 import astropy.units as u
+import numpy as np
+import tomli
+from serial import Serial
 
 # from swmain.redis import update_keys
 
@@ -11,19 +12,15 @@ import astropy.units as u
 @dataclass
 class VAMPIRESTrigger:
     address: str
-    tint: int = 2000 # us
-    pulse_width: int = 10 # us
-    flc_offset: int = 20 # us
+    tint: int = 2000  # us
+    pulse_width: int = 10  # us
+    flc_offset: int = 20  # us
     flc_enabled: bool = True
     sweep_mode: bool = False
-    config_file=None
+    config_file = None
 
     def __post_init__(self, **kwargs):
-        self.serial = Serial(
-            self.address,
-            baudrate=115200,
-            write_timeout=0.5
-        )
+        self.serial = Serial(self.address, baudrate=115200, write_timeout=0.5)
         if isinstance(self.tint, u.Quantity):
             self.tint = int(self.tint.to(u.us).value)
         if isinstance(self.pulse_width, u.Quantity):
@@ -84,10 +81,7 @@ class VAMPIRESTrigger:
     def set_parameters(self):
         trigger_mode = int(self.flc_enabled) + (int(self.sweep_mode) << 1)
         cmd = "1 {:d} {:d} {:d} {:d}".format(
-            self.tint,
-            self.pulse_width,
-            self.flc_offset,
-            trigger_mode
+            self.tint, self.pulse_width, self.flc_offset, trigger_mode
         )
         response = self.ask_command(cmd)
         if response != "OK":
@@ -126,7 +120,7 @@ class VAMPIRESTrigger:
             filename = self.config_file
         with open(filename, "rb") as fh:
             parameters = tomli.load(fh)
-        
+
         self.address = parameters["address"]
         self.pulse_width = parameters.get("pulse_width", self.pulse_width)
         self.flc_offset = parameters.get("flc_offset", self.flc_offset)
