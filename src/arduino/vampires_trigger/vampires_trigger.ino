@@ -11,6 +11,7 @@
 #define AUX_PIN_B -1 // unused dig I/O pin
 #define AUX_PIN_C -1 // unused dig I/O pin
 #define NEOPIXEL_PIN 40
+#define LED_BRIGHT 50
 
 Adafruit_NeoPixel strip(1, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -38,11 +39,13 @@ unsigned int cmd_code;
 unsigned int sweep_mode;
 unsigned long next_reset;
 bool loop_enabled;
+bool flc_enabled;
 
 void setup()
 {    // variable resets
     sweep_mode = next_reset = 0;
     loop_enabled = false;
+    loop_enabled = true;
     integration_time = min_integration_time;
     pulse_width = 10;
     flc_offset = 20;
@@ -60,7 +63,7 @@ void setup()
 
     // neopixel setup
     strip.begin();
-    strip.setPixelColor(0, 100, 0, 0);
+    strip.setPixelColor(0, LED_BRIGHT, 0, 0);
     strip.show();
 
     // start serial connection
@@ -98,8 +101,9 @@ void set(int _integration_time, int _pulse_width, int _flc_offset, int _trigger_
     pulse_width = _pulse_width;
     flc_offset = _flc_offset;
     trigger_mode = _trigger_mode;
-    digitalWrite(FLC_CONTROL_PIN, trigger_mode & 0x1);
-    digitalWrite(13, trigger_mode & 0x1);
+    flc_enabled = trigger_mode & 0x1;
+    digitalWrite(FLC_CONTROL_PIN, flc_enabled);
+    digitalWrite(13, flc_enabled);
 
     // Use LSB for sweep
     if (trigger_mode & 0x2)
@@ -114,9 +118,9 @@ void get()
     Serial.print(" ");
     Serial.print(integration_time);
     Serial.print(" ");
-    Serial.print(flc_offset);
-    Serial.print(" ");
     Serial.print(pulse_width);
+    Serial.print(" ");
+    Serial.print(flc_offset);
     Serial.print(" ");
     Serial.println(trigger_mode);
 }
@@ -136,69 +140,84 @@ void prepareLoop() {
     last_loop_finish = micros();
 }
 
+void trigger_loop_flc() {
+    // First pola flc_pin LOW
+    digitalWrite(FLC_TRIGGER_PIN, LOW);
+    for (; micros() - last_loop_finish < dt1;) {} // This way of testing works around micros() overflowing
+    digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
+    for (; micros() - last_loop_finish < dt2;) {}
+    digitalWrite(CAMERA_TRIGGER_PIN, LOW);
+    for (; micros() - last_loop_finish < dt3;) {}
+
+    // Second pola flc_pin HIGH
+    digitalWrite(FLC_TRIGGER_PIN, HIGH);
+    for (; micros() - last_loop_finish < dt4;) {}
+    digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
+    for (; micros() - last_loop_finish < dt5;) {}
+    digitalWrite(CAMERA_TRIGGER_PIN, LOW);
+    for (; micros() - last_loop_finish < dt6;) {}
+    digitalWrite(FLC_TRIGGER_PIN, LOW);
+
+    // Sweep mode
+    if (sweep_mode)
+    {
+        ++flc_offset;
+        if (flc_offset + pulse_width == integration_time)
+        {
+            flc_offset = 0;
+        }
+    }
+
+    last_loop_finish += dt6; // We take it that way, rather than calling micros() again.
+                                     // Otherwise the loop will be a teensy tiny bit longer than 2*integration_time.
+}
+
+void trigger_loop_noflc() {
+    digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
+    for (; micros() - last_loop_finish < pulse_width;) {}
+    digitalWrite(CAMERA_TRIGGER_PIN, LOW);
+    for (; micros() - last_loop_finish < integration_time;) {}
+    last_loop_finish += integration_time; // We take it that way, rather than calling micros() again.
+                                     // Otherwise the loop will be a teensy tiny bit longer than 2*integration_time.
+}
+
+void handle_serial() {
+  cmd_code = Serial.parseInt();
+  switch (cmd_code) {
+      case 0: // GET
+          get();
+          break;
+      case 1: // SET
+          // set parameters
+          set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
+          // reset loop
+          prepareLoop();
+          break;
+      case 2: // DISABLE
+          loop_enabled = false;    
+          strip.setPixelColor(0, LED_BRIGHT, 0, 0);
+          strip.show();
+          break;
+      case 3: // ENABLE
+          prepareLoop();
+          loop_enabled = true;
+          strip.setPixelColor(0, 0, LED_BRIGHT, 0);
+          strip.show();
+          break;
+      default:
+          Serial.println("ERROR - invalid command");
+          break;
+  }
+  // flush input in case there's any leftover data
+  Serial.flush();
+}
+
 void loop()
 {
-    if (Serial.available()) {
-      cmd_code = Serial.parseInt();
-        switch (cmd_code) {
-            case 0: // GET
-                get();
-                break;
-            case 1: // SET
-                // set parameters
-                set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
-                // reset loop
-                prepareLoop();
-                break;
-            case 2: // DISABLE
-                loop_enabled = false;    
-                strip.setPixelColor(0, 100, 0, 0);
-                strip.show();
-                break;
-            case 3: // ENABLE
-                prepareLoop();
-                loop_enabled = true;
-                strip.setPixelColor(0, 0, 100, 0);
-                strip.show();
-                break;
-            default:
-                Serial.println("ERROR - invalid command");
-                break;
-        }
-        // flush input in case there's any leftover data
-        Serial.flush();
-    }
-    // One loop pass covers 2 exposure times with 2 polarizations
-    if (loop_enabled)
-    {
-        // First pola flc_pin LOW
-        digitalWrite(FLC_TRIGGER_PIN, LOW);
-        for (; micros() - last_loop_finish < dt1;) {} // This way of testing works around micros() overflowing
-        digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
-        for (; micros() - last_loop_finish < dt2;) {}
-        digitalWrite(CAMERA_TRIGGER_PIN, LOW);
-        for (; micros() - last_loop_finish < dt3;) {}
-
-        // Second pola flc_pin HIGH
-        digitalWrite(FLC_TRIGGER_PIN, HIGH);
-        for (; micros() - last_loop_finish < dt4;) {}
-        digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
-        for (; micros() - last_loop_finish < dt5;) {}
-        digitalWrite(CAMERA_TRIGGER_PIN, LOW);
-        for (; micros() - last_loop_finish < dt6;) {}
-        digitalWrite(FLC_TRIGGER_PIN, LOW);
-
-        // Sweep mode
-        if (sweep_mode)
-        {
-            ++flc_offset;
-            if (flc_offset + pulse_width == integration_time)
-            {
-                flc_offset = 0;
-            }
-        }
-
-        last_loop_finish += dt6; // We take it that way, rather than calling micros() again.
-                                     // Otherwise the loop will be a teensy tiny bit longer than 2*integration_time.
-    } // For FLC / cam trig loop
+  // handle serial inputs
+  if (Serial.available()) handle_serial();
+  // if FLC is enabled use loop with offsets
+  if (loop_enabled && flc_enabled) trigger_loop_flc();
+  // otherwise use simple loop
+  else if (loop_enabled) trigger_loop_noflc()
 }
