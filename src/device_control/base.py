@@ -1,10 +1,11 @@
-import tomli
-import tomli_w
-from typing import Union
-import numpy as np
-from serial import Serial
 from logging import getLogger
 from pathlib import Path
+from typing import Union
+
+import numpy as np
+import tomli
+import tomli_w
+from serial import Serial
 
 __all__ = ["MotionDevice"]
 

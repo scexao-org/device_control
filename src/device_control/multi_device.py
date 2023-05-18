@@ -1,8 +1,10 @@
-import tomli
 from typing import Union
+
+import numpy as np
+import tomli
+
 from device_control.drivers.conex import CONEXDevice
 from device_control.drivers.zaber import ZaberDevice
-import numpy as np
 
 __all__ = ["MultiDevice"]
 
