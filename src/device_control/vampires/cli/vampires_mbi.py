@@ -64,9 +64,7 @@ def main():
             index = int(args["<configuration>"])
             mbi.move_configuration_idx(index, wait=args["--wait"])
         except ValueError:
-            mbi.move_configuration_name(
-                args["<configuration>"], wait=args["--wait"]
-            )
+            mbi.move_configuration_name(args["<configuration>"], wait=args["--wait"])
 
 
 if __name__ == "__main__":

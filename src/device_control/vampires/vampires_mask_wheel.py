@@ -1,8 +1,11 @@
-import tomli
 from typing import Union
+
+import numpy as np
+import tomli
+
 from device_control.drivers.conex import CONEXDevice
 from device_control.drivers.zaber import ZaberDevice
-import numpy as np
+
 
 class VAMPIRESMaskWheel:
     def __init__(self, x, y, theta, name="", configurations=None, config_file=None):
@@ -67,7 +70,12 @@ class VAMPIRESMaskWheel:
 
         configurations = parameters.get("configurations", None)
         return __cls__(
-            x=devices["x"], y=devices["y"], theta=devices["theta"], name=name, configurations=configurations, config_file=filename
+            x=devices["x"],
+            y=devices["y"],
+            theta=devices["theta"],
+            name=name,
+            configurations=configurations,
+            config_file=filename,
         )
 
     def load_config(self, filename=None):
@@ -140,7 +148,11 @@ class VAMPIRESMaskWheel:
         th = self.theta.position
         for row in self.configurations:
             values = row["value"]
-            match = np.isclose(values["x"], x, atol=tol) & np.isclose(values["y"], y, atol=tol) & np.isclose(values["theta"], th, atol=tol)
+            match = (
+                np.isclose(values["x"], x, atol=tol)
+                & np.isclose(values["y"], y, atol=tol)
+                & np.isclose(values["theta"], th, atol=tol)
+            )
             if match:
                 return row["idx"], row["name"]
         return None, "Unknown"

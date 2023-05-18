@@ -60,7 +60,7 @@ class MotionDevice:
     @property
     def offset(self):
         return self._offset
-    
+
     @offset.setter
     def offset(self, value):
         self._offset = value

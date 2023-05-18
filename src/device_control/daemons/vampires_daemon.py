@@ -1,15 +1,16 @@
-from argparse import ArgumentParser
 import os
-from scxconf import PYRONS3_HOST, PYRONS3_PORT, IP_VAMPIRES
-from swmain.network.pyroserver_registerable import PyroServer
+from argparse import ArgumentParser
 from pathlib import Path
 
 from device_control.drivers.conex import CONEXDevice
+from device_control.drivers.thorlabs import (ThorlabsFlipMount, ThorlabsTC,
+                                             ThorlabsWheel)
 from device_control.drivers.zaber import ZaberDevice
-from device_control.drivers.thorlabs import ThorlabsWheel, ThorlabsFlipMount, ThorlabsTC
+from device_control.multi_device import MultiDevice
 from device_control.vampires import PYRO_KEYS
 from device_control.vampires.vampires_mask_wheel import VAMPIRESMaskWheel
-from device_control.multi_device import MultiDevice
+from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
+from swmain.network.pyroserver_registerable import PyroServer
 
 parser = ArgumentParser(
     prog="vampires_daemon",
@@ -24,15 +25,18 @@ def launch_beamsplitter():
     beamsplitter = CONEXDevice.from_config(config)
     return beamsplitter
 
+
 def launch_focus():
     config = conf_dir / "devices/vampires/conf_vampires_focus.toml"
     focus = CONEXDevice.from_config(config)
     return focus
 
+
 def launch_camfocus():
     config = conf_dir / "devices/vampires/conf_vampires_camfocus.toml"
     camfocus = ZaberDevice.from_config(config)
     return camfocus
+
 
 def launch_diffwheel():
     config = conf_dir / "devices/vampires/conf_vampires_diffwheel.toml"
@@ -45,37 +49,42 @@ def launch_mask():
     mask = VAMPIRESMaskWheel.from_config(config)
     return mask
 
+
 def launch_qwp1():
     config = conf_dir / "devices/vampires/conf_vampires_qwp1.toml"
     qwp1 = CONEXDevice.from_config(config)
     return qwp1
+
 
 def launch_qwp2():
     config = conf_dir / "devices/vampires/conf_vampires_qwp2.toml"
     qwp2 = CONEXDevice.from_config(config)
     return qwp2
 
+
 def launch_filter():
     config = conf_dir / "devices/vampires/conf_vampires_filter.toml"
     filter = ThorlabsWheel.from_config(config)
     return filter
+
 
 def launch_pupil():
     config = conf_dir / "devices/vampires/conf_vampires_pupil.toml"
     pupil = ThorlabsFlipMount.from_config(config)
     return pupil
 
+
 def launch_tc():
     config = conf_dir / "devices/vampires/conf_vampires_tc.toml"
     tc = ThorlabsTC.from_config(config)
-    return tc    
+    return tc
+
 
 def main():
     args = parser.parse_args()
     server = PyroServer(bindTo=(IP_VAMPIRES, 0), nsAddress=(PYRONS3_HOST, PYRONS3_PORT))
     ## create device objects
     print("Initializing devices")
-
 
     devices = {
         "beamsplitter": launch_beamsplitter(),
