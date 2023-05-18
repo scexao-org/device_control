@@ -11,7 +11,7 @@ import astropy.units as u
 @dataclass
 class VAMPIRESTrigger:
     address: str
-    tint: Union[float, int, u.Quantity] = 2 * u.ms
+    tint: int = 2000 # us
     pulse_width: int = 10 # us
     flc_offset: int = 20 # us
     flc_enabled: bool = True
@@ -25,7 +25,32 @@ class VAMPIRESTrigger:
             write_timeout=0.5
         )
         if isinstance(self.tint, u.Quantity):
-            self.tint = self.tint.to(u.us).value
+            self.tint = int(self.tint.to(u.us).value)
+        if isinstance(self.pulse_width, u.Quantity):
+            self.pulse_width = int(self.pulse_width.to(u.us).value)
+        if isinstance(self.flc_offset, u.Quantity):
+            self.flc_offset = int(self.flc_offset.to(u.us).value)
+
+    @tint.setter
+    def tint(self, value):
+        if isinstance(value, u.Quantity):
+            self.tint = int(self.tint.to(u.us).value)
+        else:
+            self.tint = int(value)
+
+    @pulse_width.setter
+    def pulse_width(self, value):
+        if isinstance(value, u.Quantity):
+            self.pulse_width = int(self.pulse_width.to(u.us).value)
+        else:
+            self.pulse_width = int(value)
+
+    @flc_offset.setter
+    def flc_offset(self, value):
+        if isinstance(value, u.Quantity):
+            self.flc_offset = int(self.flc_offset.to(u.us).value)
+        else:
+            self.flc_offset = int(value)
 
     def send_command(self, command):
         with self.serial as serial:
@@ -46,6 +71,7 @@ class VAMPIRESTrigger:
         trigger_mode = int(tokens[4])
         self.flc_enabled = trigger_mode & 0x1
         self.sweep_mode = trigger_mode & 0x2
+        # self.update_keys()
         return {
             "enabled": enabled,
             "integration_time": self.tint,
@@ -57,34 +83,31 @@ class VAMPIRESTrigger:
 
     def set_parameters(self):
         trigger_mode = int(self.flc_enabled) + (int(self.sweep_mode) << 1)
-        cmd = "1 {:.0f} {:.0f} {:.0f} {:.0f}".format(
+        cmd = "1 {:d} {:d} {:d} {:d}".format(
             self.tint,
             self.pulse_width,
             self.flc_offset,
             trigger_mode
         )
         self.send_command(cmd)
+        # self.update_keys()
 
     def set_tint(self, tint):
-        if isinstance(tint, u.Quantity):
-            tint_us = tint.to(u.us).value
-        else:
-            # tint in ms to us
-            tint_us = int(tint * 1e3)
-        self.tint = tint_us
-        self.set_timing_info()
+        self.tint = tint
+        self.set_parameters()
 
     def disable(self):
         self.send_command(2)
 
     def enable(self):
         self.send_command(3)
-        # update_keys(
-        #     U_FLCEN="ON" if self.timing_info["flc_enabled"] else "OFF",
-        #     U_FLCDL=self.timing_info["flc_offset"],
-        #     U_FLCJT=self.timing_info["flc_jitter"],
-        #     U_FLCTM=self.timing_info["pulse_width"]
-        # )
+
+    # def update_keys(self):
+    #     update_keys(
+    #         U_FLCEN="ON" if self.flc_enabled else "OFF",
+    #         U_FLCOFF=self.flc_offset,
+    #         U_TRIGPW=self.pulse_width
+    #     )
 
     @classmethod
     def from_config(__cls__, filename):
@@ -109,5 +132,5 @@ class VAMPIRESTrigger:
 
     def status(self):
         info = self.get_timing_info()
-        # update_keys(U_FLCEN="ON" if info["flc_enabled"] else "OFF")
+        # self.update_keys()
         return info
