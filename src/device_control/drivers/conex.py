@@ -104,61 +104,54 @@ class CONEXDevice(MotionDevice):
             # strip command and \r\n from string
             return retval[3:-2]
 
-    @property
-    def stage_identifier(self) -> str:
+    def get_stage_identifier(self) -> str:
         return self.ask_command("ID?")
 
-    @stage_identifier.setter
-    def stage_identifier(self, value: str):
+    def set_stage_identifier(self, value: str):
         self.send_command(f"ID{value}")
 
-    @property
-    def rs485_address(self) -> int:
+    def get_rs485_address(self) -> int:
         return int(self.ask_command("SA?"))
 
-    @rs485_address.setter
-    def rs485_address(self, value: int):
+    def set_rs485_address(self, value: int):
         self.send_command(f"SA{value}")
 
-    @property
-    def lower_limit(self) -> float:
+    def get_lower_limit(self) -> float:
         return float(self.ask_command("SA?"))
 
-    @lower_limit.setter
     def lower_limit(self, value: float):
         self.send_command(f"SA{value}")
 
-    @property
-    def upper_limit(self) -> float:
+    def get_upper_limit(self) -> float:
         return float(self.ask_command("SR?"))
 
-    @upper_limit.setter
-    def upper_limit(self, value: float):
+    def set_upper_limit(self, value: float):
         self.send_command(f"SR{value}")
 
-    @property
-    def encoder_increment(self) -> float:
+    def get_encoder_increment(self) -> float:
         return float(self.ask_command("SU?"))
 
-    @encoder_increment.setter
-    def encoder_increment(self, value: float):
+    def set_encoder_increment(self, value: float):
         self.send_command(f"SU{value}")
 
-    @property
-    def enabled(self) -> bool:
+    def get_error_string(self, code: str):
+        return self.ask_command(f"TB{code}")
+
+    def get_last_command_error(self) -> str:
+        err = self.ask_command("TE")
+        return self.error_string(err)
+
+    def get_state(self) -> CONEXState:
+        return CONEX_STATES[self.ask_command("MM?")]
+
+    def is_enabled(self) -> bool:
         return not isinstance(self.state, Disable)
 
-    @property
-    def moving(self) -> bool:
+    def is_moving(self) -> bool:
         return isinstance(self.state, Moving)
 
-    @property
-    def homing(self) -> bool:
+    def is_homing(self) -> bool:
         return isinstance(self.state, Homing)
-
-    @property
-    def state(self) -> CONEXState:
-        return CONEX_STATES[self.ask_command("MM?")]
 
     def disable(self):
         self.send_command("MM0")
@@ -172,17 +165,16 @@ class CONEXDevice(MotionDevice):
             while self.homing:
                 time.sleep(self.delay)
 
-    def move_absolute(self, value: float, wait=False):
-        val = value - self.offset
-        self.send_command(f"PA{val}")
+    def _move_absolute(self, value: float, wait=False):
+        self.send_command(f"PA{value}")
         if wait:
-            while self.moving:
+            while self.is_moving:
                 time.sleep(self.delay)
 
     def move_relative(self, value: float, wait=False):
         self.send_command(f"PR{value}")
         if wait:
-            while self.moving:
+            while self.is_moving:
                 time.sleep(self.delay)
 
     def reset(self):
@@ -191,21 +183,11 @@ class CONEXDevice(MotionDevice):
     def reset_address(self, value: int):
         self.send_command(f"RS{value}")
 
-    @property
-    def _target_position(self) -> float:
+    def _get_target_position(self) -> float:
         return float(self.ask_command("TH?"))
 
-    @property
-    def _position(self) -> float:
+    def _get_position(self) -> float:
         return float(self.ask_command("TP"))
 
     def stop(self):
         self.send_command("ST")
-
-    def error_string(self, code: str):
-        return self.ask_command(f"TB{code}")
-
-    @property
-    def last_command_error(self) -> str:
-        err = self.ask_command("TE")
-        return self.error_string(err)
