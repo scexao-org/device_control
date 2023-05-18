@@ -1,5 +1,4 @@
 import logging
-import time
 
 from zaber_motion import Library, Units
 from zaber_motion.binary import BinarySettings, CommandCode, Connection
@@ -27,7 +26,6 @@ class ZaberDevice(MotionDevice):
         self.device_address = device_address
         self.zab_unit = ZABER_UNITS[self.unit]
         self.delay = delay
-        self.logger = logging.getLogger(self.__class__.__name__)
 
     def __enter__(self):
         self.connection = Connection.open_serial_port(self.address)
@@ -38,13 +36,11 @@ class ZaberDevice(MotionDevice):
     def __exit__(self, *args):
         self.connection.close()
 
-    @property
-    def _position(self):
+    def _get_position(self):
         with self as dev:
             return dev.get_position(self.zab_unit)
 
-    @property
-    def _target_position(self):
+    def _get_target_position(self):
         return self._position
 
     def send_command(self, index: int, values=0):
@@ -52,15 +48,14 @@ class ZaberDevice(MotionDevice):
             message = device.generic_command(CommandCode(index), values)
         return message.data
 
-    def settings(self, index: int):
+    def get_setting(self, index: int):
         with self as device:
             retval = device.settings.get(BinarySettings(index))
         return retval
 
-    def move_absolute(self, value, wait=False):
-        val = value - self.offset
+    def _move_absolute(self, value, wait=False):
         with self as device:
-            device.move_absolute(val, self.zab_unit)
+            device.move_absolute(value, self.zab_unit)
             if wait:
                 device.wait_until_idle()
 
