@@ -145,13 +145,13 @@ class CONEXDevice(MotionDevice):
         return CONEX_STATES[self.ask_command("MM?")]
 
     def is_enabled(self) -> bool:
-        return not isinstance(self.state, Disable)
+        return not isinstance(self.get_state(), Disable)
 
     def is_moving(self) -> bool:
-        return isinstance(self.state, Moving)
+        return isinstance(self.get_state(), Moving)
 
     def is_homing(self) -> bool:
-        return isinstance(self.state, Homing)
+        return isinstance(self.get_state(), Homing)
 
     def disable(self):
         self.send_command("MM0")
@@ -162,7 +162,7 @@ class CONEXDevice(MotionDevice):
     def home(self, wait=False):
         self.send_command("OR")
         if wait:
-            while self.homing:
+            while self.is_homing:
                 time.sleep(self.delay)
 
     def _move_absolute(self, value: float, wait=False):

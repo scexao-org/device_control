@@ -1,11 +1,12 @@
-from docopt import docopt
 import os
 import sys
 
+from docopt import docopt
+
+from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (
     connect,
 )  # Requires scxconf and will fetch the IP addresses there.
-from device_control.vampires import PYRO_KEYS
 
 vampires_focus = connect(PYRO_KEYS["focus"])
 

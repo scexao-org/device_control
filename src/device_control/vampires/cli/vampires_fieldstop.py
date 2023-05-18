@@ -1,6 +1,7 @@
-from docopt import docopt
 import os
 import sys
+
+from docopt import docopt
 
 from swmain.devices.multi_device import MultiDevice
 
