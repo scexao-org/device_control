@@ -11,9 +11,16 @@ __all__ = ["MotionDevice"]
 # Interface for hardware devices- all subclasses must
 # implement this!
 
-class ConfigurableDevice:
 
-    def __init__(self, name=None, configurations=None, config_file=None, serial_kwargs=None, **kwargs):
+class ConfigurableDevice:
+    def __init__(
+        self,
+        name=None,
+        configurations=None,
+        config_file=None,
+        serial_kwargs=None,
+        **kwargs,
+    ):
         self.serial_kwargs = serial_kwargs
         self.serial = Serial(**self.serial_kwargs)
         self.configurations = configurations
@@ -26,9 +33,7 @@ class ConfigurableDevice:
         with open(filename, "rb") as fh:
             parameters = tomli.load(fh)
         serial_kwargs = parameters.pop("serial", None)
-        return __cls__(
-            serial_kwargs=serial_kwargs, **parameters
-        )
+        return __cls__(serial_kwargs=serial_kwargs, **parameters)
 
     def save_config(self, filename=None):
         if filename is None:
@@ -38,7 +43,7 @@ class ConfigurableDevice:
         config = {
             "name": self.name,
             "configurations": self.configurations,
-            "serial": self.serial_kwargs
+            "serial": self.serial_kwargs,
         }
         config.update(self._config_extras())
         with path.open("wb") as fh:
@@ -59,6 +64,8 @@ class ConfigurableDevice:
 
     def set_name(self, value: str):
         self.name = value
+
+
 class MotionDevice(ConfigurableDevice):
     def __init__(
         self,
@@ -79,15 +86,12 @@ class MotionDevice(ConfigurableDevice):
 
     def get_offset(self):
         return self.offset
-    
+
     def set_offset(self, value):
         self.offset = value
 
     def _config_extras(self):
-        return {
-            "unit": self.unit,
-            "offset": self.offset
-        }
+        return {"unit": self.unit, "offset": self.offset}
 
     def get_position(self):
         pos = self._get_position() + self.offset
@@ -142,29 +146,31 @@ class MotionDevice(ConfigurableDevice):
         current_config = self.get_configuration(tol=tol)
         if index is None:
             if current_config[0] is None:
-                raise RuntimeError("Cannot save to an unknown configuration. Please provide index.")
+                raise RuntimeError(
+                    "Cannot save to an unknown configuration. Please provide index."
+                )
             index = current_config[0]
             if name is None:
                 name = current_config[1]
 
-        # see if existing configuration 
+        # see if existing configuration
         for row in self.configurations:
             if row["idx"] == index:
                 if name is not None:
                     row["name"] = name
                 row["value"] = position
-                self.logger.info(f"updated configuration {index} '{row['name']}' to value {row['value']}")
+                self.logger.info(
+                    f"updated configuration {index} '{row['name']}' to value {row['value']}"
+                )
         else:
             if name is None:
                 raise ValueError("Must provide name for new configuration")
-            self.configurations.append(
-                dict(idx=index, name=name, value=position)
+            self.configurations.append(dict(idx=index, name=name, value=position))
+            self.logger.info(
+                f"added new configuration {index} '{name}' with value {position}"
             )
-            self.logger.info(f"added new configuration {index} '{name}' with value {position}")
 
         # sort configurations dictionary in-place by index
         self.configurations.sort(key=lambda d: d["idx"])
         # save configurations to file
         self.save_config(**kwargs)
-
-            

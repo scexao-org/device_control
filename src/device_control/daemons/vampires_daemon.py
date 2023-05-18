@@ -3,8 +3,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 from device_control.drivers.conex import CONEXDevice
-from device_control.drivers.thorlabs import (ThorlabsFlipMount, ThorlabsTC,
-                                             ThorlabsWheel)
+from device_control.drivers.thorlabs import ThorlabsFlipMount, ThorlabsTC, ThorlabsWheel
 from device_control.drivers.zaber import ZaberDevice
 from device_control.multi_device import MultiDevice
 from device_control.vampires import PYRO_KEYS
