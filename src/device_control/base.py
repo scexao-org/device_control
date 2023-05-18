@@ -34,7 +34,7 @@ class ConfigurableDevice:
         with open(filename, "rb") as fh:
             parameters = tomli.load(fh)
         serial_kwargs = parameters.pop("serial", None)
-        return __cls__(serial_kwargs=serial_kwargs, **parameters)
+        return __cls__(serial_kwargs=serial_kwargs, config_file=filename, **parameters)
 
     def save_config(self, filename=None):
         if filename is None:
@@ -52,7 +52,7 @@ class ConfigurableDevice:
         self.logger.info(f"saved configuration to {path.absolute()}")
 
     def _config_extras(self):
-        raise NotImplementedError()
+        return {}
 
     def get_configurations(self):
         return self.configurations
@@ -74,10 +74,9 @@ class MotionDevice(ConfigurableDevice):
         offset=0,
         **kwargs,
     ):
-        super().__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.unit = unit
         self.offset = offset
-        self.position = None
 
     def get_unit(self):
         return self.unit

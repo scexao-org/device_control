@@ -1,5 +1,3 @@
-from serial import Serial
-import tomli
 from device_control.base import ConfigurableDevice
 
 

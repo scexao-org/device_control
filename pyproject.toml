@@ -31,7 +31,7 @@ test = [
 vampires_daemon = "device_control.daemons.vampires_daemon:main"
 # VAMPIRES devices
 vampires_diffwheel = "device_control.vampires.cli.vampires_diffwheel:main"
-vampires_beamsplitter = "device_control.vampires.cli.vampires_beamsplitter:main"
+vampires_beamsplitter = "device_control.vampires.vampires_beamsplitter:main"
 vampires_focus = "device_control.vampires.cli.vampires_focus:main"
 vampires_camfocus = "device_control.vampires.cli.vampires_camfocus:main"
 vampires_fieldstop = "device_control.vampires.cli.vampires_fieldstop:main"

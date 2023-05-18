@@ -1,6 +1,6 @@
-from serial import Serial
-import tomli
 import numpy as np
+import tomli
+from serial import Serial
 
 from device_control.base import ConfigurableDevice
 

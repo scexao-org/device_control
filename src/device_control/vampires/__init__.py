@@ -9,3 +9,9 @@ PYRO_KEYS = {
     "filter": "VAMPIRES_FILTER",
     "tc": "VAMPIRES_TC",
 }
+
+from .vampires_beamsplitter import VAMPIRESBeamsplitter
+
+# from .vampires_trigger import VAMPIRESTrigger
+
+__all__ = ["VAMPIRESBeamsplitter", "PYRO_KEYS"]
