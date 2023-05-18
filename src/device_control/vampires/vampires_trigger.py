@@ -1,53 +1,36 @@
-from dataclasses import dataclass
-from typing import Union
-
 import astropy.units as u
-import numpy as np
 import tomli
 from serial import Serial
 
 # from swmain.redis import update_keys
+from device_control.base import ConfigurableDevice
 
 
-@dataclass
-class VAMPIRESTrigger:
-    address: str
-    tint: int = 2000  # us
-    pulse_width: int = 10  # us
-    flc_offset: int = 20  # us
-    flc_enabled: bool = True
-    sweep_mode: bool = False
-    config_file = None
+class VAMPIRESTrigger(ConfigurableDevice):
+    def __init__(
+        self,
+        serial_kwargs,
+        tint: int = 2000,  # us
+        pulse_width: int = 10,  # us
+        flc_offset: int = 20,  # us
+        flc_enabled: bool = True,
+        sweep_mode: bool = False,
+        **kwargs,
+    ):
+        serial_kwargs = dict(
+            {"baudrate": 115200, "write_timeout": 0.5}, **serial_kwargs
+        )
+        super().__init__(self, serial_kwargs=serial_kwargs, **kwargs)
 
-    def __post_init__(self, **kwargs):
-        self.serial = Serial(self.address, baudrate=115200, write_timeout=0.5)
-        if isinstance(self.tint, u.Quantity):
-            self.tint = int(self.tint.to(u.us).value)
-        if isinstance(self.pulse_width, u.Quantity):
-            self.pulse_width = int(self.pulse_width.to(u.us).value)
-        if isinstance(self.flc_offset, u.Quantity):
-            self.flc_offset = int(self.flc_offset.to(u.us).value)
+        if isinstance(tint, u.Quantity):
+            self.tint = int(tint.to(u.us).value)
+        if isinstance(pulse_width, u.Quantity):
+            self.pulse_width = int(pulse_width.to(u.us).value)
+        if isinstance(flc_offset, u.Quantity):
+            self.flc_offset = int(flc_offset.to(u.us).value)
 
-    @tint.setter
-    def tint(self, value):
-        if isinstance(value, u.Quantity):
-            self.tint = int(self.tint.to(u.us).value)
-        else:
-            self.tint = int(value)
-
-    @pulse_width.setter
-    def pulse_width(self, value):
-        if isinstance(value, u.Quantity):
-            self.pulse_width = int(self.pulse_width.to(u.us).value)
-        else:
-            self.pulse_width = int(value)
-
-    @flc_offset.setter
-    def flc_offset(self, value):
-        if isinstance(value, u.Quantity):
-            self.flc_offset = int(self.flc_offset.to(u.us).value)
-        else:
-            self.flc_offset = int(value)
+        self.flc_enabled = flc_enabled
+        self.sweep_mode = sweep_mode
 
     def send_command(self, command):
         with self.serial as serial:
@@ -57,6 +40,43 @@ class VAMPIRESTrigger:
         with self.serial as serial:
             serial.write(f"{command}\n".encode())
             return serial.readline()
+
+    def get_tint(self) -> int:
+        return self.tint
+
+    def set_tint(self, value):
+        if isinstance(value, u.Quantity):
+            self.tint = int(self.tint.to(u.us).value)
+        else:
+            self.tint = int(value)
+        self.set_parameters()
+
+    def get_pulse_width(self) -> int:
+        return self.pulse_width
+
+    def set_pulse_width(self, value):
+        if isinstance(value, u.Quantity):
+            self.pulse_width = int(self.pulse_width.to(u.us).value)
+        else:
+            self.pulse_width = int(value)
+        self.set_parameters()
+
+    def get_flc_offset(self) -> int:
+        return self.flc_offset
+
+    def set_flc_offset(self, value):
+        if isinstance(value, u.Quantity):
+            self.flc_offset = int(self.flc_offset.to(u.us).value)
+        else:
+            self.flc_offset = int(value)
+        self.set_parameters()
+
+    def is_flc_enabled(self) -> bool:
+        return self.flc_enabled
+
+    def enable_flc(self):
+        self.flc_enabled = True
+        self.set_parameters()
 
     def get_parameters(self):
         response = self.ask_command(0)
@@ -104,27 +124,11 @@ class VAMPIRESTrigger:
     #         U_FLCOFF=self.flc_offset,
     #         U_TRIGPW=self.pulse_width
     #     )
-
-    @classmethod
-    def from_config(__cls__, filename):
-        with open(filename, "rb") as fh:
-            parameters = tomli.load(fh)
-
-        return __cls__(
-            config_file=filename,
-            **parameters,
-        )
-
-    def load_config(self, filename=None):
-        if filename is None:
-            filename = self.config_file
-        with open(filename, "rb") as fh:
-            parameters = tomli.load(fh)
-
-        self.address = parameters["address"]
-        self.pulse_width = parameters.get("pulse_width", self.pulse_width)
-        self.flc_offset = parameters.get("flc_offset", self.flc_offset)
-        self.config_file = filename
+    def _extra_config(self):
+        return {
+            "pulse_width": self.pulse_width,
+            "flc_offset": self.flc_offset,
+        }
 
     def status(self):
         info = self.get_timing_info()

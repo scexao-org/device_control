@@ -196,19 +196,16 @@ void handle_serial() {
     switch (cmd_code) {
         case 0: // GET
             get();
-            Serial.println("OK");
             break;
         case 1: // SET
             // set parameters
             // integration time (us), pulse width (us), flc offset (us), trigger mode
             set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
-            Serial.println("OK");
             // reset loop
             prepareLoop();
             break;
         case 2: // DISABLE
             loop_enabled = false;
-            Serial.println("OK");
 #if DEBUG_MODE
             // set neopixel to red
             strip.setPixelColor(0, NEOPIXEL_BRIGHTNESS, 0, 0);
@@ -218,7 +215,6 @@ void handle_serial() {
         case 3: // ENABLE
             prepareLoop();
             loop_enabled = true;
-            Serial.println("OK");
 #if DEBUG_MODE
             // set neopixel to green
             strip.setPixelColor(0, 0, NEOPIXEL_BRIGHTNESS, 0);
@@ -276,6 +272,7 @@ void set(int _integration_time, int _pulse_width, int _flc_offset, int _trigger_
     if (trigger_mode & 0x2) {
         sweep_mode = 1;
     }
+    Serial.println("OK");
 }
 
 void prepareLoop() {
