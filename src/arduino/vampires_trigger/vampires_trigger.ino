@@ -1,8 +1,12 @@
-#include <Adafruit_NeoPixel.h>
 
 // Here's some constants up front for easy retrieval
 #define BAUDRATE 115200
 #define TIMEOUT 500 // ms
+/* If true, turns LEDs on for visual debugging. The read "L" LED
+ will turn on or off when the FLC is enabled/disable. The NeoPixel
+ LED will be red when the trigger loop is disabled and green when
+ the trigger loop is enabled. */
+#define DEBUG_MODE true
 // Pin mapping
 #define FLC_CONTROL_PIN 4
 #define FLC_TRIGGER_PIN 6
@@ -10,10 +14,14 @@
 #define AUX_PIN_A -1 // unused dig I/O pin
 #define AUX_PIN_B -1 // unused dig I/O pin
 #define AUX_PIN_C -1 // unused dig I/O pin
-#define NEOPIXEL_PIN 40
-#define LED_BRIGHT 50
 
+#if DEBUG_MODE
+#include <Adafruit_NeoPixel.h>
+#define LED_PIN 13
+#define NEOPIXEL_PIN 40
+#define NEOPIXEL_BRIGHTNESS 50
 Adafruit_NeoPixel strip(1, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+#endif
 
 // FYI C people: Arduino int is 16bit, long is 32 bits.
 // We use unsigned long for everything time-related in microseconds.
@@ -45,7 +53,7 @@ void setup()
 {    // variable resets
     sweep_mode = next_reset = 0;
     loop_enabled = false;
-    loop_enabled = true;
+    flc_enabled = true;
     integration_time = min_integration_time;
     pulse_width = 10;
     flc_offset = 20;
@@ -54,18 +62,20 @@ void setup()
     pinMode(CAMERA_TRIGGER_PIN, OUTPUT);
     pinMode(FLC_TRIGGER_PIN, OUTPUT);
     pinMode(FLC_CONTROL_PIN, OUTPUT);
-    pinMode(13, OUTPUT);
 
     // reset outputs to low
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
     digitalWrite(FLC_TRIGGER_PIN, LOW);
     digitalWrite(FLC_CONTROL_PIN, LOW);
 
+#if DEBUG_MODE
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, flc_enabled);
     // neopixel setup
     strip.begin();
-    strip.setPixelColor(0, LED_BRIGHT, 0, 0);
+    strip.setPixelColor(0, NEOPIXEL_BRIGHTNESS, 0, 0);
     strip.show();
-
+#endif
     // start serial connection
     Serial.setTimeout(TIMEOUT);
     Serial.begin(BAUDRATE);
@@ -103,7 +113,9 @@ void set(int _integration_time, int _pulse_width, int _flc_offset, int _trigger_
     trigger_mode = _trigger_mode;
     flc_enabled = trigger_mode & 0x1;
     digitalWrite(FLC_CONTROL_PIN, flc_enabled);
-    digitalWrite(13, flc_enabled);
+#if DEBUG_MODE
+    digitalWrite(LED_PIN, flc_enabled);
+#endif
 
     // Use LSB for sweep
     if (trigger_mode & 0x2)
@@ -194,15 +206,19 @@ void handle_serial() {
           prepareLoop();
           break;
       case 2: // DISABLE
-          loop_enabled = false;    
-          strip.setPixelColor(0, LED_BRIGHT, 0, 0);
+          loop_enabled = false;
+#if DEBUG_MODE
+          strip.setPixelColor(0, NEOPIXEL_BRIGHTNESS, 0, 0);
           strip.show();
+#endif
           break;
       case 3: // ENABLE
           prepareLoop();
           loop_enabled = true;
-          strip.setPixelColor(0, 0, LED_BRIGHT, 0);
+#if DEBUG_MODE
+          strip.setPixelColor(0, 0, NEOPIXEL_BRIGHTNESS, 0);
           strip.show();
+#endif
           break;
       default:
           Serial.println("ERROR - invalid command");
