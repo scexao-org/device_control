@@ -1,2 +1,5 @@
-address = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AE015X9B-if00-port0"
 name = "vampires_tc"
+temp = 45 # deg C
+
+[serial]
+port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AE015X9B-if00-port0"

@@ -17,19 +17,19 @@ configurations = [
 
 [vampires_mask.x]
 type = "zaber"
-address = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
+[serial]port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
 device_number = 1
 unit = "step"
 
 [vampires_mask.y]
 type = "zaber"
-address = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
+[serial]port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
 device_number = 2
 unit = "step"
 
 [vampires_mask.theta]
 type = "conex"
-address = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6VRT271-if00-port0"
+[serial]port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6VRT271-if00-port0"
 baudrate = 921600
 xonxoff = true
 unit = "mm"

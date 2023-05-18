@@ -1,7 +1,9 @@
-address = "/dev/serial/by-id/"
 name = "vampires_pupil"
 
 configurations = [
     {idx="up", name="OUT"},
     {idx="down", name="IN"}
 ]
+
+[serial]
+port = "/dev/serial/by-id/"

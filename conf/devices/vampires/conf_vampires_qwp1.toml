@@ -1,6 +1,8 @@
 name = "vampires_qwp1"
-address = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6WXETGZ-if00-port0"
-baudrate = 921600
-xonxoff = true
 offset = -45
 unit = "deg"
+
+[serial]
+port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6WXETGZ-if00-port0"
+baudrate = 921600
+xonxoff = true
