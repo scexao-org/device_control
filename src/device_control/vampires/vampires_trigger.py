@@ -24,6 +24,8 @@ class VAMPIRESTrigger:
             baudrate=115200,
             write_timeout=0.5
         )
+        if isinstance(self.tint, u.Quantity):
+            self.tint = self.tint.to(u.us).value
 
     def send_command(self, command):
         with self.serial as serial:
@@ -34,7 +36,7 @@ class VAMPIRESTrigger:
             serial.write(f"{command}\n".encode())
             return serial.readline()
 
-    def get_timing_info(self):
+    def get_parameters(self):
         resp = self.ask_command(0)
         tokens = resp.split()
         enabled = bool(tokens[0])
@@ -53,7 +55,7 @@ class VAMPIRESTrigger:
             "sweep_mode": self.sweep_mode,
         }
 
-    def set_timing_info(self):
+    def set_parameters(self):
         trigger_mode = int(self.flc_enabled) + (int(self.sweep_mode) << 1)
         cmd = "1 {:.0f} {:.0f} {:.0f} {:.0f}".format(
             self.tint,
