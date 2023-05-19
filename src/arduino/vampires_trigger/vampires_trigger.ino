@@ -27,17 +27,16 @@ Adafruit_NeoPixel strip(1, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
 // FYI C people: Arduino int is 16bit, long is 32 bits.
 // We use unsigned long for everything time-related in microseconds.
+// This the readout time, not integration time! Set tint with camera.
 const unsigned long max_integration_time = 1600000000; // us
 // FLC only works for integration times < 1 second
 const unsigned long max_flc_integration_time = 1000000; // us
 // The time to read a 4 of horizontal lines (which is the minimum)
-// TODO is this the readout time or integration time 🤔
 const unsigned long min_integration_time = 80; // us
 
 // global variable initialization
 unsigned int cmd_code;
 unsigned long last_loop_finish;
-unsigned long last_reset;
 unsigned long dt1;
 unsigned long dt2;
 unsigned long dt3;
@@ -87,9 +86,6 @@ void setup()
     // start serial connection
     Serial.setTimeout(TIMEOUT);
     Serial.begin(BAUDRATE);
-
-    // reset timer
-    last_reset = micros();
 }
 
 /* Main arduino loop */
@@ -185,7 +181,7 @@ Commands:
         (integration_time_us, pulse_width_us, flc_offset_us, trigger_mode)
         Note that trigger mode is an integer whose LSB determines whether
         the FLC is enabled and whose 2nd bit determines whether sweep mode
-        is enabled (see trigger_loop_flc for more details)
+        is enabled (see trigger_loop_flc for more details about sweep mode)
     2 - DISABLE
         This command will disable the trigger loop.
     3 - ENABLE
@@ -196,16 +192,19 @@ void handle_serial() {
     switch (cmd_code) {
         case 0: // GET
             get();
+            Serial.println("OK");
             break;
         case 1: // SET
             // set parameters
             // integration time (us), pulse width (us), flc offset (us), trigger mode
             set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
+            Serial.println("OK");
             // reset loop
             prepareLoop();
             break;
         case 2: // DISABLE
             loop_enabled = false;
+            Serial.println("OK");
 #if DEBUG_MODE
             // set neopixel to red
             strip.setPixelColor(0, NEOPIXEL_BRIGHTNESS, 0, 0);
@@ -215,6 +214,7 @@ void handle_serial() {
         case 3: // ENABLE
             prepareLoop();
             loop_enabled = true;
+            Serial.println("OK");
 #if DEBUG_MODE
             // set neopixel to green
             strip.setPixelColor(0, 0, NEOPIXEL_BRIGHTNESS, 0);
@@ -269,10 +269,7 @@ void set(int _integration_time, int _pulse_width, int _flc_offset, int _trigger_
 #endif
 
     // 'trigger_mode' 2nd bit is sweep mode enable
-    if (trigger_mode & 0x2) {
-        sweep_mode = 1;
-    }
-    Serial.println("OK");
+    sweep_mode trigger_mode & 0x2;
 }
 
 void prepareLoop() {
@@ -285,6 +282,5 @@ void prepareLoop() {
     dt5 = dt4 + pulse_width;
     dt6 = dt4 + integration_time;
     // reset timer
-    last_reset = micros();
     last_loop_finish = micros();
 }
