@@ -6,6 +6,10 @@ from serial import Serial
 from device_control.base import ConfigurableDevice
 
 
+class ArduinoError(RuntimeError):
+    pass
+
+
 class VAMPIRESTrigger(ConfigurableDevice):
     def __init__(
         self,
@@ -20,7 +24,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
         serial_kwargs = dict(
             {"baudrate": 115200, "write_timeout": 0.5}, **serial_kwargs
         )
-        super().__init__(self, serial_kwargs=serial_kwargs, **kwargs)
+        super().__init__(serial_kwargs=serial_kwargs, **kwargs)
 
         if isinstance(tint, u.Quantity):
             self.tint = int(tint.to(u.us).value)
@@ -35,6 +39,9 @@ class VAMPIRESTrigger(ConfigurableDevice):
     def send_command(self, command):
         with self.serial as serial:
             serial.write(f"{command}\n".encode())
+            response = serial.readline()
+            if response != "OK":
+                raise ArduinoError(response)
 
     def ask_command(self, command):
         with self.serial as serial:
@@ -103,9 +110,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
         cmd = "1 {:d} {:d} {:d} {:d}".format(
             self.tint, self.pulse_width, self.flc_offset, trigger_mode
         )
-        response = self.ask_command(cmd)
-        if response != "OK":
-            raise ValueError(response)
+        self.send_command(cmd)
         # self.update_keys()
 
     def set_tint(self, tint):
@@ -118,12 +123,22 @@ class VAMPIRESTrigger(ConfigurableDevice):
     def enable(self):
         self.send_command(3)
 
+    def reset(self):
+        # we can reset an arduino by toggling DTR
+        # this will restart the Arduino program, which will
+        # disable the loop and reset all timing values to their
+        # internal defaults
+        with self.serial as serial:
+            serial.dtr = not serial.dtr
+            serial.dtr = not serial.dtr
+
     # def update_keys(self):
     #     update_keys(
     #         U_FLCEN="ON" if self.flc_enabled else "OFF",
     #         U_FLCOFF=self.flc_offset,
     #         U_TRIGPW=self.pulse_width
     #     )
+
     def _extra_config(self):
         return {
             "pulse_width": self.pulse_width,

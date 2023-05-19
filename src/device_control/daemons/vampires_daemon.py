@@ -6,10 +6,11 @@ from device_control.drivers.conex import CONEXDevice
 from device_control.drivers.thorlabs import ThorlabsFlipMount, ThorlabsTC, ThorlabsWheel
 from device_control.drivers.zaber import ZaberDevice
 from device_control.multi_device import MultiDevice
-from device_control.vampires import PYRO_KEYS, VAMPIRESBeamsplitter
+from device_control.vampires import PYRO_KEYS
 from device_control.vampires.vampires_mask_wheel import VAMPIRESMaskWheel
 from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 from swmain.network.pyroserver_registerable import PyroServer
+from device_control.vampires import VAMPIRESBeamsplitter
 
 parser = ArgumentParser(
     prog="vampires_daemon",

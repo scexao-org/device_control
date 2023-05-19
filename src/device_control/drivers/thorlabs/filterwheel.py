@@ -4,7 +4,7 @@ from device_control.base import MotionDevice
 class ThorlabsWheel(MotionDevice):
     def __init__(self, serial_kwargs, **kwargs):
         serial_kwargs = dict({"baudrate": 115200}, **serial_kwargs)
-        super().__init__(self, serial_kwargs=serial_kwargs, **kwargs)
+        super().__init__(serial_kwargs=serial_kwargs, **kwargs)
 
     def send_command(self, cmd: str):
         with self.serial as serial:

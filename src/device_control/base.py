@@ -23,7 +23,7 @@ class ConfigurableDevice:
         **kwargs,
     ):
         self.serial_kwargs = serial_kwargs
-        self.serial = Serial(**self.serial_kwargs)
+        self.serial = Serial(timeout=0.5, **self.serial_kwargs)
         self.configurations = configurations
         self.config_file = config_file
         self.name = name

@@ -15,15 +15,15 @@ class VAMPIRESBeamsplitter(CONEXDevice):
     format_str = "{0}: {1:15s} {{{2:5.01f} deg}}"
 
     def home(self, **kwargs):
-        super().home(wait=True)
+        super().home(**kwargs)
         self.update_keys()
 
     def _move_absolute(self, value: float, **kwargs):
-        super()._move_absolute(value, wait=True)
+        super()._move_absolute(value, **kwargs)
         self.update_keys()
 
     def move_relative(self, value: float, **kwargs):
-        super().move_relative(value, wait=True)
+        super().move_relative(value, **kwargs)
         self.update_keys()
 
     def update_keys(self):
