@@ -30,10 +30,11 @@ class ConfigurableDevice:
         self.logger = getLogger(self.__class__.__name__)
 
     @classmethod
-    def from_config(__cls__, filename):
+    def from_config(__cls__, filename, **kwargs):
         with open(filename, "rb") as fh:
             parameters = tomli.load(fh)
         serial_kwargs = parameters.pop("serial", None)
+        parameters.update(kwargs)
         return __cls__(serial_kwargs=serial_kwargs, config_file=filename, **parameters)
 
     def save_config(self, filename=None):

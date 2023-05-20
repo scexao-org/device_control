@@ -10,7 +10,7 @@ from device_control.vampires import PYRO_KEYS
 from device_control.vampires.vampires_mask_wheel import VAMPIRESMaskWheel
 from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 from swmain.network.pyroserver_registerable import PyroServer
-from device_control.vampires import VAMPIRESBeamsplitter, VAMPIRESFilter
+from device_control.vampires import VAMPIRESBeamsplitter, VAMPIRESFilter, VAMPIRESQWP
 
 parser = ArgumentParser(
     prog="vampires_daemon",
@@ -50,16 +50,16 @@ def launch_beamsplitter():
 #     return mask
 
 
-# def launch_qwp1():
-#     config = conf_dir / "devices/vampires/conf_vampires_qwp1.toml"
-#     qwp1 = CONEXDevice.from_config(config)
-#     return qwp1
+def launch_qwp1():
+    config = conf_dir / "devices/vampires/conf_vampires_qwp1.toml"
+    qwp1 = VAMPIRESQWP.from_config(config, number=1)
+    return qwp1
 
 
-# def launch_qwp2():
-#     config = conf_dir / "devices/vampires/conf_vampires_qwp2.toml"
-#     qwp2 = CONEXDevice.from_config(config)
-#     return qwp2
+def launch_qwp2():
+    config = conf_dir / "devices/vampires/conf_vampires_qwp2.toml"
+    qwp2 = VAMPIRESQWP.from_config(config, number=2)
+    return qwp2
 
 
 def launch_filter():
@@ -92,8 +92,8 @@ def main():
         # "camfocus": launch_camfocus(),
         # "diffwheel": launch_diffwheel(),
         # "mask": launch_mask(),
-        # "qwp1": launch_qwp1(),
-        # "qwp2": launch_qwp2(),
+        "qwp1": launch_qwp1(),
+        "qwp2": launch_qwp2(),
         "filter": launch_filter(),
         # "tc": launch_tc(),
         # "pupil": launch_pupil(),
