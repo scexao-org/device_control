@@ -37,7 +37,7 @@ vampires_camfocus = "device_control.vampires.cli.vampires_camfocus:main"
 vampires_fieldstop = "device_control.vampires.cli.vampires_fieldstop:main"
 vampires_filter = "device_control.vampires.vampires_filter:main"
 vampires_mask = "device_control.vampires.cli.vampires_mask:main"
-vampires_qwp = "device_control.vampires.cli.vampires_qwp:main"
+vampires_qwp = "device_control.vampires.vampires_qwp:main"
 vampires_pupil = "device_control.vampires.cli.vampires_pupil:main"
 vampires_tc = "device_control.vampires.cli.vampires_tc:main"
 

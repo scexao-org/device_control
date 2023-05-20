@@ -12,5 +12,6 @@ PYRO_KEYS = {
 
 from .vampires_beamsplitter import VAMPIRESBeamsplitter
 from .vampires_filter import VAMPIRESFilter
+from .vampires_qwp import VAMPIRESQWP
 
-__all__ = ["PYRO_KEYS", "VAMPIRESBeamsplitter", "VAMPIRESFilter"]
+__all__ = ["PYRO_KEYS", "VAMPIRESBeamsplitter", "VAMPIRESFilter", "VAMPIRESQWP"]

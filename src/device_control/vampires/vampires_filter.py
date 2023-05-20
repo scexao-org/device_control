@@ -51,19 +51,20 @@ def main():
     args = docopt(__doc__, options_first=True)
     if len(sys.argv) == 1:
         print(__doc__)
+        return
     elif args["<slot>"].lower() in ("status", "st"):
         pos = vampires_filter.get_position()
-        vampires_filter.update_keys()
         print(VAMPIRESFilter.format_str.format(pos, vampires_filter.status()))
     elif args["<slot>"].lower() in ("position", "pos", "slot"):
         print(vampires_filter.get_position())
-        vampires_filter.update_keys()
     elif args["<slot>"]:
         try:
             slot = int(args["<slot>"])
             vampires_filter.move_configuration_idx(slot)
         except ValueError:
             vampires_filter.move_configuration_name(args["<slot>"])
+    vampires_filter.update_keys()
+    
 
 
 if __name__ == "__main__":

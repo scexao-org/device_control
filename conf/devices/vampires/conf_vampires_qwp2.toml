@@ -2,6 +2,7 @@ name = "vampires_qwp2"
 offset = -85
 unit = "deg"
 
-[serial]port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6VMT5XJ-if00-port0"
+[serial]
+port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6VMT5XJ-if00-port0"
 baudrate = 921600
 xonxoff = true
