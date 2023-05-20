@@ -3,19 +3,51 @@ import sys
 
 from docopt import docopt
 
+from device_control.drivers import CONEXDevice
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (
     connect,
 )  # Requires scxconf and will fetch the IP addresses there.
+from swmain.redis import update_keys
 
-vampires_diffwheel = connect(PYRO_KEYS["diffwheel"])
-format_str = "{0}: {1:21s} {{{2:5.01f} deg}}"
-configurations = "\n".join(
-    f"    {format_str.format(c['idx'], c['name'], c['value'])}"
-    for c in vampires_diffwheel.configurations
-)
+class VAMPIRESDiffWheel(CONEXDevice):
+    format_str = "{0}: {1:21s} {{{2:5.01f} deg}}"
 
-__doc__ = f"""Usage:
+    def home(self, **kwargs):
+        super().home(**kwargs)
+        self.update_keys()
+
+    def _move_absolute(self, value: float, **kwargs):
+        super()._move_absolute(value, **kwargs)
+        self.update_keys()
+
+    def move_relative(self, value: float, **kwargs):
+        super().move_relative(value, **kwargs)
+        self.update_keys()
+
+    def update_keys(self):
+        posn = self.get_position()
+        _, status = self.get_configuration()
+        if status == "Unknown":
+            update_keys(
+                U_DIFFL1="Unknown",
+                U_DIFFL2="Unknown",
+                U_DIFFTH=posn,
+            )
+        else:
+            state1, state2 = status.split(" / ")
+            update_keys(
+                U_DIFFL1=state1,
+                U_DIFFL2=state2,
+                U_DIFFTH=posn,
+            )
+
+    def help_message(self):
+        configurations = "\n".join(
+            f"    {VAMPIRESDiffWheel.format_str.format(c['idx'], c['name'], c['value'])}"
+            for c in self.configurations
+        )
+        return f"""Usage:
     vampires_diffwheel [-h | --help]
     vampires_diffwheel [-w | --wait] (status|position|home|goto|nudge|stop|reset) [<angle>]
     vampires_diffwheel [-w | --wait] <configuration>
@@ -36,6 +68,9 @@ Wheel commands:
 Configurations (cam1 / cam2):
 {configurations}"""
 
+vampires_diffwheel = connect(PYRO_KEYS["diffwheel"])
+
+
 # setp 4. action
 def main():
     args = docopt(__doc__, options_first=True)
@@ -43,9 +78,9 @@ def main():
         print(__doc__)
     if args["status"]:
         idx, name = vampires_diffwheel.get_configuration()
-        print(format_str.format(idx, name, vampires_diffwheel.position))
+        print(VAMPIRESDiffWheel.format_str.format(idx, name, vampires_diffwheel.get_position()))
     elif args["position"]:
-        print(vampires_diffwheel.position)
+        print(vampires_diffwheel.get_position())
     elif args["home"]:
         vampires_diffwheel.home(wait=args["--wait"])
     elif args["goto"]:
@@ -61,6 +96,7 @@ def main():
     elif args["<configuration>"]:
         index = int(args["<configuration>"])
         vampires_diffwheel.move_configuration(index, wait=args["--wait"])
+    vampires_diffwheel.update_keys()
 
 
 if __name__ == "__main__":
