@@ -8,12 +8,11 @@
  the trigger loop is enabled. */
 #define DEBUG_MODE true
 // Pin mapping
-#define FLC_CONTROL_PIN 4
+#define CAMERA_ONE_READY 12
+#define CAMERA_TRIGGER_PIN 10
+#define CAMERA_TWO_READY 8
 #define FLC_TRIGGER_PIN 6
-#define CAMERA_TRIGGER_PIN 8
-#define AUX_PIN_A -1 // unused dig I/O pin
-#define AUX_PIN_B -1 // unused dig I/O pin
-#define AUX_PIN_C -1 // unused dig I/O pin
+#define FLC_CONTROL_PIN 2
 
 #if DEBUG_MODE
 #include <Adafruit_NeoPixel.h>
@@ -23,12 +22,11 @@
 Adafruit_NeoPixel strip(1, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 #endif
 
+// This way of testing works around micros() overflowing
 #define ROBUST_DELAY(target) while (micros() - last_loop_finish < target) continue
 
 // FYI C people: Arduino int is 16bit, long is 32 bits.
 // We use unsigned long for everything time-related in microseconds.
-// This the readout time, not integration time! Set tint with camera.
-const unsigned long max_integration_time = 1600000000; // us
 // FLC only works for integration times < 1 second
 const unsigned long max_flc_integration_time = 1000000; // us
 // The time to read a 4 of horizontal lines (which is the minimum)
@@ -65,10 +63,12 @@ void setup()
     pulse_width = 10; // us
     flc_offset = 20; // us
 
-    // set pin modes to output
+    // set pin modes
     pinMode(CAMERA_TRIGGER_PIN, OUTPUT);
     pinMode(FLC_TRIGGER_PIN, OUTPUT);
     pinMode(FLC_CONTROL_PIN, OUTPUT);
+    pinMode(CAMERA_ONE_READY, INPUT);
+    pinMode(CAMERA_TWO_READY, INPUT);
 
     // reset outputs to low
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
@@ -93,10 +93,12 @@ void loop()
 {
   // handle serial inputs
   if (Serial.available()) handle_serial();
+  noInterrupts();
   // if FLC is enabled use loop with offsets
   if (loop_enabled && flc_enabled) trigger_loop_flc();
   // otherwise use simple loop
-  else if (loop_enabled) trigger_loop_noflc()
+  else if (loop_enabled) trigger_loop_noflc();
+  interrupts();
 }
 
 /*
@@ -120,26 +122,34 @@ void loop()
 void trigger_loop_flc() {
     // First exposure FLC is relaxed
     digitalWrite(FLC_TRIGGER_PIN, LOW);
-    // This way of testing works around micros() overflowing
-    ROBUST_DELAY(dt1);
+    ROBUST_DELAY(flc_offset);
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
-    ROBUST_DELAY(dt2);
+    ROBUST_DELAY(flc_offset + pulse_width);
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
-    ROBUST_DELAY(dt3);
-
+    // ROBUST_DELAY(dt3);
+    while (!digitalRead(CAMERA_ONE_READY) || !digitalRead(CAMERA_TWO_READY)) continue;
+    last_loop_finish = micros();
     // Second exposure FLC is active
     digitalWrite(FLC_TRIGGER_PIN, HIGH);
-    ROBUST_DELAY(dt4);
+    ROBUST_DELAY(flc_offset);
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
-    ROBUST_DELAY(dt5);
+    ROBUST_DELAY(flc_offset + pulse_width);
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
-    ROBUST_DELAY(dt6);
+    for (integration_time = 0; integration_time < max_flc_integration_time, integration_time += micros()) {
+        if (!digitalRead(CAMERA_ONE_READY) || !digitalRead(CAMERA_TWO_READY)) break;
+    }
     // Immediately shut off FLC to maintain DC balance
     digitalWrite(FLC_TRIGGER_PIN, LOW);
+    if (!digitalRead(CAMERA_ONE_READY) || !digitalRead(CAMERA_TWO_READY)) {
+        loop_enabled = false;
+        continue;
+    }
+    ROBUST_DELAY(max_flc_integration_time)
+    // ROBUST_DELAY(dt6);
 
     // We take it that way, rather than calling micros() again. Otherwise
     // the loop will be a teensy tiny bit longer than 2 * integration_time.
-    last_loop_finish += dt6;
+    last_loop_finish = micros();
 
     // Sweep mode
     if (sweep_mode) {
@@ -158,10 +168,8 @@ void trigger_loop_noflc() {
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
     ROBUST_DELAY(pulse_width);
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
-    ROBUST_DELAY(integration_time);
-    // We take it that way, rather than calling micros() again. Otherwise
-    // the loop will be a teensy tiny bit longer than 2 * integration_time.
-    last_loop_finish += integration_time;
+    while (!digitalRead(CAMERA_ONE_READY) || !digitalRead(CAMERA_TWO_READY)) continue;
+    last_loop_finish = micros()
 }
 
 /*
