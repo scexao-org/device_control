@@ -10,7 +10,7 @@ from device_control.vampires import PYRO_KEYS
 from device_control.vampires.vampires_mask_wheel import VAMPIRESMaskWheel
 from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 from swmain.network.pyroserver_registerable import PyroServer
-from device_control.vampires import VAMPIRESBeamsplitter
+from device_control.vampires import VAMPIRESBeamsplitter, VAMPIRESFilter
 
 parser = ArgumentParser(
     prog="vampires_daemon",
@@ -62,10 +62,10 @@ def launch_beamsplitter():
 #     return qwp2
 
 
-# def launch_filter():
-#     config = conf_dir / "devices/vampires/conf_vampires_filter.toml"
-#     filter = ThorlabsWheel.from_config(config)
-#     return filter
+def launch_filter():
+    config = conf_dir / "devices/vampires/conf_vampires_filter.toml"
+    filter = VAMPIRESFilter.from_config(config)
+    return filter
 
 
 # def launch_pupil():
@@ -94,7 +94,7 @@ def main():
         # "mask": launch_mask(),
         # "qwp1": launch_qwp1(),
         # "qwp2": launch_qwp2(),
-        # "filter": launch_filter(),
+        "filter": launch_filter(),
         # "tc": launch_tc(),
         # "pupil": launch_pupil(),
     }
