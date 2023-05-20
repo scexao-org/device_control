@@ -8,11 +8,11 @@
  the trigger loop is enabled. */
 #define DEBUG_MODE true
 // Pin mapping
-#define CAMERA_ONE_READY 12
-#define CAMERA_TRIGGER_PIN 10
-#define CAMERA_TWO_READY 8
-#define FLC_TRIGGER_PIN 6
-#define FLC_CONTROL_PIN 2
+#define CAMERA_TRIGGER_PIN 12
+#define CAMERA_ONE_READY 10
+#define CAMERA_TWO_READY 6
+#define FLC_TRIGGER_PIN 8
+#define FLC_CONTROL_PIN 4
 
 #if DEBUG_MODE
 #include <Adafruit_NeoPixel.h>
@@ -29,18 +29,10 @@ Adafruit_NeoPixel strip(1, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 // We use unsigned long for everything time-related in microseconds.
 // FLC only works for integration times < 1 second
 const unsigned long max_flc_integration_time = 1000000; // us
-// The time to read a 4 of horizontal lines (which is the minimum)
-const unsigned long min_integration_time = 80; // us
 
 // global variable initialization
 unsigned int cmd_code;
 unsigned long last_loop_finish;
-unsigned long dt1;
-unsigned long dt2;
-unsigned long dt3;
-unsigned long dt4;
-unsigned long dt5;
-unsigned long dt6;
 // settings
 unsigned long integration_time;
 unsigned long pulse_width;
@@ -59,7 +51,6 @@ void setup()
     sweep_mode = false;
     loop_enabled = false;
     flc_enabled = true;
-    integration_time = min_integration_time;
     pulse_width = 10; // us
     flc_offset = 20; // us
 
@@ -80,7 +71,7 @@ void setup()
     digitalWrite(LED_PIN, flc_enabled);
     // neopixel setup
     strip.begin();
-    strip.setPixelColor(0, NEOPIXEL_BRIGHTNESS, 0, 0);
+    strip.setPixelColor(0, 0, 0, NEOPIXEL_BRIGHTNESS);
     strip.show();
 #endif
     // start serial connection
@@ -93,12 +84,10 @@ void loop()
 {
   // handle serial inputs
   if (Serial.available()) handle_serial();
-  noInterrupts();
   // if FLC is enabled use loop with offsets
   if (loop_enabled && flc_enabled) trigger_loop_flc();
   // otherwise use simple loop
   else if (loop_enabled) trigger_loop_noflc();
-  interrupts();
 }
 
 /*
@@ -135,16 +124,14 @@ void trigger_loop_flc() {
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
     ROBUST_DELAY(flc_offset + pulse_width);
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
-    for (integration_time = 0; integration_time < max_flc_integration_time, integration_time += micros()) {
+    for (integration_time = 0; integration_time < max_flc_integration_time, integration_time += micros();) {
         if (!digitalRead(CAMERA_ONE_READY) || !digitalRead(CAMERA_TWO_READY)) break;
     }
     // Immediately shut off FLC to maintain DC balance
     digitalWrite(FLC_TRIGGER_PIN, LOW);
     if (!digitalRead(CAMERA_ONE_READY) || !digitalRead(CAMERA_TWO_READY)) {
         loop_enabled = false;
-        continue;
     }
-    ROBUST_DELAY(max_flc_integration_time)
     // ROBUST_DELAY(dt6);
 
     // We take it that way, rather than calling micros() again. Otherwise
@@ -152,12 +139,12 @@ void trigger_loop_flc() {
     last_loop_finish = micros();
 
     // Sweep mode
-    if (sweep_mode) {
-        ++flc_offset;
-        if (flc_offset + pulse_width == integration_time) {
-            flc_offset = 0;
-        }
-    }
+    // if (sweep_mode) {
+    //     ++flc_offset;
+    //     if (flc_offset + pulse_width == integration_time) {
+    //         flc_offset = 0;
+    //     }
+    // }
 }
 
 /*
@@ -169,7 +156,7 @@ void trigger_loop_noflc() {
     ROBUST_DELAY(pulse_width);
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
     while (!digitalRead(CAMERA_ONE_READY) || !digitalRead(CAMERA_TWO_READY)) continue;
-    last_loop_finish = micros()
+    last_loop_finish = micros();
 }
 
 /*
@@ -204,8 +191,8 @@ void handle_serial() {
             break;
         case 1: // SET
             // set parameters
-            // integration time (us), pulse width (us), flc offset (us), trigger mode
-            set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
+            // pulse width (us), flc offset (us), trigger mode
+            set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
             Serial.println("OK");
             // reset loop
             prepareLoop();
@@ -240,8 +227,6 @@ void handle_serial() {
 void get() {
     Serial.print(loop_enabled);
     Serial.print(" ");
-    Serial.print(integration_time);
-    Serial.print(" ");
     Serial.print(pulse_width);
     Serial.print(" ");
     Serial.print(flc_offset);
@@ -249,23 +234,13 @@ void get() {
     Serial.println(trigger_mode);
 }
 
-void set(int _integration_time, int _pulse_width, int _flc_offset, int _trigger_mode) {
+void set(int _pulse_width, int _flc_offset, int _trigger_mode) {
     // argument checking
-    if (_integration_time > max_integration_time) {
-        Serial.println("ERROR - frequency too low.");
-        return;
-    } else if (_integration_time < min_integration_time) {
-        Serial.println("ERROR - frequency too high");
-        return;
-    } else if (_flc_offset < 0 || _flc_offset + _pulse_width >= _integration_time) {
-        Serial.println("ERROR - invalid FLC offset: must be positive and < width + period");
-        return;
-    } else if ((_integration_time + _flc_offset > max_flc_integration_time) && (_trigger_mode & 0x1)) {
-        Serial.println("ERROR - frequency too low to use FLC");
+    if (_flc_offset < 0 || _flc_offset > 1000) {
+        Serial.println("ERROR - invalid FLC offset: must be between 0 and 1000");
         return;
     }
     // set global variables
-    integration_time = _integration_time;
     pulse_width = _pulse_width;
     flc_offset = _flc_offset;
     trigger_mode = _trigger_mode;
@@ -277,18 +252,10 @@ void set(int _integration_time, int _pulse_width, int _flc_offset, int _trigger_
 #endif
 
     // 'trigger_mode' 2nd bit is sweep mode enable
-    sweep_mode trigger_mode & 0x2;
+    sweep_mode = trigger_mode & 0x2;
 }
 
 void prepareLoop() {
     // Compute values for loop
-    dt1 = flc_offset;
-    dt2 = dt1 + pulse_width;
-    dt3 = dt1 + integration_time;
-    // Second pass
-    dt4 = dt3 + flc_offset;
-    dt5 = dt4 + pulse_width;
-    dt6 = dt4 + integration_time;
-    // reset timer
     last_loop_finish = micros();
 }

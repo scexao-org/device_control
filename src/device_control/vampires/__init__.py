@@ -14,5 +14,6 @@ from .vampires_beamsplitter import VAMPIRESBeamsplitter
 from .vampires_diffwheel import VAMPIRESDiffWheel
 from .vampires_filter import VAMPIRESFilter
 from .vampires_qwp import VAMPIRESQWP
+from .vampires_trigger import VAMPIRESTrigger
 
-__all__ = ["PYRO_KEYS", "VAMPIRESBeamsplitter", "VAMPIRESDiffWheel", "VAMPIRESFilter", "VAMPIRESQWP"]
+__all__ = ["PYRO_KEYS", "VAMPIRESBeamsplitter", "VAMPIRESDiffWheel", "VAMPIRESFilter", "VAMPIRESQWP", "VAMPIRESTrigger"]
