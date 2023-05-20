@@ -21,14 +21,14 @@ class ThorlabsWheel(MotionDevice):
         result = self.ask_command("pos?")
         return int(result)
 
-    def _move_absolute(self, value):
+    def _move_absolute(self, value, **kwargs):
         max_filters = self.get_count()
         if value < 1 or value > max_filters:
             raise ValueError(f"Filter position must be between 1 and {max_filters}")
         self.send_command(f"pos={value}")
 
     def status(self):
-        idx = self.position()
+        idx = self.get_position()
         for row in self.configurations:
             if row["idx"] == idx:
                 return row["name"]

@@ -2,20 +2,31 @@ import sys
 
 from docopt import docopt
 
+from device_control.drivers import ThorlabsWheel
 from device_control.vampires import PYRO_KEYS
+from swmain.redis import update_keys
 from swmain.network.pyroclient import (
     connect,
 )  # Requires scxconf and will fetch the IP addresses there.
 
-vampires_filter = connect(PYRO_KEYS["filter"])
 
-format_str = "{0:1d}: {1:8s}"
-configurations = "\n".join(
-    f"    {format_str.format(c['idx'], c['name'])}"
-    for c in vampires_filter.configurations
-)
+class VAMPIRESFilter(ThorlabsWheel):
+    format_str = "{0:1d}: {1:8s}"
 
-__doc__ = f"""Usage:
+    def _move_absolute(self, value: float, **kwargs):
+        super()._move_absolute(value, **kwargs)
+        self.update_keys()
+
+    def update_keys(self):
+        pos, name = self.get_configuration()
+        update_keys(U_FILTER=name, U_FILTTH=pos)
+
+    def help_message(self):
+        configurations = "\n".join(
+            f"    {self.format_str.format(c['idx'], c['name'], c['value'])}"
+            for c in self.configurations
+        )
+        return f"""Usage:
     vampires_filter [-h | --help]
     vampires_filter <slot>
     vampires_filter (status|position)
@@ -32,16 +43,21 @@ Stage commands:
 Configurations:
 {configurations}"""
 
+
 # setp 4. action
 def main():
+    vampires_filter = connect(PYRO_KEYS["filter"])
+    __doc__ = vampires_filter.help_message()
     args = docopt(__doc__, options_first=True)
     if len(sys.argv) == 1:
         print(__doc__)
     elif args["<slot>"].lower() in ("status", "st"):
-        pos = vampires_filter.position()
-        print(format_str.format(pos, vampires_filter.status()))
+        pos = vampires_filter.get_position()
+        vampires_filter.update_keys()
+        print(VAMPIRESFilter.format_str.format(pos, vampires_filter.status()))
     elif args["<slot>"].lower() in ("position", "pos", "slot"):
-        print(vampires_filter.position())
+        print(vampires_filter.get_position())
+        vampires_filter.update_keys()
     elif args["<slot>"]:
         try:
             slot = int(args["<slot>"])

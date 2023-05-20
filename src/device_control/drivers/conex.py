@@ -84,7 +84,6 @@ class CONEXDevice(MotionDevice):
         self.device_address = device_address
         self.delay = delay
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.serial = Serial(**self.serial_kwargs)
 
     def send_command(self, command: str):
         # pad command with CRLF ending

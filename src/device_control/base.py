@@ -122,16 +122,16 @@ class MotionDevice(ConfigurableDevice):
     def stop(self):
         raise NotImplementedError()
 
-    def move_configuration_idx(self, idx: int, wait=False):
+    def move_configuration_idx(self, idx: int, **kwargs):
         for row in self.configurations:
             if row["idx"] == idx:
-                return self.move_absolute(row["value"], wait=wait)
+                return self.move_absolute(row["value"], **kwargs)
         raise ValueError(f"No configuration saved at index {idx}")
 
-    def move_configuration_name(self, name: str, wait=False):
+    def move_configuration_name(self, name: str, **kwargs):
         for row in self.configurations:
             if row["name"] == name:
-                return self.move_absolute(row["value"], wait=wait)
+                return self.move_absolute(row["value"], **kwargs)
         raise ValueError(f"No configuration saved with name '{name}'")
 
     def get_configuration(self, tol=1e-1):

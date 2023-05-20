@@ -11,7 +11,6 @@ PYRO_KEYS = {
 }
 
 from .vampires_beamsplitter import VAMPIRESBeamsplitter
+from .vampires_filter import VAMPIRESFilter
 
-# from .vampires_trigger import VAMPIRESTrigger
-
-__all__ = ["VAMPIRESBeamsplitter", "PYRO_KEYS"]
+__all__ = ["PYRO_KEYS", "VAMPIRESBeamsplitter", "VAMPIRESFilter"]
