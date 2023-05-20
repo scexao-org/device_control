@@ -19,7 +19,10 @@ class ThorlabsWheel(MotionDevice):
 
     def _get_position(self):
         result = self.ask_command("pos?")
-        return int(result)
+        try:
+            return int(result)
+        except ValueError:
+            return None
 
     def _move_absolute(self, value, **kwargs):
         max_filters = self.get_count()
