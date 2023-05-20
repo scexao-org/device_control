@@ -14,7 +14,6 @@ class VAMPIRESTrigger(ConfigurableDevice):
     def __init__(
         self,
         serial_kwargs,
-        tint: int = 2000,  # us
         pulse_width: int = 10,  # us
         flc_offset: int = 20,  # us
         flc_enabled: bool = True,
@@ -26,37 +25,26 @@ class VAMPIRESTrigger(ConfigurableDevice):
         )
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
 
-        if isinstance(tint, u.Quantity):
-            self.tint = int(tint.to(u.us).value)
         if isinstance(pulse_width, u.Quantity):
             self.pulse_width = int(pulse_width.to(u.us).value)
         if isinstance(flc_offset, u.Quantity):
             self.flc_offset = int(flc_offset.to(u.us).value)
-
+        self.pulse_width = int(pulse_width)
+        self.flc_offset = int(flc_offset)
         self.flc_enabled = flc_enabled
         self.sweep_mode = sweep_mode
 
     def send_command(self, command):
         with self.serial as serial:
             serial.write(f"{command}\n".encode())
-            response = serial.readline()
+            response = serial.readline().decode().strip()
             if response != "OK":
                 raise ArduinoError(response)
 
     def ask_command(self, command):
         with self.serial as serial:
             serial.write(f"{command}\n".encode())
-            return serial.readline()
-
-    def get_tint(self) -> int:
-        return self.tint
-
-    def set_tint(self, value):
-        if isinstance(value, u.Quantity):
-            self.tint = int(self.tint.to(u.us).value)
-        else:
-            self.tint = int(value)
-        self.set_parameters()
+            return serial.readline().decode().strip()
 
     def get_pulse_width(self) -> int:
         return self.pulse_width
@@ -85,20 +73,22 @@ class VAMPIRESTrigger(ConfigurableDevice):
         self.flc_enabled = True
         self.set_parameters()
 
+    def disable_flc(self):
+        self.flc_enabled = False
+        self.set_parameters()
+
     def get_parameters(self):
         response = self.ask_command(0)
         tokens = response.split()
-        enabled = bool(tokens[0])
-        self.tint = int(tokens[1])
-        self.pulse_width = int(tokens[2])
-        self.flc_offset = int(tokens[3])
-        trigger_mode = int(tokens[4])
-        self.flc_enabled = trigger_mode & 0x1
-        self.sweep_mode = trigger_mode & 0x2
+        enabled = bool(int(tokens[0]))
+        self.pulse_width = int(tokens[1])
+        self.flc_offset = int(tokens[2])
+        trigger_mode = int(tokens[3])
+        self.flc_enabled = bool(trigger_mode & 0x1)
+        self.sweep_mode = bool(trigger_mode & 0x2)
         # self.update_keys()
         return {
             "enabled": enabled,
-            "integration_time": self.tint,
             "pulse_width": self.pulse_width,
             "flc_offset": self.flc_offset,
             "flc_enabled": self.flc_enabled,
@@ -107,15 +97,11 @@ class VAMPIRESTrigger(ConfigurableDevice):
 
     def set_parameters(self):
         trigger_mode = int(self.flc_enabled) + (int(self.sweep_mode) << 1)
-        cmd = "1 {:d} {:d} {:d} {:d}".format(
-            self.tint, self.pulse_width, self.flc_offset, trigger_mode
+        cmd = "1 {:d} {:d} {:d}".format(
+            self.pulse_width, self.flc_offset, trigger_mode
         )
         self.send_command(cmd)
         # self.update_keys()
-
-    def set_tint(self, tint):
-        self.tint = tint
-        self.set_parameters()
 
     def disable(self):
         self.send_command(2)
@@ -128,9 +114,11 @@ class VAMPIRESTrigger(ConfigurableDevice):
         # this will restart the Arduino program, which will
         # disable the loop and reset all timing values to their
         # internal defaults
-        with self.serial as serial:
-            serial.dtr = not serial.dtr
-            serial.dtr = not serial.dtr
+        self.serial.dtr = True
+        self.serial.dtr = False
+        # with self.serial as serial:
+        #     serial.dtr = not serial.dtr
+        #     serial.dtr = not serial.dtr
 
     # def update_keys(self):
     #     update_keys(
