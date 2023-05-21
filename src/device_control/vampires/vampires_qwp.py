@@ -10,6 +10,7 @@ from swmain.network.pyroclient import (
 )  # Requires scxconf and will fetch the IP addresses there.
 from swmain.redis import update_keys
 
+
 class VAMPIRESQWP(CONEXDevice):
     format_str = "{0:1d}: {1:8s}"
 
@@ -27,7 +28,7 @@ class VAMPIRESQWP(CONEXDevice):
         pos = self._get_position()
         kwargs = {
             f"U_QWP{self.number:1d}": pos + self.offset,
-            f"U_QWP{self.number:1d}TH": pos 
+            f"U_QWP{self.number:1d}TH": pos,
         }
         update_keys(**kwargs)
 
