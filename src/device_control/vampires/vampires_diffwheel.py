@@ -10,6 +10,7 @@ from swmain.network.pyroclient import (
 )  # Requires scxconf and will fetch the IP addresses there.
 from swmain.redis import update_keys
 
+
 class VAMPIRESDiffWheel(CONEXDevice):
     format_str = "{0}: {1:21s} {{{2:5.01f} deg}}"
 
@@ -68,6 +69,7 @@ Wheel commands:
 Configurations (cam1 / cam2):
 {configurations}"""
 
+
 vampires_diffwheel = connect(PYRO_KEYS["diffwheel"])
 
 
@@ -78,7 +80,11 @@ def main():
         print(__doc__)
     if args["status"]:
         idx, name = vampires_diffwheel.get_configuration()
-        print(VAMPIRESDiffWheel.format_str.format(idx, name, vampires_diffwheel.get_position()))
+        print(
+            VAMPIRESDiffWheel.format_str.format(
+                idx, name, vampires_diffwheel.get_position()
+            )
+        )
     elif args["position"]:
         print(vampires_diffwheel.get_position())
     elif args["home"]:

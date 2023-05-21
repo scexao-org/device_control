@@ -64,7 +64,6 @@ def main():
         except ValueError:
             vampires_filter.move_configuration_name(args["<slot>"])
     vampires_filter.update_keys()
-    
 
 
 if __name__ == "__main__":

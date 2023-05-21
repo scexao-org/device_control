@@ -10,7 +10,13 @@ from device_control.vampires import PYRO_KEYS
 from device_control.vampires.vampires_mask_wheel import VAMPIRESMaskWheel
 from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 from swmain.network.pyroserver_registerable import PyroServer
-from device_control.vampires import VAMPIRESBeamsplitter, VAMPIRESFilter, VAMPIRESQWP, VAMPIRESDiffWheel
+from device_control.vampires import (
+    VAMPIRESBeamsplitter,
+    VAMPIRESFilter,
+    VAMPIRESQWP,
+    VAMPIRESDiffWheel,
+    VAMPIRESFocus,
+)
 
 parser = ArgumentParser(
     prog="vampires_daemon",
@@ -26,10 +32,10 @@ def launch_beamsplitter():
     return beamsplitter
 
 
-# def launch_focus():
-#     config = conf_dir / "devices/vampires/conf_vampires_focus.toml"
-#     focus = CONEXDevice.from_config(config)
-#     return focus
+def launch_focus():
+    config = conf_dir / "devices/vampires/conf_vampires_focus.toml"
+    focus = VAMPIRESFocus.from_config(config)
+    return focus
 
 
 # def launch_camfocus():
@@ -88,7 +94,7 @@ def main():
 
     devices = {
         "beamsplitter": launch_beamsplitter(),
-        # "focus": launch_focus(),
+        "focus": launch_focus(),
         # "camfocus": launch_camfocus(),
         "diffwheel": launch_diffwheel(),
         # "mask": launch_mask(),
