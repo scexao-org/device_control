@@ -18,6 +18,8 @@ dependencies = [
     "tomli-w",
     "zaber-motion>=2,<3",
     "tqdm>=4,<5",
+    "swmain",
+    "scxconf"
 ]
 dynamic = ["version"]
 
