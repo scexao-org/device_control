@@ -1,34 +1,137 @@
 name = "vampires_mask"
-configurations = [
-    {idx=1, name="Open", value={x=9.477, y=6.858, theta=0}},
-    {idx=2, name="SAM-7", value={x=6.763, y=10.144, theta=28}},
-    {idx=3, name="SAM-9", value={x=7.858, y=5.739, theta=48.3}},
-    {idx=4, name="SAM-18", value={x=9.049, y=6.62, theta=73}},
-    {idx=5, name="SAM-18-Nudged", value={x=6.81, y=4.072, theta=95.3}},
-    {idx=6, name="SAM-Ann-Nudged", value={x=8.192, y=4.762, theta=120}},
-    {idx=7, name="Mirror", value={x=8.253, y=5.153, theta=143}},
-    {idx=8, name="SAM-Ann", value={x=8.087, y=10, theta=164}},
-    {idx=9, name="LyotStop", value={x=7.382, y=4.786, theta=192}},
-    {idx=10, name="Open", value={x=7.12, y=6.858, theta=217.5}},
-    {idx=11, name="ND10", value={x=7.048, y=6.858, theta=241}},
-    {idx=12, name="ND25", value={x=7.048, y=6.858, theta=265}},
-    {idx=13, name="SAM-Ann-Ref", value={x=7.048, y=6.858, theta=283.2}},
-]
+
+[[configurations]]
+idx = 1
+name = "Open"
+
+[configurations.value]
+x = 9.477
+y = 6.858
+theta = 0
+
+[[configurations]]
+idx = 2
+name = "SAM-7"
+
+[configurations.value]
+x = 6.763
+y = 10.144
+theta = 28
+
+[[configurations]]
+idx = 3
+name = "SAM-9"
+
+[configurations.value]
+x = 7.858
+y = 5.739
+theta = 48.3
+
+[[configurations]]
+idx = 4
+name = "SAM-18"
+
+[configurations.value]
+x = 9.049
+y = 6.62
+theta = 73
+
+[[configurations]]
+idx = 5
+name = "SAM-18-Nudged"
+
+[configurations.value]
+x = 6.81
+y = 4.072
+theta = 95.3
+
+[[configurations]]
+idx = 6
+name = "SAM-Ann-Nudged"
+
+[configurations.value]
+x = 8.192
+y = 4.762
+theta = 120
+
+[[configurations]]
+idx = 7
+name = "Mirror"
+
+[configurations.value]
+x = 8.253
+y = 5.153
+theta = 143
+
+[[configurations]]
+idx = 8
+name = "SAM-Ann"
+
+[configurations.value]
+x = 8.087
+y = 10
+theta = 164
+
+[[configurations]]
+idx = 9
+name = "LyotStop"
+
+[configurations.value]
+x = 7.372016625
+y = 4.935997875000001
+theta = 191.9998
+
+[[configurations]]
+idx = 10
+name = "Open"
+
+[configurations.value]
+x = 7.12
+y = 6.858
+theta = 217.5
+
+[[configurations]]
+idx = 11
+name = "ND10"
+
+[configurations.value]
+x = 7.048
+y = 6.858
+theta = 241
+
+[[configurations]]
+idx = 12
+name = "ND25"
+
+[configurations.value]
+x = 7.048
+y = 6.858
+theta = 265
+
+[[configurations]]
+idx = 13
+name = "SAM-Ann-Ref"
+
+[configurations.value]
+x = 7.048
+y = 6.858
+theta = 283.2
 
 [[devices]]
 name = "x"
-unit = "mm"
 type = "zaber"
+unit = "mm"
+offset = 0
 
 [devices.serial]
 port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
 device_number = 1
 
-
 [[devices]]
 name = "y"
-unit = "mm"
 type = "zaber"
+unit = "mm"
+offset = 0
 
 [devices.serial]
 port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
@@ -36,8 +139,9 @@ device_number = 2
 
 [[devices]]
 name = "theta"
-unit = "mm"
 type = "conex"
+unit = "mm"
+offset = 0
 
 [devices.serial]
 port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6VRT271-if00-port0"

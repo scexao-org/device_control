@@ -2,6 +2,8 @@ from typing import Union
 
 import numpy as np
 import tomli
+import tomli_w
+from pathlib import Path
 
 from device_control.drivers.conex import CONEXDevice
 from device_control.drivers.zaber import ZaberDevice
@@ -69,8 +71,71 @@ class MultiDevice(ConfigurableDevice):
         )
 
     def save_config(self, filename=None):
-        raise NotImplementedError()
-        return super().save_config(filename)
+        if filename is None:
+            filename = self.config_file
+        path = Path(filename)
+
+        config = {
+            "name": self.name,
+            "configurations": self.configurations,
+        }
+        config.update(self._config_extras())
+        config["devices"] = []
+        for key, device in self.devices.items():
+            if isinstance(device, CONEXDevice):
+                type = "conex"
+            elif isinstance(device, ZaberDevice):
+                type = "zaber"
+            devconf = {"name": key, "type": type, "serial": device.serial_kwargs}
+            devconf.update(device._config_extras())
+            config["devices"].append(devconf)
+        with path.open("wb") as fh:
+            tomli_w.dump(config, fh)
+        self.logger.info(f"saved configuration to {path.absolute()}")
+
+    def _config_extras(self):
+        return {}
+
+    def save_configuration(
+        self, positions=None, index=None, name=None, tol=1e-1, **kwargs
+    ):
+        if positions is None:
+            values = {k: dev.get_position() for k, dev, in self.devices.items()}
+        else:
+            values = {k: pos for k, pos in zip(self.devices.keys(), positions)}
+
+        current_config = self.get_configuration(positions=values.values(), tol=tol)
+        if index is None:
+            if current_config[0] is None:
+                raise RuntimeError(
+                    "Cannot save to an unknown configuration. Please provide index."
+                )
+            index = current_config[0]
+            if name is None:
+                name = current_config[1]
+
+        # see if existing configuration
+        for row in self.configurations:
+            if row["idx"] == index:
+                if name is not None:
+                    row["name"] = name
+                row["value"] = values
+                self.logger.info(
+                    f"updated configuration {index} '{row['name']}' to value {row['value']}"
+                )
+                break
+        else:
+            if name is None:
+                raise ValueError("Must provide name for new configuration")
+            self.configurations.append(dict(idx=index, name=name, values=values))
+            self.logger.info(
+                f"added new configuration {index} '{name}' with value {values}"
+            )
+
+        # sort configurations dictionary in-place by index
+        self.configurations.sort(key=lambda d: d["idx"])
+        # save configurations to file
+        return self.save_config(**kwargs)
 
     def move_configuration_idx(self, idx: int, wait=False):
         for row in self.configurations:

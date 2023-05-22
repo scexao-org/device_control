@@ -65,6 +65,8 @@ def main():
         print(__doc__)
     elif len(sys.argv) == 2 and args["status"]:
         idx, name = vampires_mask.get_configuration()
+        if idx is None:
+            idx = -1
         x = vampires_mask.get_position("x")
         y = vampires_mask.get_position("y")
         th = vampires_mask.get_position("theta")
