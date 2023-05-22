@@ -105,9 +105,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
 
     def set_parameters(self):
         trigger_mode = int(self.flc_enabled) + (int(self.sweep_mode) << 1)
-        cmd = "1 {:d} {:d} {:d}".format(
-            self.pulse_width, self.flc_offset, trigger_mode
-        )
+        cmd = "1 {:d} {:d} {:d}".format(self.pulse_width, self.flc_offset, trigger_mode)
         self.send_command(cmd)
         # self.update_keys()
 

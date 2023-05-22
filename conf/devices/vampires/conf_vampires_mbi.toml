@@ -1,8 +1,8 @@
 name = "vampires_mbi"
 unit = "deg"
 configurations = [
-    {idx=1, name="IN", value=-9},
-    {idx=2, name="OUT", value=171},
+    {idx=1, name="IN", value=80},
+    {idx=2, name="OUT", value=260},
 ]
 
 [serial]
