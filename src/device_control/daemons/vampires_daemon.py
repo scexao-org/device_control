@@ -51,6 +51,7 @@ def main():
         "tc": VAMPIRESTC.from_config(
             conf_dir / "devices/vampires/conf_vampires_tc.toml"
         ),
+        # "trigger": VAMPIRESTrigger.from_config(conf_dir / "devices/vampires/conf_vampires_trigger.toml")
         # "pupil": VAMPIRESPupilLens.from_config(conf_dir / "devices/vampires/conf_vampires_pupil.toml"),
     }
     ## Add to Pyro server

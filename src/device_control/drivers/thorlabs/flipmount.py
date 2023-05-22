@@ -34,13 +34,17 @@ class ThorlabsFlipMount(ConfigurableDevice):
 
         with self.serial as serial:
             serial.write(cmd)
+        self.update_keys()
 
     def get_position(self):
         with self.serial as serial:
             serial.write(COMMANDS["status"])
-            result = serial.read(12)
-        if result == STATUSES["down"]:
-            return "DOWN"
-        elif result == STATUSES["up"]:
-            return "UP"
-        return "Unknown"
+            response = serial.read(12)
+        if response == STATUSES["down"]:
+            result = "DOWN"
+        elif response == STATUSES["up"]:
+            result = "UP"
+        else:
+            result = "Unknown"
+        self.update_keys(result)
+        return result

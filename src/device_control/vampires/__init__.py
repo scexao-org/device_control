@@ -10,6 +10,7 @@ PYRO_KEYS = {
     "qwp1": "VAMPIRES_QWP1",
     "qwp2": "VAMPIRES_QWP2",
     "tc": "VAMPIRES_TC",
+    "trigger": "VAMPIRES_TRIGGER",
 }
 
 from .vampires_beamsplitter import VAMPIRESBeamsplitter
