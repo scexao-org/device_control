@@ -14,22 +14,9 @@ from swmain.redis import update_keys
 class VAMPIRESFocus(CONEXDevice):
     format_str = "{0}: {1:10s} {{{2:5.02f} mm}}"
 
-    def home(self, **kwargs):
-        super().home(**kwargs)
-        self.update_keys()
-
-    def _move_absolute(self, value: float, **kwargs):
-        super()._move_absolute(value, **kwargs)
-        self.update_keys()
-
-    def move_relative(self, value: float, **kwargs):
-        super().move_relative(value, **kwargs)
-        self.update_keys()
-
-    def update_keys(self):
-        posn = self.get_position()
-        _, name = self.get_configuration()
-        update_keys(U_FCS=name.upper(), U_FCSF=posn)
+    def _update_keys(self, position):
+        _, name = self.get_configuration(position=position)
+        update_keys(U_FCS=name.upper(), U_FCSF=position)
 
     def help_message(self):
         configurations = "\n".join(

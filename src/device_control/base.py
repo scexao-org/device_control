@@ -96,6 +96,7 @@ class MotionDevice(ConfigurableDevice):
 
     def get_position(self):
         pos = self._get_position() + self.offset
+        self.update_keys(pos)
         return pos
 
     def _get_position(self):
@@ -109,19 +110,39 @@ class MotionDevice(ConfigurableDevice):
         raise NotImplementedError()
 
     def home(self, wait=False):
+        pos = self._home(wait=wait)
+        self.update_keys(pos)
+        return pos
+
+    def _home(self, wait=False):
         raise NotImplementedError()
 
     def move_absolute(self, value, **kwargs):
-        return self._move_absolute(value - self.offset, **kwargs)
+        pos = self._move_absolute(value - self.offset, **kwargs)
+        self.update_keys(pos)
+        return pos
 
     def _move_absolute(self, value, wait=False):
         raise NotImplementedError()
 
     def move_relative(self, value, wait=False):
+        pos = self._move_relative(value, wait=wait)
+        self.update_keys(pos)
+        return pos
+
+    def _move_relative(self, value, wait=False):
         raise NotImplementedError()
 
     def stop(self):
         raise NotImplementedError()
+
+    def update_keys(self, position=None):
+        if position is None:
+            position = self.get_position()
+        return self._update_keys(position)
+
+    def _update_keys(self, position):
+        pass
 
     def move_configuration_idx(self, idx: int, **kwargs):
         for row in self.configurations:
@@ -135,16 +156,20 @@ class MotionDevice(ConfigurableDevice):
                 return self.move_absolute(row["value"], **kwargs)
         raise ValueError(f"No configuration saved with name '{name}'")
 
-    def get_configuration(self, tol=1e-1):
-        position = self.get_position()
+    def get_configuration(self, position=None, tol=1e-1):
+        if position is None:
+            position = self.get_position()
         for row in self.configurations:
             if np.abs(position - row["value"]) <= tol:
                 return row["idx"], row["name"]
         return None, "Unknown"
 
-    def save_configuration(self, index=None, name=None, tol=1e-1, **kwargs):
-        position = self.get_position()
-        current_config = self.get_configuration(tol=tol)
+    def save_configuration(
+        self, position=None, index=None, name=None, tol=1e-1, **kwargs
+    ):
+        if position is None:
+            position = self.get_position()
+        current_config = self.get_configuration(position, tol=tol)
         if index is None:
             if current_config[0] is None:
                 raise RuntimeError(

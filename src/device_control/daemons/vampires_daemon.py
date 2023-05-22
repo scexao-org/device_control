@@ -2,20 +2,18 @@ import os
 from argparse import ArgumentParser
 from pathlib import Path
 
-from device_control.drivers.conex import CONEXDevice
-from device_control.drivers.thorlabs import ThorlabsFlipMount, ThorlabsTC, ThorlabsWheel
-from device_control.drivers.zaber import ZaberDevice
-from device_control.multi_device import MultiDevice
 from device_control.vampires import PYRO_KEYS
-from device_control.vampires.vampires_mask_wheel import VAMPIRESMaskWheel
 from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 from swmain.network.pyroserver_registerable import PyroServer
 from device_control.vampires import (
     VAMPIRESBeamsplitter,
-    VAMPIRESFilter,
-    VAMPIRESQWP,
+    VAMPIRESCamFocus,
     VAMPIRESDiffWheel,
+    VAMPIRESFilter,
     VAMPIRESFocus,
+    VAMPIRESQWP,
+    VAMPIRESTC,
+    VAMPIRESMaskWheel,
 )
 
 parser = ArgumentParser(
@@ -38,10 +36,10 @@ def launch_focus():
     return focus
 
 
-# def launch_camfocus():
-#     config = conf_dir / "devices/vampires/conf_vampires_camfocus.toml"
-#     camfocus = ZaberDevice.from_config(config)
-#     return camfocus
+def launch_camfocus():
+    config = conf_dir / "devices/vampires/conf_vampires_camfocus.toml"
+    camfocus = VAMPIRESCamFocus.from_config(config)
+    return camfocus
 
 
 def launch_diffwheel():
@@ -50,10 +48,10 @@ def launch_diffwheel():
     return diffwheel
 
 
-# def launch_mask():
-#     config = conf_dir / "devices/vampires/conf_vampires_mask.toml"
-#     mask = VAMPIRESMaskWheel.from_config(config)
-#     return mask
+def launch_mask():
+    config = conf_dir / "devices/vampires/conf_vampires_mask.toml"
+    mask = VAMPIRESMaskWheel.from_config(config)
+    return mask
 
 
 def launch_qwp1():
@@ -80,10 +78,10 @@ def launch_filter():
 #     return pupil
 
 
-# def launch_tc():
-#     config = conf_dir / "devices/vampires/conf_vampires_tc.toml"
-#     tc = ThorlabsTC.from_config(config)
-#     return tc
+def launch_tc():
+    config = conf_dir / "devices/vampires/conf_vampires_tc.toml"
+    tc = VAMPIRESTC.from_config(config)
+    return tc
 
 
 def main():
@@ -95,13 +93,13 @@ def main():
     devices = {
         "beamsplitter": launch_beamsplitter(),
         "focus": launch_focus(),
-        # "camfocus": launch_camfocus(),
+        "camfocus": launch_camfocus(),
         "diffwheel": launch_diffwheel(),
-        # "mask": launch_mask(),
+        "mask": launch_mask(),
         "qwp1": launch_qwp1(),
         "qwp2": launch_qwp2(),
         "filter": launch_filter(),
-        # "tc": launch_tc(),
+        "tc": launch_tc(),
         # "pupil": launch_pupil(),
     }
     ## Add to Pyro server

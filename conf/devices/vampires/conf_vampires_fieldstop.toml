@@ -13,10 +13,12 @@ configurations = [
 
 [vampires_fieldstop.x]
 type = "conex"
-[serial]port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A60MCHL5-if00-port0"
 unit = "mm"
+[serial]
+port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A60MCHL5-if00-port0"
 
 [vampires_fieldstop.y]
 type = "conex"
-[serial]port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A60MCIFA-if00-port0"
 unit = "mm"
+[serial]
+port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A60MCIFA-if00-port0"

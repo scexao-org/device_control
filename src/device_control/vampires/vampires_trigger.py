@@ -2,11 +2,17 @@ import astropy.units as u
 import tomli
 from serial import Serial
 
-# from swmain.redis import update_keys
+from swmain.redis import update_keys
 from device_control.base import ConfigurableDevice
+
+import click
 
 
 class ArduinoError(RuntimeError):
+    pass
+
+
+class ArduinoTimeoutError(ArduinoError):
     pass
 
 
@@ -37,7 +43,9 @@ class VAMPIRESTrigger(ConfigurableDevice):
     def send_command(self, command):
         with self.serial as serial:
             serial.write(f"{command}\n".encode())
-            response = serial.readline().decode().strip()
+            response = serial.readline()
+            if len(response) == 0:
+                raise ArduinoTimeoutError()
             if response != "OK":
                 raise ArduinoError(response)
 
@@ -120,12 +128,12 @@ class VAMPIRESTrigger(ConfigurableDevice):
         #     serial.dtr = not serial.dtr
         #     serial.dtr = not serial.dtr
 
-    # def update_keys(self):
-    #     update_keys(
-    #         U_FLCEN="ON" if self.flc_enabled else "OFF",
-    #         U_FLCOFF=self.flc_offset,
-    #         U_TRIGPW=self.pulse_width
-    #     )
+    def update_keys(self):
+        update_keys(
+            U_FLCEN="ON" if self.flc_enabled else "OFF",
+            U_FLCOFF=self.flc_offset,
+            U_TRIGPW=self.pulse_width,
+        )
 
     def _extra_config(self):
         return {
@@ -137,3 +145,29 @@ class VAMPIRESTrigger(ConfigurableDevice):
         info = self.get_timing_info()
         # self.update_keys()
         return info
+
+
+__doc__ = """
+    vampires_trigger [-h | --help]
+    vampires_trigger (disable|status)
+    vampires_trigger [--flc | --no-flc]  enable [-w | --pulse-width] <width> [-o | --flc-offset] <off>
+
+    Options:
+        -h | --help                 Print this help message
+        --flc | --no-flc            Enables or disables the FLC
+        -w | --pulse-width <width>  Use a custom pulse width. Default is 10 us.
+        -o | --flc-offset <off>     Use a custom FLC time delay (only used if FLC is enabled). Defauls is 20 us.
+
+    Commands:
+        enable      Enables the trigger.
+        disable     Disables the trigger. This should not need to be called in general unless you want to physically stop triggering. For simple acquisition control prefer software measures.
+        status      Returns the status of the trigger and its timing info.
+"""
+
+
+def main():
+    pass
+
+
+if __name__ == "__main__":
+    main()

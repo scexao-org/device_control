@@ -1,6 +1,11 @@
-device_number = 3
 name = "vampires_camfocus"
 unit = "mm"
 
+configurations = [
+    {idx=1, name="HOME", value=7.12},
+    {idx=2, name="DEFOCUS", value=7.3}
+]
+
 [serial]
 port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
+device_number = 3

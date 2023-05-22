@@ -21,20 +21,15 @@ Library.enable_device_db_store()
 
 
 class ZaberDevice(MotionDevice):
-    def __init__(self, device_address=1, delay=0.1, **kwargs):
+    def __init__(self, delay=0.1, **kwargs):
+        self.device_number = kwargs["serial_kwargs"].pop("device_number")
         super().__init__(**kwargs)
-        self.device_address = device_address
         self.zab_unit = ZABER_UNITS[self.unit]
         self.delay = delay
 
-    def _config_extras(self):
-        extras = super()._config_extras()
-        extras["device_address"] = self.device_address
-        return extras
-
     def __enter__(self):
         self.connection = Connection.open_serial_port(self.serial_kwargs["port"])
-        device = self.connection.get_device(self.device_address)
+        device = self.connection.get_device(self.device_number)
         device.identify()
         return device
 
@@ -64,7 +59,7 @@ class ZaberDevice(MotionDevice):
             if wait:
                 device.wait_until_idle()
 
-    def move_relative(self, value, wait=False):
+    def _move_relative(self, value, wait=False):
         with self as device:
             device.move_relative(value, self.zab_unit)
             if wait:
@@ -73,7 +68,7 @@ class ZaberDevice(MotionDevice):
     def reset(self):
         self.send_command(0)
 
-    def home(self, wait=False):
+    def _home(self, wait=False):
         with self as device:
             device.home()
             if wait:
@@ -81,4 +76,5 @@ class ZaberDevice(MotionDevice):
 
     def stop(self):
         with self as device:
-            return device.stop()
+            device.stop()
+        self.update_keys()
