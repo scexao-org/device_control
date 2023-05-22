@@ -20,15 +20,10 @@ class VAMPIRESQWP(CONEXDevice):
             raise ValueError("VAMPIRES only has QWP1 and QWP2")
         self.number = number
 
-    def _move_absolute(self, value: float, **kwargs):
-        super()._move_absolute(value, **kwargs)
-        self.update_keys()
-
-    def update_keys(self):
-        pos = self._get_position()
+    def _update_keys(self, theta):
         kwargs = {
-            f"U_QWP{self.number:1d}": pos + self.offset,
-            f"U_QWP{self.number:1d}TH": pos,
+            f"U_QWP{self.number:1d}": theta + self.offset,
+            f"U_QWP{self.number:1d}TH": theta,
         }
         update_keys(**kwargs)
 

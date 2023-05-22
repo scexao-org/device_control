@@ -3,15 +3,23 @@ import sys
 
 from docopt import docopt
 
+from device_control.drivers import ZaberDevice
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (
     connect,
 )  # Requires scxconf and will fetch the IP addresses there.
+from swmain.redis import update_keys
 
-vampires_camfocus = connect(PYRO_KEYS["camfocus"])
-format_str = "{0:4.02f} mm"
 
-__doc__ = f"""Usage:
+class VAMPIRESCamFocus(ZaberDevice):
+    format_str = "{0:4.02f} mm"
+
+    def _update_keys(self, position):
+        _, name = self.get_configuration(position=position)
+        update_keys(U_CAMFCS=name.upper(), U_CAMFCF=position)
+
+    def help_message(self):
+        return f"""Usage:
     vampires_camfocus [-h | --help]
     vampires_camfocus [-w | --wait] (status|position|home|goto|nudge|stop|reset) [<pos>]
 
@@ -28,15 +36,18 @@ Wheel commands:
     stop            Stop the focus stage
     reset           Reset the focus stage"""
 
+
 # setp 4. action
 def main():
+    vampires_camfocus = connect(PYRO_KEYS["camfocus"])
+    __doc__ = vampires_camfocus.help_message()
     args = docopt(__doc__, options_first=True)
     if len(sys.argv) == 1:
         print(__doc__)
     if args["status"]:
-        print(format_str.format(vampires_camfocus.position))
+        print(VAMPIRESCamFocus.format_str.format(vampires_camfocus.get_position()))
     elif args["position"]:
-        print(vampires_camfocus.position)
+        print(vampires_camfocus.get_position())
     elif args["home"]:
         vampires_camfocus.home(wait=args["--wait"])
     elif args["goto"]:
@@ -49,6 +60,7 @@ def main():
         vampires_camfocus.stop()
     elif args["reset"]:
         vampires_camfocus.reset()
+    vampires_camfocus.update_keys()
 
 
 if __name__ == "__main__":

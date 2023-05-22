@@ -13,12 +13,8 @@ from swmain.network.pyroclient import (
 class VAMPIRESFilter(ThorlabsWheel):
     format_str = "{0:1d}: {1:8s}"
 
-    def _move_absolute(self, value: float, **kwargs):
-        super()._move_absolute(value, **kwargs)
-        self.update_keys()
-
-    def update_keys(self):
-        pos, name = self.get_configuration()
+    def _update_keys(self, position):
+        pos, name = self.get_configuration(position=position)
         update_keys(U_FILTER=name, U_FILTTH=pos)
 
     def help_message(self):

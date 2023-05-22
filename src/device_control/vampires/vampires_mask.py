@@ -1,5 +1,10 @@
-import os
+from typing import Union
+
+import numpy as np
+import tomli
 import sys
+from swmain.redis import update_keys
+from device_control.multi_device import MultiDevice
 
 from docopt import docopt
 
@@ -8,15 +13,25 @@ from swmain.network.pyroclient import (
     connect,
 )  # Requires scxconf and will fetch the IP addresses there.
 
-vampires_mask = connect(PYRO_KEYS["mask"])
 
-format_str = "{0}: {1:17s} {{x={2:6d} stp, y={3:6d} stp, th={4:5.1f} deg}}"
-configurations = "\n".join(
-    f"    {format_str.format(c['idx'], c['name'], c['value']['x'], c['value']['y'], c['value']['theta'])}"
-    for c in vampires_mask.configurations
-)
+class VAMPIRESMaskWheel(MultiDevice):
+    format_str = "{0:2d}: {1:17s} {{x={2:6.3f} mm, y={3:6.3f} mm, th={4:6.2f} deg}}"
 
-__doc__ = f"""Usage:
+    def _update_keys(self, positions):
+        _, name = self.get_configuration(positions=positions)
+        update_keys(
+            U_MASK=name,
+            U_MASKX=positions[0],
+            U_MASKY=positions[1],
+            U_MASKTH=positions[2],
+        )
+
+    def help_message(self):
+        configurations = "\n".join(
+            f"    {VAMPIRESMaskWheel.format_str.format(c['idx'], c['name'], c['value']['x'], c['value']['y'], c['value']['theta'])}"
+            for c in self.configurations
+        )
+        return f"""Usage:
     vampires_mask [-h | --help]
     vampires_mask [-h | --help] status
     vampires_mask [-w | --wait] x (status|position|home|goto|nudge|stop|reset) [<pos>]
@@ -40,41 +55,45 @@ Stage commands:
 Configurations:
 {configurations}"""
 
+
 # setp 4. action
 def main():
+    vampires_mask = connect(PYRO_KEYS["mask"])
+    __doc__ = vampires_mask.help_message()
     args = docopt(__doc__, options_first=True)
     if len(sys.argv) == 1:
         print(__doc__)
     elif len(sys.argv) == 2 and args["status"]:
         idx, name = vampires_mask.get_configuration()
-        x = vampires_mask.x.position
-        y = vampires_mask.y.position
-        th = vampires_mask.theta.position
-        print(format_str.format(idx, name, x, y, th))
+        x = vampires_mask.get_position("x")
+        y = vampires_mask.get_position("y")
+        th = vampires_mask.get_position("theta")
+        print(VAMPIRESMaskWheel.format_str.format(idx, name, x, y, th))
+        return
     elif args["x"]:
-        substage = vampires_mask.x
+        substage = "x"
     elif args["y"]:
-        substage = vampires_mask.y
+        substage = "y"
     elif args["theta"]:
-        substage = vampires_mask.theta
+        substage = "theta"
     elif args["<configuration>"]:
         index = int(args["<configuration>"])
-        return vampires_mask.move_configuration(index, wait=args["--wait"])
+        return vampires_mask.move_configuration_idx(index, wait=args["--wait"])
     if args["status"] or args["position"]:
-        print(substage.position)
+        print(vampires_mask.get_position(substage))
     elif args["home"]:
-        substage.home(wait=args["--wait"])
+        vampires_mask.home(substage, wait=args["--wait"])
     elif args["goto"]:
         pos = float(args["<pos>"])
         if args["theta"]:
-            substage.move_absolute(pos % 360, wait=args["--wait"])
+            vampires_mask.move_absolute(substage, pos % 360, wait=args["--wait"])
         else:
-            substage.move_absolute(pos, wait=args["--wait"])
+            vampires_mask.move_absolute(substage, pos, wait=args["--wait"])
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
-        substage.move_relative(rel_pos, wait=args["--wait"])
+        vampires_mask.move_relative(substage, rel_pos, wait=args["--wait"])
     elif args["stop"]:
-        substage.stop()
+        vampires_mask.stop(substage)
     elif args["reset"]:
         substage.reset()
 

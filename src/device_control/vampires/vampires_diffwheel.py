@@ -14,33 +14,20 @@ from swmain.redis import update_keys
 class VAMPIRESDiffWheel(CONEXDevice):
     format_str = "{0}: {1:21s} {{{2:5.01f} deg}}"
 
-    def home(self, **kwargs):
-        super().home(**kwargs)
-        self.update_keys()
-
-    def _move_absolute(self, value: float, **kwargs):
-        super()._move_absolute(value, **kwargs)
-        self.update_keys()
-
-    def move_relative(self, value: float, **kwargs):
-        super().move_relative(value, **kwargs)
-        self.update_keys()
-
-    def update_keys(self):
-        posn = self.get_position()
-        _, status = self.get_configuration()
+    def _update_keys(self, theta):
+        _, status = self.get_configuration(position=theta)
         if status == "Unknown":
             update_keys(
                 U_DIFFL1="Unknown",
                 U_DIFFL2="Unknown",
-                U_DIFFTH=posn,
+                U_DIFFTH=theta,
             )
         else:
             state1, state2 = status.split(" / ")
             update_keys(
                 U_DIFFL1=state1,
                 U_DIFFL2=state2,
-                U_DIFFTH=posn,
+                U_DIFFTH=theta,
             )
 
     def help_message(self):

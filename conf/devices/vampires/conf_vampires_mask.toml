@@ -1,35 +1,45 @@
 name = "vampires_mask"
 configurations = [
-    {idx=1, name="Open", value={x=188000, y=121000, theta=0}},
-    {idx=2, name="7hole", value={x=164000, y=124000, theta=28}},
-    {idx=3, name="9hole", value={x=165000, y=120500, theta=48.3}},
-    {idx=4, name="18hole", value={x=190000, y=139000, theta=73}},
-    {idx=5, name="18holeNudged", value={x=151000, y=87500, theta=95.3}},
-    {idx=6, name="AnnulusNudged", value={x=168000, y=106000, theta=120}},
-    {idx=7, name="Mirror", value={x=187000, y=85500, theta=143}},
-    {idx=8, name="OldAnnulus", value={x=182800, y=11500, theta=164}},
-    {idx=9, name="LyotStop", value={x=153500, y=131000, theta=192.6}},
-    {idx=10, name="Open", value={x=149500, y=156500, theta=217.49}},
-    {idx=11, name="ND10", value={x=149500, y=156500, theta=241.5}},
-    {idx=12, name="ND25", value={x=149500, y=156500, theta=265.5}},
-    {idx=13, name="AnnulusRef", value={x=149500, y=156500, theta=283.2}},
+    {idx=1, name="Open", value={x=9.477, y=6.858, theta=0}},
+    {idx=2, name="SAM-7", value={x=6.763, y=10.144, theta=28}},
+    {idx=3, name="SAM-9", value={x=7.858, y=5.739, theta=48.3}},
+    {idx=4, name="SAM-18", value={x=9.049, y=6.62, theta=73}},
+    {idx=5, name="SAM-18-Nudged", value={x=6.81, y=4.072, theta=95.3}},
+    {idx=6, name="SAM-Ann-Nudged", value={x=8.192, y=4.762, theta=120}},
+    {idx=7, name="Mirror", value={x=8.253, y=5.153, theta=143}},
+    {idx=8, name="SAM-Ann", value={x=8.087, y=10, theta=164}},
+    {idx=9, name="LyotStop", value={x=7.382, y=4.786, theta=192}},
+    {idx=10, name="Open", value={x=7.12, y=6.858, theta=217.5}},
+    {idx=11, name="ND10", value={x=7.048, y=6.858, theta=241}},
+    {idx=12, name="ND25", value={x=7.048, y=6.858, theta=265}},
+    {idx=13, name="SAM-Ann-Ref", value={x=7.048, y=6.858, theta=283.2}},
 ]
 
-[vampires_mask.x]
+[[devices]]
+name = "x"
+unit = "mm"
 type = "zaber"
-[serial]port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
+
+[devices.serial]
+port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
 device_number = 1
-unit = "step"
 
-[vampires_mask.y]
+
+[[devices]]
+name = "y"
+unit = "mm"
 type = "zaber"
-[serial]port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
-device_number = 2
-unit = "step"
 
-[vampires_mask.theta]
+[devices.serial]
+port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
+device_number = 2
+
+[[devices]]
+name = "theta"
+unit = "mm"
 type = "conex"
-[serial]port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6VRT271-if00-port0"
+
+[devices.serial]
+port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6VRT271-if00-port0"
 baudrate = 921600
 xonxoff = true
-unit = "mm"

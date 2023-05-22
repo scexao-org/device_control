@@ -14,22 +14,9 @@ from swmain.redis import update_keys
 class VAMPIRESBeamsplitter(CONEXDevice):
     format_str = "{0}: {1:15s} {{{2:5.01f} deg}}"
 
-    def home(self, **kwargs):
-        super().home(**kwargs)
-        self.update_keys()
-
-    def _move_absolute(self, value: float, **kwargs):
-        super()._move_absolute(value, **kwargs)
-        self.update_keys()
-
-    def move_relative(self, value: float, **kwargs):
-        super().move_relative(value, **kwargs)
-        self.update_keys()
-
-    def update_keys(self):
-        posn = self.get_position()
-        _, name = self.get_configuration()
-        update_keys(U_BS=name, U_BSTH=posn)
+    def _update_keys(self, theta):
+        _, name = self.get_configuration(position=theta)
+        update_keys(U_BS=name, U_BSTH=theta)
 
     def help_message(self):
         configurations = "\n".join(

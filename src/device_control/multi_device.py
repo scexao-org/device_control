@@ -8,40 +8,36 @@ from device_control.drivers.zaber import ZaberDevice
 
 __all__ = ["MultiDevice"]
 
+from device_control.base import ConfigurableDevice
 
-class MultiDevice:
-    def __init__(self, devices: dict, name="", configurations=None, config_file=None):
-        self._devices = devices
-        self._name = name
-        self._configurations = configurations
-        self.current_config = None
-        self.config_file = config_file
 
-    @property
-    def configurations(self):
-        return self._configurations
+class MultiDevice(ConfigurableDevice):
+    def __init__(self, devices: dict, **kwargs):
+        self.devices = devices
+        kwargs["serial_kwargs"] = {}
+        super().__init__(**kwargs)
 
-    @configurations.setter
-    def configurations(self, value):
-        self._configurations = value
+    def get_devices(self):
+        return self.devices
 
-    @property
-    def name(self):
-        return self._name
+    def get_device(self, name):
+        return self.devices[name]
 
-    @name.setter
-    def name(self, value):
-        self._name = value
+    def get_position(self, name):
+        return self.devices[name].get_position()
 
-    @property
-    def devices(self):
-        return self._devices
+    def move_absolute(self, name, value, **kwargs):
+        return self.devices[name].move_absolute(value, **kwargs)
 
-    @devices.setter
-    def devices(self, value):
-        self._devices = value
-        for key, value in self._devices.items():
-            setattr(self, key, value)
+    def move_relative(self, name, value, **kwargs):
+        return self.devices[name].move_relative(value, **kwargs)
+
+    def stop(self, name=None):
+        if name is None:
+            for device in self.devices.values():
+                device.stop()
+        else:
+            self.devices[name].stop()
 
     @classmethod
     def from_config(__cls__, filename):
@@ -49,17 +45,15 @@ class MultiDevice:
             parameters = tomli.load(fh)
         name = parameters["name"]
         devices = {}
-        for device_name, device_config in parameters[name].items():
-            dev_name = f"{name}_{device_name}"
+        for device_config in parameters["devices"]:
+            device_name = device_config["name"]
+            device_config["name"] = f"{name}_{device_name}"
+            device_config["serial_kwargs"] = device_config.pop("serial")
             dev_type = device_config.pop("type")
             if dev_type.lower() == "conex":
-                device = CONEXDevice(
-                    name=dev_name, config_file=filename, **device_config
-                )
+                device = CONEXDevice(config_file=filename, **device_config)
             elif dev_type.lower() == "zaber":
-                device = ZaberDevice(
-                    name=dev_name, config_file=filename, **device_config
-                )
+                device = ZaberDevice(config_file=filename, **device_config)
             else:
                 raise ValueError(
                     f"motion stage type not recognized: {device_config['type']}"
@@ -68,47 +62,15 @@ class MultiDevice:
 
         configurations = parameters.get("configurations", None)
         return __cls__(
-            devices, name=name, configurations=configurations, config_file=filename
+            devices=devices,
+            name=name,
+            configurations=configurations,
+            config_file=filename,
         )
 
-    def load_config(self, filename=None):
-        if filename is None:
-            filename = self.config_file
-        with open(filename, "rb") as fh:
-            parameters = tomli.load(fh)
-        self.name = parameters["name"]
-        self.devices = {}
-        for device_name, device_config in parameters[self.name].items():
-            dev_name = f"{self.name}_{device_name}"
-            dev_type = device_config["type"].lower()
-            if dev_type == "conex":
-                device = CONEXDevice(
-                    name=dev_name, config_file=filename, **device_config
-                )
-            elif dev_type == "zaber":
-                device = ZaberDevice(
-                    name=dev_name, config_file=filename, **device_config
-                )
-            else:
-                raise ValueError(
-                    f"motion stage type not recognized: {device_config['type']}"
-                )
-            self.devices[device_name] = device
-
-        self._configurations = parameters.get("configurations", None)
-        self.config_file = filename
-
-    def stop(self):
-        for device in self.devices:
-            device.stop()
-
-    def move_configuration(self, index: Union[int, str], wait=False):
-        if self.configurations is None:
-            raise ValueError("No configurations saved")
-        if isinstance(index, int):
-            return self.move_configuration_idx(index, wait=wait)
-        elif isinstance(index, str):
-            return self.move_configuration_name(index, wait=wait)
+    def save_config(self, filename=None):
+        raise NotImplementedError()
+        return super().save_config(filename)
 
     def move_configuration_idx(self, idx: int, wait=False):
         for row in self.configurations:
@@ -132,8 +94,19 @@ class MultiDevice:
             # TODO async wait
             self.devices[dev_name].move_absolute(value, wait=wait)
 
-    def get_configuration(self, tol=1e-1):
-        values = {k: dev.position for k, dev in self.devices.items()}
+    def update_keys(self, positions=None):
+        if positions is None:
+            positions = [dev.get_position() for dev in self.devices.values()]
+        return self._update_keys(positions)
+
+    def _update_keys(self, positions):
+        pass
+
+    def get_configuration(self, positions=None, tol=1e-1):
+        if positions is not None:
+            values = {k: p for k, p in zip(self.devices.keys(), positions)}
+        else:
+            values = {k: dev.get_position() for k, dev in self.devices.items()}
         for row in self.configurations:
             match = True
             for key, val in values.items():
