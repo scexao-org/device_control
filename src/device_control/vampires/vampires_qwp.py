@@ -47,6 +47,7 @@ Stage commands:
     stop            Stop the stage
     reset           Reset the stage"""
 
+
 # setp 4. action
 def main():
     args = docopt(__doc__, options_first=True)

@@ -23,6 +23,7 @@ parser = ArgumentParser(
 
 conf_dir = Path(os.getenv("CONF_DIR", f"{os.getenv('HOME')}/src/device_control/conf/"))
 
+
 ## First step, divide into individual functions
 def launch_beamsplitter():
     config = conf_dir / "devices/vampires/conf_vampires_beamsplitter.toml"

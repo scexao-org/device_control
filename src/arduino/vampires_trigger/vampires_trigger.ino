@@ -22,9 +22,6 @@
 Adafruit_NeoPixel strip(1, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 #endif
 
-// This way of testing works around micros() overflowing
-#define ROBUST_DELAY(target) while (micros() - last_loop_finish < target) continue
-
 // FYI C people: Arduino int is 16bit, long is 32 bits.
 // We use unsigned long for everything time-related in microseconds.
 // FLC only works for integration times < 1 second
@@ -32,7 +29,7 @@ const unsigned long max_flc_integration_time = 1000000; // us
 
 // global variable initialization
 unsigned int cmd_code;
-unsigned long last_loop_finish;
+unsigned long start_time;
 // settings
 unsigned long integration_time;
 unsigned long pulse_width;
@@ -41,6 +38,8 @@ unsigned int trigger_mode;
 bool sweep_mode;
 bool loop_enabled;
 bool flc_enabled;
+bool camera_one_ready;
+bool camera_two_ready;
 
 /*
     Setup function runs every USB reset. Note: this includes when a serial
@@ -49,7 +48,7 @@ bool flc_enabled;
 void setup()
 {    // variable resets
     sweep_mode = false;
-    loop_enabled = false;
+    loop_enabled = true;
     flc_enabled = true;
     pulse_width = 10; // us
     flc_offset = 20; // us
@@ -109,42 +108,47 @@ void loop()
     This allows testing
 */
 void trigger_loop_flc() {
+    camera_one_ready = camera_two_ready = false;
     // First exposure FLC is relaxed
     digitalWrite(FLC_TRIGGER_PIN, LOW);
-    ROBUST_DELAY(flc_offset);
+    // delaying this way works around integer overflow
+    for (start_time = micros(); micros() - start_time < flc_offset;) continue;
+    // Send camera trigger pulse
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
-    ROBUST_DELAY(flc_offset + pulse_width);
+    for (start_time = micros(); micros() - start_time < pulse_width;) continue;
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
-    // ROBUST_DELAY(dt3);
-    while (!digitalRead(CAMERA_ONE_READY) || !digitalRead(CAMERA_TWO_READY)) continue;
-    last_loop_finish = micros();
+    // wait for both cameras to have sent their trigger ready pulses
+    // note that since the output is a pulse, we use |= as a tripwire
+    // so all subsequent loops are True, even when the pulse goes back LOW
+    while (!camera_one_ready || !camera_two_ready) {
+      camera_one_ready |= digitalRead(CAMERA_ONE_READY);
+      camera_two_ready |= digitalRead(CAMERA_TWO_READY);
+    }
+    // start second half- reset variables
+    camera_one_ready = camera_two_ready = false;
     // Second exposure FLC is active
     digitalWrite(FLC_TRIGGER_PIN, HIGH);
-    ROBUST_DELAY(flc_offset);
+    for (start_time = micros(); micros() - start_time < flc_offset;) continue;
+    // Send camera pulse
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
-    ROBUST_DELAY(flc_offset + pulse_width);
+    for (;micros() - start_time < pulse_width + flc_offset;) continue;
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
-    for (integration_time = 0; integration_time < max_flc_integration_time, integration_time += micros();) {
-        if (!digitalRead(CAMERA_ONE_READY) || !digitalRead(CAMERA_TWO_READY)) break;
+    // This time we need to add a short-circuit to avoid over-exciting the FLC
+    for (;micros() - start_time < max_flc_integration_time;) {
+      camera_one_ready |= digitalRead(CAMERA_ONE_READY);
+      camera_two_ready |= digitalRead(CAMERA_TWO_READY);
+      if (camera_one_ready && camera_two_ready) break;
     }
     // Immediately shut off FLC to maintain DC balance
     digitalWrite(FLC_TRIGGER_PIN, LOW);
-    if (!digitalRead(CAMERA_ONE_READY) || !digitalRead(CAMERA_TWO_READY)) {
-        loop_enabled = false;
+    // In the case that we short-circuited, let's disable the loop
+    // as a means of signalling the failure.
+    if (!camera_one_ready || !camera_one_ready) disable_loop();
+
+    // Sweep mode - increase offset until exposures hang. Recovery requires reset
+    if (sweep_mode) {
+        flc_offset += 1;
     }
-    // ROBUST_DELAY(dt6);
-
-    // We take it that way, rather than calling micros() again. Otherwise
-    // the loop will be a teensy tiny bit longer than 2 * integration_time.
-    last_loop_finish = micros();
-
-    // Sweep mode
-    // if (sweep_mode) {
-    //     ++flc_offset;
-    //     if (flc_offset + pulse_width == integration_time) {
-    //         flc_offset = 0;
-    //     }
-    // }
 }
 
 /*
@@ -152,11 +156,53 @@ void trigger_loop_flc() {
     Here each arduino loop comprises a single camera trigger pulse.
 */
 void trigger_loop_noflc() {
+    // reset ready flags
+    camera_one_ready = camera_two_ready = false;
+    // initiate pulse
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
-    ROBUST_DELAY(pulse_width);
+    for (start_time = micros(); micros() - start_time < pulse_width;) continue;
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
-    while (!digitalRead(CAMERA_ONE_READY) || !digitalRead(CAMERA_TWO_READY)) continue;
-    last_loop_finish = micros();
+    // wait for both cameras to have sent their trigger ready pulses
+    // note that since the output is a pulse, we use |= as a tripwire
+    // so all subsequent loops are True, even when the pulse goes back LOW
+    while (!camera_one_ready || !camera_two_ready) {
+      camera_one_ready |= digitalRead(CAMERA_ONE_READY);
+      camera_two_ready |= digitalRead(CAMERA_TWO_READY);
+    }
+}
+
+void disable_loop() {
+  loop_enabled = false;
+#if DEBUG_MODE
+  // set neopixel to red
+  strip.setPixelColor(0, NEOPIXEL_BRIGHTNESS, 0, 0);
+  strip.show();
+#endif
+}
+
+void enable_loop() {
+  loop_enabled = true;
+#if DEBUG_MODE
+  // set neopixel to green
+  strip.setPixelColor(0, 0, NEOPIXEL_BRIGHTNESS, 0);
+  strip.show();
+#endif
+}
+
+void disable_flc() {
+  flc_enabled = false;
+  digitalWrite(FLC_CONTROL_PIN, LOW);
+#if DEBUG_MODE
+    digitalWrite(LED_PIN, LOW);
+#endif
+}
+
+void enable_flc() {
+  flc_enabled = true;
+  digitalWrite(FLC_CONTROL_PIN, HIGH);
+#if DEBUG_MODE
+    digitalWrite(LED_PIN, HIGH);
+#endif
 }
 
 /*
@@ -194,27 +240,14 @@ void handle_serial() {
             // pulse width (us), flc offset (us), trigger mode
             set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
             Serial.println("OK");
-            // reset loop
-            prepareLoop();
             break;
         case 2: // DISABLE
-            loop_enabled = false;
+            disable_loop();
             Serial.println("OK");
-#if DEBUG_MODE
-            // set neopixel to red
-            strip.setPixelColor(0, NEOPIXEL_BRIGHTNESS, 0, 0);
-            strip.show();
-#endif
             break;
         case 3: // ENABLE
-            prepareLoop();
-            loop_enabled = true;
+            enable_loop();
             Serial.println("OK");
-#if DEBUG_MODE
-            // set neopixel to green
-            strip.setPixelColor(0, 0, NEOPIXEL_BRIGHTNESS, 0);
-            strip.show();
-#endif
             break;
         default:
             Serial.println("ERROR - invalid command");
@@ -240,22 +273,20 @@ void set(int _pulse_width, int _flc_offset, int _trigger_mode) {
         Serial.println("ERROR - invalid FLC offset: must be between 0 and 1000");
         return;
     }
+    if (_pulse_width < 0 || _pulse_width > _flc_offset) {
+      Serial.println("ERROR - invalid pulse width: must be between 0 and FLC offset");
+      return;
+    }
     // set global variables
     pulse_width = _pulse_width;
     flc_offset = _flc_offset;
     trigger_mode = _trigger_mode;
-    // `trigger_mode` LSB is FLC enable
-    flc_enabled = trigger_mode & 0x1;
-    digitalWrite(FLC_CONTROL_PIN, flc_enabled);
-#if DEBUG_MODE
-    digitalWrite(LED_PIN, flc_enabled);
-#endif
-
-    // 'trigger_mode' 2nd bit is sweep mode enable
+    // `trigger_mode` LSB is FLC flag
+    if (trigger_mode & 0x1) {
+      enable_flc();
+    } else {
+      disable_flc();
+    }
+    // 'trigger_mode' 2nd bit is sweep mode flag
     sweep_mode = trigger_mode & 0x2;
-}
-
-void prepareLoop() {
-    // Compute values for loop
-    last_loop_finish = micros();
 }

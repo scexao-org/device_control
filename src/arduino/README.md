@@ -6,12 +6,12 @@ VAMPIRES uses an [Adafruit Metro M4 express](https://www.adafruit.com/product/33
 
 | SMA marker | Dig I/O port | Description |
 |-|-|-|
-| R1 | 12 | Camera 1 trigger ready input. |
-| CT | 10 | Camera trigger output. This is designed to be teed off to both cameras so they receive a simultaneous input. |
-| R2 | 8 | Camera 2 trigger ready input. |
-| FT | 6 | FLC trigger output. This is designed to connect to the trigger input of the Meadowlark FLC controller. |
+| CT | 12 | Camera trigger output. This is designed to be teed off to both cameras so they receive a simultaneous input. |
+| R1 | 10 | Camera 1 trigger ready input. |
+| R2 | 6 | Camera 2 trigger ready input. |
+| FT | 8 | FLC trigger output. This is designed to connect to the trigger input of the Meadowlark FLC controller. |
 | FC | 4 | FLC control output. The FLC will not trigger unless this output is enabled. This is designed to connect to the control input of the Meadowlark FLC controller. |
-|    |   | Unused port |
+| RS |   | Unused port |
 
 ### Deployment
 
