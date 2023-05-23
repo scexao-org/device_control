@@ -1,11 +1,10 @@
 import astropy.units as u
 import tomli
-from serial import Serial
-
 from swmain.redis import update_keys
-from device_control.base import ConfigurableDevice
 
 import click
+from serial import Serial
+from device_control.base import ConfigurableDevice
 
 
 class ArduinoError(RuntimeError):
@@ -27,7 +26,8 @@ class VAMPIRESTrigger(ConfigurableDevice):
         **kwargs,
     ):
         serial_kwargs = dict(
-            {"baudrate": 115200, "write_timeout": 0.5}, **serial_kwargs
+            {"baudrate": 115200, "write_timeout": 0.5, "rtscts": True, "dtsdtr": True},
+            **serial_kwargs,
         )
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
 
@@ -120,11 +120,8 @@ class VAMPIRESTrigger(ConfigurableDevice):
         # this will restart the Arduino program, which will
         # disable the loop and reset all timing values to their
         # internal defaults
-        self.serial.dtr = True
+        self.serial.flush()
         self.serial.dtr = False
-        # with self.serial as serial:
-        #     serial.dtr = not serial.dtr
-        #     serial.dtr = not serial.dtr
 
     def update_keys(self):
         update_keys(
