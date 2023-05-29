@@ -24,6 +24,8 @@ class ZaberDevice(MotionDevice):
     def __init__(self, delay=0.1, **kwargs):
         self.device_number = kwargs["serial_kwargs"].pop("device_number")
         super().__init__(**kwargs)
+        del self.serial
+        self.serial = None
         self.zab_unit = ZABER_UNITS[self.unit]
         self.delay = delay
 

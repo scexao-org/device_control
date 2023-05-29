@@ -158,25 +158,25 @@ class CONEXDevice(MotionDevice):
     def enable(self):
         self.send_command("MM1")
 
-    def _home(self, wait=False):
+    def _home(self, wait=True):
         self.send_command("OR")
         if wait:
             while self.is_homing:
                 time.sleep(self.delay)
 
-    def _move_absolute(self, value: float, wait=False):
+    def _move_absolute(self, value: float, wait=True):
         self.send_command(f"PA{value}")
         if wait:
             while self.is_moving:
-                time.sleep(self.delay)
                 self.update_keys()
+                time.sleep(self.delay)
 
-    def _move_relative(self, value: float, wait=False):
+    def _move_relative(self, value: float, wait=True):
         self.send_command(f"PR{value}")
         if wait:
             while self.is_moving:
-                time.sleep(self.delay)
                 self.update_keys()
+                time.sleep(self.delay)
 
     def reset(self):
         self.send_command("RS")
