@@ -7,7 +7,6 @@ from swmain.redis import update_keys
 from device_control.multi_device import MultiDevice
 
 from docopt import docopt
-
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (
     connect,

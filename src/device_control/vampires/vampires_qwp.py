@@ -22,8 +22,8 @@ class VAMPIRESQWP(CONEXDevice):
 
     def _update_keys(self, theta):
         kwargs = {
-            f"U_QWP{self.number:1d}": theta + self.offset,
-            f"U_QWP{self.number:1d}TH": theta,
+            f"U_QWP{self.number:1d}": theta,
+            f"U_QWP{self.number:1d}TH": theta - self.offset,
         }
         update_keys(**kwargs)
 

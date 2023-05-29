@@ -1,9 +1,10 @@
 import logging
-
+import time
 from zaber_motion import Library, Units
 from zaber_motion.binary import BinarySettings, CommandCode, Connection
 
 from ..base import MotionDevice
+
 
 __all__ = ["ZaberDevice"]
 
@@ -55,26 +56,32 @@ class ZaberDevice(MotionDevice):
             retval = device.settings.get(BinarySettings(index))
         return retval
 
-    def _move_absolute(self, value, wait=False):
+    def _move_absolute(self, value, wait=True):
         with self as device:
             device.move_absolute(value, self.zab_unit)
             if wait:
-                device.wait_until_idle()
+                while device.is_busy():
+                    self.update_keys()
+                    time.sleep(self.delay)
 
-    def _move_relative(self, value, wait=False):
+    def _move_relative(self, value, wait=True):
         with self as device:
             device.move_relative(value, self.zab_unit)
             if wait:
-                device.wait_until_idle()
+                while device.is_busy():
+                    self.update_keys()
+                    time.sleep(self.delay)
 
     def reset(self):
         self.send_command(0)
 
-    def _home(self, wait=False):
+    def _home(self, wait=True):
         with self as device:
             device.home()
             if wait:
-                device.wait_until_idle()
+                while device.is_busy():
+                    self.update_keys()
+                    time.sleep(self.delay)
 
     def stop(self):
         with self as device:

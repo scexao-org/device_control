@@ -1,5 +1,5 @@
 from device_control.base import ConfigurableDevice
-
+import time
 
 def parse_status(bytevalues):
     statbits = int(bytevalues, base=16)
@@ -27,11 +27,13 @@ class ThorlabsTC(ConfigurableDevice):
     def send_command(self, cmd: str):
         with self.serial as serial:
             serial.write(f"{cmd}\r".encode())
+            time.sleep(20e-3)
             serial.read_until(b"\r")
 
     def ask_command(self, cmd: str):
         with self.serial as serial:
             serial.write(f"{cmd}\r".encode())
+            time.sleep(20e-3)
             serial.read_until(b"\r")
             return serial.read_until(b"\r").decode().strip()
 

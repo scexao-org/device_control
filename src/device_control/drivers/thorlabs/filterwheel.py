@@ -1,5 +1,5 @@
 from device_control.base import MotionDevice
-
+import time
 
 class ThorlabsWheel(MotionDevice):
     def __init__(self, serial_kwargs, **kwargs):
@@ -9,20 +9,19 @@ class ThorlabsWheel(MotionDevice):
     def send_command(self, cmd: str):
         with self.serial as serial:
             serial.write(f"{cmd}\r".encode())
+            time.sleep(20e-3)
             serial.read_until(b"\r")
 
     def ask_command(self, cmd: str):
         with self.serial as serial:
             serial.write(f"{cmd}\r".encode())
+            time.sleep(20e-3)
             serial.read_until(b"\r")
             return serial.read_until(b"\r").decode().strip()
 
     def _get_position(self):
         result = self.ask_command("pos?")
-        try:
-            return int(result)
-        except ValueError:
-            return None
+        return int(result)
 
     def _move_absolute(self, value, **kwargs):
         max_filters = self.get_count()

@@ -56,9 +56,9 @@ def main():
     elif args["<slot>"]:
         try:
             slot = int(args["<slot>"])
-            vampires_filter.move_configuration_idx(slot)
         except ValueError:
             vampires_filter.move_configuration_name(args["<slot>"])
+        vampires_filter.move_configuration_idx(slot)
     vampires_filter.update_keys()
 
 

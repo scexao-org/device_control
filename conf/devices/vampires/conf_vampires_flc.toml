@@ -1,4 +1,4 @@
-device_number = 3
+device_number = 4
 unit = "mm"
 configurations = [
     {idx=1, name="IN", value=0},

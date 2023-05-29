@@ -29,10 +29,14 @@ class MultiDevice(ConfigurableDevice):
         return self.devices[name].get_position()
 
     def move_absolute(self, name, value, **kwargs):
-        return self.devices[name].move_absolute(value, **kwargs)
+        result = self.devices[name].move_absolute(value, **kwargs)
+        self.update_keys()
+        return result
 
     def move_relative(self, name, value, **kwargs):
-        return self.devices[name].move_relative(value, **kwargs)
+        result = self.devices[name].move_relative(value, **kwargs)
+        self.update_keys()
+        return result
 
     def stop(self, name=None):
         if name is None:
@@ -40,6 +44,7 @@ class MultiDevice(ConfigurableDevice):
                 device.stop()
         else:
             self.devices[name].stop()
+        self.update_keys()
 
     @classmethod
     def from_config(__cls__, filename):
@@ -137,7 +142,7 @@ class MultiDevice(ConfigurableDevice):
         # save configurations to file
         return self.save_config(**kwargs)
 
-    def move_configuration_idx(self, idx: int, wait=False):
+    def move_configuration_idx(self, idx: int, wait=True):
         for row in self.configurations:
             if row["idx"] == idx:
                 self.current_config = row["value"]
@@ -147,8 +152,9 @@ class MultiDevice(ConfigurableDevice):
         for dev_name, value in self.current_config.items():
             # TODO async wait
             self.devices[dev_name].move_absolute(value, wait=wait)
+        self.update_keys()
 
-    def move_configuration_name(self, name: str, wait=False):
+    def move_configuration_name(self, name: str, wait=True):
         for row in self.configurations:
             if row["name"] == name:
                 self.current_config = row["value"]
@@ -158,6 +164,7 @@ class MultiDevice(ConfigurableDevice):
         for dev_name, value in self.current_config.items():
             # TODO async wait
             self.devices[dev_name].move_absolute(value, wait=wait)
+        self.update_keys()
 
     def update_keys(self, positions=None):
         if positions is None:

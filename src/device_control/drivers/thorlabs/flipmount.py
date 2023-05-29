@@ -1,6 +1,7 @@
 import numpy as np
 import tomli
 from serial import Serial
+import time
 
 from device_control.base import ConfigurableDevice
 
@@ -39,6 +40,7 @@ class ThorlabsFlipMount(ConfigurableDevice):
     def get_position(self):
         with self.serial as serial:
             serial.write(COMMANDS["status"])
+            time.sleep(20e-3)
             response = serial.read(12)
         if response == STATUSES["down"]:
             result = "DOWN"

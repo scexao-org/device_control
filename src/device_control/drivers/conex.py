@@ -91,6 +91,7 @@ class CONEXDevice(MotionDevice):
         self.logger.debug(f"sending command: {cmd[:-2]}")
         with self.serial as serial:
             serial.write(cmd.encode())
+            time.sleep(20e-3) # 20 ms
 
     def ask_command(self, command: str):
         # pad command with CRLF ending
@@ -98,6 +99,7 @@ class CONEXDevice(MotionDevice):
         self.logger.debug(f"sending command: {cmd[:-2]}")
         with self.serial as serial:
             serial.write(cmd.encode())
+            time.sleep(20e-3) # 20 ms
             retval = serial.read_until(b"\r\n").decode()
             self.logger.debug(f"received: {retval[:-2]}")
             # strip command and \r\n from string
@@ -161,20 +163,21 @@ class CONEXDevice(MotionDevice):
     def _home(self, wait=True):
         self.send_command("OR")
         if wait:
-            while self.is_homing:
+            while self.is_homing():
+                self.update_keys()
                 time.sleep(self.delay)
 
     def _move_absolute(self, value: float, wait=True):
         self.send_command(f"PA{value}")
         if wait:
-            while self.is_moving:
+            while self.is_moving():
                 self.update_keys()
                 time.sleep(self.delay)
 
     def _move_relative(self, value: float, wait=True):
         self.send_command(f"PR{value}")
         if wait:
-            while self.is_moving:
+            while self.is_moving():
                 self.update_keys()
                 time.sleep(self.delay)
 

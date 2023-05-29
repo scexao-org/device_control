@@ -30,22 +30,12 @@ class ConfigurableDevice:
         self.logger = getLogger(self.__class__.__name__)
 
     @classmethod
-<<<<<<< HEAD
     def from_config(__cls__, filename, **kwargs):
         with open(filename, "rb") as fh:
             parameters = tomli.load(fh)
         serial_kwargs = parameters.pop("serial", None)
         parameters.update(kwargs)
         return __cls__(serial_kwargs=serial_kwargs, config_file=filename, **parameters)
-=======
-    def from_config(__cls__, filename):
-        with open(filename, "rb") as fh:
-            parameters = tomli.load(fh)
-        serial_kwargs = parameters.pop("serial", None)
-        return __cls__(
-            serial_kwargs=serial_kwargs, **parameters
-        )
->>>>>>> 9b1d4ee (remove properties from base motion device and add plugin for configurable devices)
 
     def save_config(self, filename=None):
         if filename is None:
@@ -119,12 +109,12 @@ class MotionDevice(ConfigurableDevice):
     def _get_target_position(self):
         raise NotImplementedError()
 
-    def home(self, wait=False):
+    def home(self, wait=True):
         pos = self._home(wait=wait)
         self.update_keys(pos)
         return pos
 
-    def _home(self, wait=False):
+    def _home(self, wait=True):
         raise NotImplementedError()
 
     def move_absolute(self, value, **kwargs):
@@ -132,15 +122,15 @@ class MotionDevice(ConfigurableDevice):
         self.update_keys(pos)
         return pos
 
-    def _move_absolute(self, value, wait=False):
+    def _move_absolute(self, value, wait=True):
         raise NotImplementedError()
 
-    def move_relative(self, value, wait=False):
+    def move_relative(self, value, wait=True):
         pos = self._move_relative(value, wait=wait)
         self.update_keys(pos)
         return pos
 
-    def _move_relative(self, value, wait=False):
+    def _move_relative(self, value, wait=True):
         raise NotImplementedError()
 
     def stop(self):
