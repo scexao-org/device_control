@@ -1,10 +1,10 @@
 from logging import getLogger
 from pathlib import Path
-import tomli
-import tomli_w
 from typing import Union
 
 import numpy as np
+import tomli
+import tomli_w
 from serial import Serial
 
 __all__ = ["MotionDevice"]
@@ -164,17 +164,13 @@ class MotionDevice(ConfigurableDevice):
                 return row["idx"], row["name"]
         return None, "Unknown"
 
-    def save_configuration(
-        self, position=None, index=None, name=None, tol=1e-1, **kwargs
-    ):
+    def save_configuration(self, position=None, index=None, name=None, tol=1e-1, **kwargs):
         if position is None:
             position = self.get_position()
         current_config = self.get_configuration(position, tol=tol)
         if index is None:
             if current_config[0] is None:
-                raise RuntimeError(
-                    "Cannot save to an unknown configuration. Please provide index."
-                )
+                raise RuntimeError("Cannot save to an unknown configuration. Please provide index.")
             index = current_config[0]
             if name is None:
                 name = current_config[1]
@@ -192,9 +188,7 @@ class MotionDevice(ConfigurableDevice):
             if name is None:
                 raise ValueError("Must provide name for new configuration")
             self.configurations.append(dict(idx=index, name=name, value=position))
-            self.logger.info(
-                f"added new configuration {index} '{name}' with value {position}"
-            )
+            self.logger.info(f"added new configuration {index} '{name}' with value {position}")
 
         # sort configurations dictionary in-place by index
         self.configurations.sort(key=lambda d: d["idx"])

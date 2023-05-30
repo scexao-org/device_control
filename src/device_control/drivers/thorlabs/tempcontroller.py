@@ -1,5 +1,7 @@
-from device_control.base import ConfigurableDevice
 import time
+
+from device_control.base import ConfigurableDevice
+
 
 def parse_status(bytevalues):
     statbits = int(bytevalues, base=16)
@@ -46,6 +48,10 @@ class ThorlabsTC(ConfigurableDevice):
 
     def get_temp(self):
         result = self.ask_command("tact?")
+        return float(result.split()[0])
+
+    def get_aux_temp(self):
+        result = self.ask_command("taux?")
         return float(result.split()[0])
 
     def status(self):

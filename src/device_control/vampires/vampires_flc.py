@@ -5,9 +5,9 @@ from docopt import docopt
 
 from device_control.drivers import ZaberDevice
 from device_control.vampires import PYRO_KEYS
-from swmain.network.pyroclient import (
-    connect,
-)  # Requires scxconf and will fetch the IP addresses there.
+from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
+    connect
+)
 from swmain.redis import update_keys
 
 
@@ -58,13 +58,13 @@ def main():
     elif args["position"]:
         print(vampires_flc.get_position())
     elif args["home"]:
-        vampires_flc.home(wait=args["--wait"])
+        vampires_flc.home__oneway()
     elif args["goto"]:
         pos = float(args["<pos>"])
-        vampires_flc.move_absolute(pos, wait=args["--wait"])
+        vampires_flc.move_absolute__oneway(pos)
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
-        vampires_flc.move_relative(rel_pos, wait=args["--wait"])
+        vampires_flc.move_relative__oneway(rel_pos)
     elif args["stop"]:
         vampires_flc.stop()
     elif args["reset"]:

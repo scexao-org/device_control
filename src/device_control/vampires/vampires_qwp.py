@@ -5,9 +5,9 @@ from docopt import docopt
 
 from device_control.drivers import CONEXDevice
 from device_control.vampires import PYRO_KEYS
-from swmain.network.pyroclient import (
-    connect,
-)  # Requires scxconf and will fetch the IP addresses there.
+from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
+    connect
+)
 from swmain.redis import update_keys
 
 
@@ -72,13 +72,13 @@ def main():
     elif args["position"]:
         print(vampires_qwp.get_position())
     elif args["home"]:
-        vampires_qwp.home(wait=args["--wait"])
+        vampires_qwp.home__oneway()
     elif args["goto"]:
         pos = float(args["<pos>"])
-        vampires_qwp.move_absolute(pos % 360, wait=args["--wait"])
+        vampires_qwp.move_absolute__oneway(pos % 360)
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
-        vampires_qwp.move_relative(rel_pos, wait=args["--wait"])
+        vampires_qwp.move_relative__oneway(rel_pos)
     elif args["stop"]:
         vampires_qwp.stop()
     elif args["reset"]:

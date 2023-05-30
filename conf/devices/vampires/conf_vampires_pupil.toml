@@ -1,9 +1,11 @@
 name = "vampires_pupil"
 
 configurations = [
-    {idx="up", name="OUT"},
-    {idx="down", name="IN"}
+    {idx=1, name="OUT", value="up"},
+    {idx=2, name="IN", value="down"}
 ]
 
 [serial]
 port = "/dev/serial/by-id/"
+baudrate = 115200
+rtscts = True

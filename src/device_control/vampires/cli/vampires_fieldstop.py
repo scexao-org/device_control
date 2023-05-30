@@ -5,9 +5,7 @@ from docopt import docopt
 
 from swmain.devices.multi_device import MultiDevice
 
-conf_dir = os.path.abspath(
-    os.getenv("CONF_DIR", f"{os.getenv('HOME')}/src/software-main/conf/")
-)
+conf_dir = os.path.abspath(os.getenv("CONF_DIR", f"{os.getenv('HOME')}/src/software-main/conf/"))
 path = os.path.join(conf_dir, "devices/vampires/conf_vampires_fieldstop.toml")
 vampires_fieldstop = MultiDevice.from_config(path)
 

@@ -78,9 +78,7 @@ class CONEXDevice(MotionDevice):
     ):
         super().__init__(**kwargs)
         if device_address < 1 or device_address > 31:
-            raise ValueError(
-                f"controller address must be between 1 and 31, got {device_address}"
-            )
+            raise ValueError(f"controller address must be between 1 and 31, got {device_address}")
         self.device_address = device_address
         self.delay = delay
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -91,7 +89,7 @@ class CONEXDevice(MotionDevice):
         self.logger.debug(f"sending command: {cmd[:-2]}")
         with self.serial as serial:
             serial.write(cmd.encode())
-            time.sleep(20e-3) # 20 ms
+            time.sleep(20e-3)  # 20 ms
 
     def ask_command(self, command: str):
         # pad command with CRLF ending
@@ -99,7 +97,7 @@ class CONEXDevice(MotionDevice):
         self.logger.debug(f"sending command: {cmd[:-2]}")
         with self.serial as serial:
             serial.write(cmd.encode())
-            time.sleep(20e-3) # 20 ms
+            time.sleep(20e-3)  # 20 ms
             retval = serial.read_until(b"\r\n").decode()
             self.logger.debug(f"received: {retval[:-2]}")
             # strip command and \r\n from string

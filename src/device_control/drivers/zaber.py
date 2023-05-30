@@ -1,10 +1,10 @@
 import logging
 import time
+
 from zaber_motion import Library, Units
 from zaber_motion.binary import BinarySettings, CommandCode, Connection
 
 from ..base import MotionDevice
-
 
 __all__ = ["ZaberDevice"]
 

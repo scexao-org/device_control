@@ -1,29 +1,30 @@
+import sys
 from typing import Union
 
 import numpy as np
 import tomli
-import sys
-from swmain.redis import update_keys
-from device_control.multi_device import MultiDevice
-
 from docopt import docopt
+
+from device_control.multi_device import MultiDevice
 from device_control.vampires import PYRO_KEYS
-from swmain.network.pyroclient import (
-    connect,
-)  # Requires scxconf and will fetch the IP addresses there.
+from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
+    connect
+)
+from swmain.redis import update_keys
 
 
 class VAMPIRESMaskWheel(MultiDevice):
     format_str = "{0:2d}: {1:17s} {{x={2:6.3f} mm, y={3:6.3f} mm, th={4:6.2f} deg}}"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.devices["x"]._update_keys = lambda p: update_keys(U_MASKX=p)
+        self.devices["y"]._update_keys = lambda p: update_keys(U_MASKY=p)
+        self.devices["theta"]._update_keys = lambda p: update_keys(U_MASKTH=p)
+
     def _update_keys(self, positions):
         _, name = self.get_configuration(positions=positions)
-        update_keys(
-            U_MASK=name,
-            U_MASKX=positions[0],
-            U_MASKY=positions[1],
-            U_MASKTH=positions[2],
-        )
+        update_keys(U_MASK=name)
 
     def help_message(self):
         configurations = "\n".join(
@@ -79,20 +80,20 @@ def main():
         substage = "theta"
     elif args["<configuration>"]:
         index = int(args["<configuration>"])
-        return vampires_mask.move_configuration_idx(index, wait=args["--wait"])
+        return vampires_mask.move_configuration_idx__oneway(index)
     if args["status"] or args["position"]:
         print(vampires_mask.get_position(substage))
     elif args["home"]:
-        vampires_mask.home(substage, wait=args["--wait"])
+        vampires_mask.home__oneway(substage)
     elif args["goto"]:
         pos = float(args["<pos>"])
         if args["theta"]:
-            vampires_mask.move_absolute(substage, pos % 360, wait=args["--wait"])
+            vampires_mask.move_absolute__oneway(substage, pos % 360)
         else:
-            vampires_mask.move_absolute(substage, pos, wait=args["--wait"])
+            vampires_mask.move_absolute__oneway(substage, pos)
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
-        vampires_mask.move_relative(substage, rel_pos, wait=args["--wait"])
+        vampires_mask.move_relative__oneway(substage, rel_pos)
     elif args["stop"]:
         vampires_mask.stop(substage)
     elif args["reset"]:

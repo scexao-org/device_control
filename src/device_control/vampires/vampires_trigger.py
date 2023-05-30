@@ -1,10 +1,10 @@
 import astropy.units as u
-import tomli
-from swmain.redis import update_keys
-
 import click
+import tomli
 from serial import Serial
+
 from device_control.base import ConfigurableDevice
+from swmain.redis import update_keys
 
 
 class ArduinoError(RuntimeError):
@@ -19,6 +19,8 @@ class VAMPIRESTrigger(ConfigurableDevice):
     def __init__(
         self,
         serial_kwargs,
+        reset_port,
+        delay: int = 0,  # us
         pulse_width: int = 10,  # us
         flc_offset: int = 20,  # us
         flc_enabled: bool = True,
@@ -26,11 +28,14 @@ class VAMPIRESTrigger(ConfigurableDevice):
         **kwargs,
     ):
         serial_kwargs = dict(
-            {"baudrate": 115200, "write_timeout": 0.5, "rtscts": True, "dtsdtr": True},
+            {"baudrate": 115200, "timeout": 0.1, "write_timeout": 0.5},
             **serial_kwargs,
         )
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
+        self.reset_switch = VAMPIRESInlineUSBReset(serial_kwargs=dict(port=reset_port))
 
+        if isinstance(delay, u.Quantity):
+            self.delay = int(delay.to(u.us).value)
         if isinstance(pulse_width, u.Quantity):
             self.pulse_width = int(pulse_width.to(u.us).value)
         if isinstance(flc_offset, u.Quantity):
@@ -52,7 +57,10 @@ class VAMPIRESTrigger(ConfigurableDevice):
     def ask_command(self, command):
         with self.serial as serial:
             serial.write(f"{command}\n".encode())
-            return serial.readline().decode().strip()
+            response = serial.readline().decode().strip()
+            if len(response) == 0:
+                raise ArduinoTimeoutError()
+            return response
 
     def get_pulse_width(self) -> int:
         return self.pulse_width
@@ -116,17 +124,14 @@ class VAMPIRESTrigger(ConfigurableDevice):
         self.send_command(3)
 
     def reset(self):
-        # we can reset an arduino by toggling DTR
-        # this will restart the Arduino program, which will
-        # disable the loop and reset all timing values to their
-        # internal defaults
-        self.serial.flush()
-        self.serial.dtr = False
+        self.reset_switch.disable()
+        self.reset_switch.enable()
 
     def update_keys(self):
         update_keys(
             U_FLCEN="ON" if self.flc_enabled else "OFF",
             U_FLCOFF=self.flc_offset,
+            U_TRIGDL=self.delay,
             U_TRIGPW=self.pulse_width,
         )
 
@@ -158,6 +163,49 @@ __doc__ = """
         disable     Disables the trigger. This should not need to be called in general unless you want to physically stop triggering. For simple acquisition control prefer software measures.
         status      Returns the status of the trigger and its timing info.
 """
+
+
+class VAMPIRESInlineUSBReset(ConfigurableDevice):
+    def __init__(
+        self,
+        serial_kwargs,
+        **kwargs,
+    ):
+        serial_kwargs = dict(
+            {"baudrate": 115200},
+            **serial_kwargs,
+        )
+        super().__init__(serial_kwargs=serial_kwargs, **kwargs)
+
+    def enable(self):
+        with self.serial as serial:
+            bytes = bytearray((0x11, 0x11, 0x0, 0x0, 0x0, 0x0))
+            serial.write(bytes)
+            resp_bytes = bytearray(serial.read(6))
+            assert resp_bytes[0] & 0x01
+            assert resp_bytes[1] & 0x11
+
+    def disable(self):
+        with self.serial as serial:
+            bytes = bytearray((0x01, 0x01, 0x0, 0x0, 0x0, 0x0))
+            serial.write(bytes)
+            resp_bytes = bytearray(serial.read(6))
+            assert resp_bytes[0] & 0x01
+            assert resp_bytes[1] & 0x01
+
+    def status(self):
+        with self.serial as serial:
+            bytes = bytearray((0x21, 0x21, 0x0, 0x0, 0x0, 0x0))
+            serial.write(bytes)
+            resp_bytes = bytearray(serial.read(6))
+            assert resp_bytes[0] & 0x01
+        if resp_bytes[1] & 0x01:
+            st = "OFF"
+        elif resp_bytes[1] & 0x11:
+            st = "ON"
+        else:
+            st = "UNKNOWN"
+        return st
 
 
 def main():

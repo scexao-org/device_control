@@ -2,19 +2,24 @@ import sys
 
 from docopt import docopt
 
-from device_control.vampires import PYRO_KEYS
-from swmain.network.pyroclient import (
-    connect,
-)  # Requires scxconf and will fetch the IP addresses there.
-from swmain.redis import update_keys
 from device_control.drivers import ThorlabsTC
+from device_control.vampires import PYRO_KEYS
+from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
+    connect
+)
+from swmain.redis import update_keys
 
 
 class VAMPIRESTC(ThorlabsTC):
     format_str = "{0:1d}: {1:8s}"
 
-    def _update_keys(self, temperature):
-        update_keys(U_FLCTMP=temperature)
+    def update_keys(self, temperatures=None):
+        if temperatures is None:
+            flc_temp = self.get_temp()
+            aux_temp = self.get_aux_temp()
+        else:
+            flc_temp, aux_temp = temperatures
+        update_keys(U_BENTMP=aux_temp, U_FLCTMP=flc_temp)
 
     def help_message(self):
         return f"""Usage:

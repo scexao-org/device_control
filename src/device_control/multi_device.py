@@ -1,16 +1,16 @@
+from pathlib import Path
 from typing import Union
 
 import numpy as np
 import tomli
 import tomli_w
-from pathlib import Path
 
+from device_control.base import ConfigurableDevice
 from device_control.drivers.conex import CONEXDevice
 from device_control.drivers.zaber import ZaberDevice
 
 __all__ = ["MultiDevice"]
 
-from device_control.base import ConfigurableDevice
 
 
 class MultiDevice(ConfigurableDevice):
@@ -62,9 +62,7 @@ class MultiDevice(ConfigurableDevice):
             elif dev_type.lower() == "zaber":
                 device = ZaberDevice(config_file=filename, **device_config)
             else:
-                raise ValueError(
-                    f"motion stage type not recognized: {device_config['type']}"
-                )
+                raise ValueError(f"motion stage type not recognized: {device_config['type']}")
             devices[device_name] = device
 
         configurations = parameters.get("configurations", None)
@@ -101,9 +99,7 @@ class MultiDevice(ConfigurableDevice):
     def _config_extras(self):
         return {}
 
-    def save_configuration(
-        self, positions=None, index=None, name=None, tol=1e-1, **kwargs
-    ):
+    def save_configuration(self, positions=None, index=None, name=None, tol=1e-1, **kwargs):
         if positions is None:
             values = {k: dev.get_position() for k, dev, in self.devices.items()}
         else:
@@ -112,9 +108,7 @@ class MultiDevice(ConfigurableDevice):
         current_config = self.get_configuration(positions=values.values(), tol=tol)
         if index is None:
             if current_config[0] is None:
-                raise RuntimeError(
-                    "Cannot save to an unknown configuration. Please provide index."
-                )
+                raise RuntimeError("Cannot save to an unknown configuration. Please provide index.")
             index = current_config[0]
             if name is None:
                 name = current_config[1]
@@ -133,9 +127,7 @@ class MultiDevice(ConfigurableDevice):
             if name is None:
                 raise ValueError("Must provide name for new configuration")
             self.configurations.append(dict(idx=index, name=name, values=values))
-            self.logger.info(
-                f"added new configuration {index} '{name}' with value {values}"
-            )
+            self.logger.info(f"added new configuration {index} '{name}' with value {values}")
 
         # sort configurations dictionary in-place by index
         self.configurations.sort(key=lambda d: d["idx"])

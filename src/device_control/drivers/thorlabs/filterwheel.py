@@ -1,5 +1,7 @@
-from device_control.base import MotionDevice
 import time
+
+from device_control.base import MotionDevice
+
 
 class ThorlabsWheel(MotionDevice):
     def __init__(self, serial_kwargs, **kwargs):

@@ -2,17 +2,18 @@ import sys
 
 from docopt import docopt
 
-from device_control.vampires import PYRO_KEYS
-from swmain.network.pyroclient import (
-    connect,
-)  # Requires scxconf and will fetch the IP addresses there.
 from device_control.drivers import ThorlabsFlipMount
+from device_control.vampires import PYRO_KEYS
+from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
+    connect
+)
 from swmain.redis import update_keys
 
 
 class VAMPIRESPupilLens(ThorlabsFlipMount):
     def _update_keys(self, position):
-        update_keys(U_PUPIL=position.upper())
+        state = self.get_configuration(position)
+        update_keys(U_PUPST=state.upper())
 
     def help_message(self):
         return f"""Usage:
@@ -43,7 +44,11 @@ def main():
         else:
             print(vampires_pupil.get_position())
     elif args["<pos>"]:
-        vampires_pupil.set_position(args["<pos>"])
+        try:
+            index = int(args["<pos>"])
+        except ValueError:
+            vampires_pupil.move_configuration_name__oneway(args["<pos>"])
+        vampires_pupil.move_configuration_idx__oneway(index)
     vampires_pupil.update_keys()
 
 

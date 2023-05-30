@@ -2,10 +2,10 @@ import os
 from argparse import ArgumentParser
 from pathlib import Path
 
+from device_control.vampires import *
 from device_control.vampires import PYRO_KEYS
 from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 from swmain.network.pyroserver_registerable import PyroServer
-from device_control.vampires import *
 
 parser = ArgumentParser(
     prog="vampires_daemon",
@@ -25,9 +25,7 @@ def main():
         "beamsplitter": VAMPIRESBeamsplitter.from_config(
             conf_dir / "devices/vampires/conf_vampires_beamsplitter.toml"
         ),
-        "focus": VAMPIRESFocus.from_config(
-            conf_dir / "devices/vampires/conf_vampires_focus.toml"
-        ),
+        "focus": VAMPIRESFocus.from_config(conf_dir / "devices/vampires/conf_vampires_focus.toml"),
         "camfocus": VAMPIRESCamFocus.from_config(
             conf_dir / "devices/vampires/conf_vampires_camfocus.toml"
         ),
@@ -48,9 +46,7 @@ def main():
         "filter": VAMPIRESFilter.from_config(
             conf_dir / "devices/vampires/conf_vampires_filter.toml"
         ),
-        "tc": VAMPIRESTC.from_config(
-            conf_dir / "devices/vampires/conf_vampires_tc.toml"
-        ),
+        "tc": VAMPIRESTC.from_config(conf_dir / "devices/vampires/conf_vampires_tc.toml"),
         # "trigger": VAMPIRESTrigger.from_config(conf_dir / "devices/vampires/conf_vampires_trigger.toml")
         # "pupil": VAMPIRESPupilLens.from_config(conf_dir / "devices/vampires/conf_vampires_pupil.toml"),
     }
@@ -61,9 +57,7 @@ def main():
         globals()[key] = device
         server.add_device(device, PYRO_KEYS[key], add_oneway_callables=True)
     print()
-    print(
-        f"the following variables are available in the shell:\n{', '.join(devices.keys())}"
-    )
+    print(f"the following variables are available in the shell:\n{', '.join(devices.keys())}")
     ## Start server
     server.start()
 

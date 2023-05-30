@@ -5,9 +5,9 @@ from docopt import docopt
 
 from device_control.drivers import CONEXDevice
 from device_control.vampires import PYRO_KEYS
-from swmain.network.pyroclient import (
-    connect,
-)  # Requires scxconf and will fetch the IP addresses there.
+from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
+    connect
+)
 from swmain.redis import update_keys
 
 
@@ -67,28 +67,27 @@ def main():
         print(__doc__)
     if args["status"]:
         idx, name = vampires_diffwheel.get_configuration()
-        print(
-            VAMPIRESDiffWheel.format_str.format(
-                idx, name, vampires_diffwheel.get_position()
-            )
-        )
+        print(VAMPIRESDiffWheel.format_str.format(idx, name, vampires_diffwheel.get_position()))
     elif args["position"]:
         print(vampires_diffwheel.get_position())
     elif args["home"]:
-        vampires_diffwheel.home(wait=args["--wait"])
+        vampires_diffwheel.home__oneway()
     elif args["goto"]:
         angle = float(args["<angle>"])
-        vampires_diffwheel.move_absolute(angle % 360, wait=args["--wait"])
+        vampires_diffwheel.move_absolute__oneway(angle % 360)
     elif args["nudge"]:
         rel_angle = float(args["<angle>"])
-        vampires_diffwheel.move_relative(rel_angle, wait=args["--wait"])
+        vampires_diffwheel.move_relative__oneway(rel_angle)
     elif args["stop"]:
         vampires_diffwheel.stop()
     elif args["reset"]:
         vampires_diffwheel.reset()
     elif args["<configuration>"]:
-        index = int(args["<configuration>"])
-        vampires_diffwheel.move_configuration(index, wait=args["--wait"])
+        try:
+            index = int(args["<configuration>"])
+        except ValueError:
+            vampires_diffwheel.move_configuration_name__oneway(args["<configuration>"])
+        vampires_diffwheel.move_configuration_idx__oneway(index)
     vampires_diffwheel.update_keys()
 
 

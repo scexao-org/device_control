@@ -12,12 +12,12 @@ authors = [
 ]
 dependencies = [
     "click",
-    "docopt==0.6.*",
-    "pyserial>=3,<4",
+    "docopt",
+    "pyserial",
     "tomli",
     "tomli-w",
-    "zaber-motion>=2,<3",
-    "tqdm>=4,<5",
+    "zaber-motion",
+    "tqdm",
     "swmain",
     "scxconf"
 ]
@@ -25,7 +25,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 test = [
-    "pytest==7.*",
+    "pytest",
 ]
 
 [project.scripts]
@@ -50,3 +50,10 @@ version = {attr = "device_control.__version__"}
 
 [tool.coverage.run]
 source = ["device_control"]
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3

@@ -5,9 +5,9 @@ from docopt import docopt
 
 from device_control.drivers import CONEXDevice
 from device_control.vampires import PYRO_KEYS
-from swmain.network.pyroclient import (
-    connect,
-)  # Requires scxconf and will fetch the IP addresses there.
+from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
+    connect
+)
 from swmain.redis import update_keys
 
 
@@ -82,11 +82,9 @@ def main():
     elif args["<configuration>"]:
         try:
             index = int(args["<configuration>"])
-            vampires_mbi.move_configuration_idx(index, wait=args["--wait"])
         except ValueError:
-            vampires_mbi.move_configuration_name(
-                args["<configuration>"], wait=args["--wait"]
-            )
+            vampires_mbi.move_configuration_name__oneway(args["<configuration>"])
+        vampires_mbi.move_configuration_idx__oneway(index)
 
 
 if __name__ == "__main__":

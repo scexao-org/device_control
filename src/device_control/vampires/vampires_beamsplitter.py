@@ -5,9 +5,9 @@ from docopt import docopt
 
 from device_control.drivers import CONEXDevice
 from device_control.vampires import PYRO_KEYS
-from swmain.network.pyroclient import (
-    connect,
-)  # Requires scxconf and will fetch the IP addresses there.
+from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
+    connect
+)
 from swmain.redis import update_keys
 
 
@@ -54,9 +54,7 @@ def main():
         return
     if args["status"]:
         idx, name = beamsplitter.get_configuration()
-        print(
-            f"{idx}: {name} {{{beamsplitter.get_position():5.01f} {beamsplitter.get_unit()}}}"
-        )
+        print(f"{idx}: {name} {{{beamsplitter.get_position():5.01f} {beamsplitter.get_unit()}}}")
     elif args["position"]:
         print(beamsplitter.get_position())
     elif args["home"]:
@@ -83,11 +81,15 @@ def main():
     elif args["<configuration>"]:
         try:
             index = int(args["<configuration>"])
-            beamsplitter.move_configuration_idx(index, wait=args["--wait"])
+            if args["--wait"]:
+                beamsplitter.move_configuration_idx(index)
+            else:
+                beamsplitter.move_configuration_idx__oneway(index)
         except ValueError:
-            beamsplitter.move_configuration_name(
-                args["<configuration>"], wait=args["--wait"]
-            )
+            if args["--wait"]:
+                beamsplitter.move_configuration_name(args["<configuration>"])
+            else:
+                beamsplitter.move_configuration_name__oneway(args["<configuration>"])
 
 
 if __name__ == "__main__":

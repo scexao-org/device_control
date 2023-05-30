@@ -4,10 +4,10 @@ from docopt import docopt
 
 from device_control.drivers import ThorlabsWheel
 from device_control.vampires import PYRO_KEYS
+from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
+    connect
+)
 from swmain.redis import update_keys
-from swmain.network.pyroclient import (
-    connect,
-)  # Requires scxconf and will fetch the IP addresses there.
 
 
 class VAMPIRESFilter(ThorlabsWheel):
@@ -57,8 +57,8 @@ def main():
         try:
             slot = int(args["<slot>"])
         except ValueError:
-            vampires_filter.move_configuration_name(args["<slot>"])
-        vampires_filter.move_configuration_idx(slot)
+            vampires_filter.move_configuration_name__oneway(args["<slot>"])
+        vampires_filter.move_configuration_idx__oneway(slot)
     vampires_filter.update_keys()
 
 

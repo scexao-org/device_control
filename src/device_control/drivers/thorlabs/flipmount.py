@@ -1,9 +1,11 @@
+import time
+
 import numpy as np
 import tomli
 from serial import Serial
-import time
 
 from device_control.base import ConfigurableDevice
+from swmain.redis import update_keys
 
 # Raw byte commands for "MGMSG_MOT_MOVE_JOG"
 COMMANDS = {
@@ -29,9 +31,7 @@ class ThorlabsFlipMount(ConfigurableDevice):
         elif position.lower() == "up":
             cmd = COMMANDS["up"]
         else:
-            raise ValueError(
-                f"Position should be either 'up' or 'down', got '{position}'"
-            )
+            raise ValueError(f"Position should be either 'up' or 'down', got '{position}'")
 
         with self.serial as serial:
             serial.write(cmd)
@@ -50,3 +50,23 @@ class ThorlabsFlipMount(ConfigurableDevice):
             result = "Unknown"
         self.update_keys(result)
         return result
+
+    def move_configuration_idx(self, idx: int):
+        for row in self.configurations:
+            if row["idx"] == idx:
+                return self.set_position(row["value"])
+        raise ValueError(f"No configuration saved at index {idx}")
+
+    def move_configuration_name(self, name: str):
+        for row in self.configurations:
+            if row["name"] == name:
+                return self.set_position(row["value"])
+        raise ValueError(f"No configuration saved with name '{name}'")
+
+    def get_configuration(self, position=None):
+        if position is None:
+            position = self.get_position()
+        for row in self.configurations:
+            if position == row["value"]:
+                return row["idx"], row["name"]
+        return None, "Unknown"
