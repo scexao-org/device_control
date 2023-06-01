@@ -193,9 +193,9 @@ class VAMPIRESInlineUSBReset:
     def status(self):
         reply = self.ask_command(0x21)
         assert reply[0] & 0x1
-        if reply[1] & 0x01:
+        if reply[1] == 0x01:
             st = "OFF"
-        elif reply[1] & 0x11:
+        elif reply[1] == 0x11:
             st = "ON"
         else:
             st = "UNKNOWN"
