@@ -170,7 +170,7 @@ __doc__ = """
 class VAMPIRESInlineUSBReset:
     def __init__(self):
         self.outaddr = 0x1
-        self.inaddr = 0x51
+        self.inaddr = 0x81
         self.bufsize = 64
         self.device = usb.core.find(idVendor=0x04d8, idProduct=0xf0cd)
 
