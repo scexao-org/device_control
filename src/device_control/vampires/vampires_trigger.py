@@ -20,7 +20,6 @@ class VAMPIRESTrigger(ConfigurableDevice):
     def __init__(
         self,
         serial_kwargs,
-        reset_port,
         delay: int = 0,  # us
         pulse_width: int = 10,  # us
         flc_offset: int = 20,  # us
@@ -33,7 +32,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
             **serial_kwargs,
         )
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
-        self.reset_switch = VAMPIRESInlineUSBReset(serial_kwargs=dict(port=reset_port))
+        self.reset_switch = VAMPIRESInlineUSBReset()
 
         if isinstance(delay, u.Quantity):
             self.delay = int(delay.to(u.us).value)
