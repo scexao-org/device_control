@@ -23,7 +23,8 @@ class ConfigurableDevice:
         serial_kwargs=None,
         **kwargs,
     ):
-        self.serial_kwargs = dict({"timeout": 0.5}, serial_kwargs)
+        self.serial_kwargs = {"timeout": 0.5}
+        self.serial_kwargs.update(serial_kwargs)
         self.serial = Serial(**self.serial_kwargs)
         self.configurations = configurations
         self.config_file = config_file
