@@ -184,15 +184,15 @@ class VAMPIRESInlineUSBReset:
 
     def enable(self):
         reply = self.ask_command(0x11)
-        assert reply[0] & 0x1
+        assert reply[0] == 0x1
 
     def disable(self):
         reply = self.ask_command(0x01)
-        assert reply[0] & 0x1
+        assert reply[0] == 0x1
 
     def status(self):
         reply = self.ask_command(0x21)
-        assert reply[0] & 0x1
+        assert reply[0] == 0x1
         if reply[1] == 0x01:
             st = "OFF"
         elif reply[1] == 0x11:
