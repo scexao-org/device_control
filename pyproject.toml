@@ -19,7 +19,9 @@ dependencies = [
     "zaber-motion",
     "tqdm",
     "swmain",
-    "scxconf"
+    "scxconf",
+    "paramiko",
+    "pyusb"
 ]
 dynamic = ["version"]
 

@@ -8,4 +8,4 @@ configurations = [
 [serial]
 port = "/dev/serial/by-id/"
 baudrate = 115200
-rtscts = True
+rtscts = true

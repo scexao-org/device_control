@@ -5,6 +5,7 @@ from serial import Serial
 
 from device_control.base import ConfigurableDevice
 from swmain.redis import update_keys
+import usb.core
 
 
 class ArduinoError(RuntimeError):
@@ -124,6 +125,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
         self.send_command(3)
 
     def reset(self):
+        # toggle power using inline switch
         self.reset_switch.disable()
         self.reset_switch.enable()
 
@@ -149,7 +151,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
 
 __doc__ = """
     vampires_trigger [-h | --help]
-    vampires_trigger (disable|status)
+    vampires_trigger (disable|reset|status)
     vampires_trigger [--flc | --no-flc]  enable [-w | --pulse-width] <width> [-o | --flc-offset] <off>
 
     Options:
@@ -161,47 +163,40 @@ __doc__ = """
     Commands:
         enable      Enables the trigger.
         disable     Disables the trigger. This should not need to be called in general unless you want to physically stop triggering. For simple acquisition control prefer software measures.
+        reset       Resets the trigger via power-cycle.
         status      Returns the status of the trigger and its timing info.
 """
 
 
-class VAMPIRESInlineUSBReset(ConfigurableDevice):
-    def __init__(
-        self,
-        serial_kwargs,
-        **kwargs,
-    ):
-        serial_kwargs = dict(
-            {"baudrate": 115200},
-            **serial_kwargs,
-        )
-        super().__init__(serial_kwargs=serial_kwargs, **kwargs)
+class VAMPIRESInlineUSBReset:
+    def __init__(self):
+        self.outaddr = 0x1
+        self.inaddr = 0x51
+        self.bufsize = 64
+        self.device = usb.core.find(idVendor=0x04d8, idProduct=0xf0cd)
+
+    def send_command(self, command: int):
+        self.device.write(self.outaddr, chr(command))
+
+    def ask_command(self, command: int):
+        self.device.write(self.outaddr, chr(command))
+        reply = self.device.read(self.inaddr, self.bufsize)
+        return reply
 
     def enable(self):
-        with self.serial as serial:
-            bytes = bytearray((0x11, 0x11, 0x0, 0x0, 0x0, 0x0))
-            serial.write(bytes)
-            resp_bytes = bytearray(serial.read(6))
-            assert resp_bytes[0] & 0x01
-            assert resp_bytes[1] & 0x11
+        reply = self.ask_command(0x11)
+        assert reply[0] & 0x1
 
     def disable(self):
-        with self.serial as serial:
-            bytes = bytearray((0x01, 0x01, 0x0, 0x0, 0x0, 0x0))
-            serial.write(bytes)
-            resp_bytes = bytearray(serial.read(6))
-            assert resp_bytes[0] & 0x01
-            assert resp_bytes[1] & 0x01
+        reply = self.ask_command(0x01)
+        assert reply[0] & 0x1
 
     def status(self):
-        with self.serial as serial:
-            bytes = bytearray((0x21, 0x21, 0x0, 0x0, 0x0, 0x0))
-            serial.write(bytes)
-            resp_bytes = bytearray(serial.read(6))
-            assert resp_bytes[0] & 0x01
-        if resp_bytes[1] & 0x01:
+        reply = self.ask_command(0x21)
+        assert reply[0] & 0x1
+        if reply[1] & 0x01:
             st = "OFF"
-        elif resp_bytes[1] & 0x11:
+        elif reply[1] & 0x11:
             st = "ON"
         else:
             st = "UNKNOWN"

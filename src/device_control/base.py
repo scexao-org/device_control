@@ -6,8 +6,9 @@ import numpy as np
 import tomli
 import tomli_w
 from serial import Serial
+import paramiko
 
-__all__ = ["MotionDevice"]
+__all__ = ["ConfigurableDevice", "MotionDevice", "SSHDevice"]
 
 # Interface for hardware devices- all subclasses must
 # implement this!
@@ -194,3 +195,30 @@ class MotionDevice(ConfigurableDevice):
         self.configurations.sort(key=lambda d: d["idx"])
         # save configurations to file
         self.save_config(**kwargs)
+
+class SSHDevice:
+
+    def __init__(self, host, user=None, config_file=None):
+        self.host = host
+        self.user = user
+        self._prepare_sshclient()
+        self.config_file = config_file
+
+    def _prepare_sshclient(self):
+        self.client = paramiko.SSHClient()
+        self.client.load_system_host_keys()
+        self.client.connect(self.host, username=self.user)
+
+    def send_command(self, command: str):
+        stdin, stdout, stderr = self.client.exec_command(command)
+
+    def ask_command(self, command: str):
+        stdin, stdout, stderr = self.client.exec_command(command)
+        return stdout.read().decode()
+
+    @classmethod
+    def from_config(__cls__, filename, **kwargs):
+        with open(filename, "rb") as fh:
+            parameters = tomli.load(fh)
+        parameters.update(kwargs)
+        return __cls__(config_file=filename, **parameters.pop("ssh"), **parameters)
