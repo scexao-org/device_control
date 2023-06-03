@@ -1,7 +1,9 @@
 import sys
+import os
 
 from docopt import docopt
 
+from device_control import conf_dir
 from device_control.drivers import ThorlabsFlipMount
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
@@ -32,7 +34,10 @@ Stage commands:
 
 # setp 4. action
 def main():
-    vampires_pupil = connect(PYRO_KEYS["pupil"])
+    if os.getenv("WHICHCOMP") == "V":
+        vampires_pupil = VAMPIRESPupilLens.from_config(conf_dir / "vampires" / "conf_vampires_pupil.toml")
+    else:
+        vampires_pupil = connect(PYRO_KEYS["pupil"])
     __doc__ = vampires_pupil.help_message()
     args = docopt(__doc__, options_first=True)
     if len(sys.argv) == 1:
@@ -47,8 +52,8 @@ def main():
         try:
             index = int(args["<pos>"])
         except ValueError:
-            vampires_pupil.move_configuration_name__oneway(args["<pos>"])
-        vampires_pupil.move_configuration_idx__oneway(index)
+            vampires_pupil.move_configuration_name(args["<pos>"])
+        vampires_pupil.move_configuration_idx(index)
     vampires_pupil.update_keys()
 
 

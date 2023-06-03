@@ -3,6 +3,7 @@ import sys
 
 from docopt import docopt
 
+from device_control import conf_dir
 from device_control.drivers import ZaberDevice
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
@@ -46,7 +47,10 @@ Configurations:
 
 # setp 4. action
 def main():
-    vampires_flc = connect(PYRO_KEYS["flc"])
+    if os.getenv("WHICHCOMP") == "V":
+        vampires_flc = VAMPIRESFLCStage.from_config(conf_dir / "vampires" / "conf_vampires_flc.toml")
+    else:
+        vampires_flc = connect(PYRO_KEYS["flc"])
     __doc__ = vampires_flc.help_message()
     args = docopt(__doc__, options_first=True)
     if len(sys.argv) == 1:
@@ -58,13 +62,13 @@ def main():
     elif args["position"]:
         print(vampires_flc.get_position())
     elif args["home"]:
-        vampires_flc.home__oneway()
+        vampires_flc.home()
     elif args["goto"]:
         pos = float(args["<pos>"])
-        vampires_flc.move_absolute__oneway(pos)
+        vampires_flc.move_absolute(pos)
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
-        vampires_flc.move_relative__oneway(rel_pos)
+        vampires_flc.move_relative(rel_pos)
     elif args["stop"]:
         vampires_flc.stop()
     elif args["reset"]:

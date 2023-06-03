@@ -3,6 +3,7 @@ import sys
 
 from docopt import docopt
 
+from device_control import conf_dir
 from device_control.drivers import CONEXDevice
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
@@ -12,7 +13,7 @@ from swmain.redis import update_keys
 
 
 class VAMPIRESDiffWheel(CONEXDevice):
-    format_str = "{0}: {1:21s} {{{2:5.01f} deg}}"
+    format_str = "{0}: {1:22s} {{{2:5.01f} deg}}"
 
     def _update_keys(self, theta):
         _, status = self.get_configuration(position=theta)
@@ -57,11 +58,15 @@ Configurations (cam1 / cam2):
 {configurations}"""
 
 
-vampires_diffwheel = connect(PYRO_KEYS["diffwheel"])
 
 
 # setp 4. action
 def main():
+    if os.getenv("WHICHCOMP") == "V":
+        vampires_diffwheel = VAMPIRESDiffWheel.from_config(conf_dir / "vampires/conf_vampires_diffwheel.toml")
+    else:
+        vampires_diffwheel = connect(PYRO_KEYS["diffwheel"])
+    __doc__ = vampires_diffwheel.help_message()
     args = docopt(__doc__, options_first=True)
     if len(sys.argv) == 1:
         print(__doc__)
@@ -71,13 +76,13 @@ def main():
     elif args["position"]:
         print(vampires_diffwheel.get_position())
     elif args["home"]:
-        vampires_diffwheel.home__oneway()
+        vampires_diffwheel.home()
     elif args["goto"]:
         angle = float(args["<angle>"])
-        vampires_diffwheel.move_absolute__oneway(angle % 360)
+        vampires_diffwheel.move_absolute(angle % 360)
     elif args["nudge"]:
         rel_angle = float(args["<angle>"])
-        vampires_diffwheel.move_relative__oneway(rel_angle)
+        vampires_diffwheel.move_relative(rel_angle)
     elif args["stop"]:
         vampires_diffwheel.stop()
     elif args["reset"]:
@@ -86,8 +91,8 @@ def main():
         try:
             index = int(args["<configuration>"])
         except ValueError:
-            vampires_diffwheel.move_configuration_name__oneway(args["<configuration>"])
-        vampires_diffwheel.move_configuration_idx__oneway(index)
+            vampires_diffwheel.move_configuration_name(args["<configuration>"])
+        vampires_diffwheel.move_configuration_idx(index)
     vampires_diffwheel.update_keys()
 
 

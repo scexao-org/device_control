@@ -1,7 +1,9 @@
 import sys
+import os
 
 from docopt import docopt
 
+from device_control import conf_dir
 from device_control.drivers import ThorlabsTC
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
@@ -40,7 +42,10 @@ Stage commands:
 
 # setp 4. action
 def main():
-    vampires_tc = connect(PYRO_KEYS["tc"])
+    if os.getenv("WHICHCOMP") == "V":
+        vampires_tc = VAMPIRESTC.from_config(conf_dir / "vampires" / "conf_vampires_tc.toml")
+    else:
+        vampires_tc = connect(PYRO_KEYS["tc"])
     __doc__ = vampires_tc.help_message()
     args = docopt(__doc__, options_first=True)
     if len(sys.argv) == 1:

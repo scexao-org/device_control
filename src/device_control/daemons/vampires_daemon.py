@@ -2,6 +2,7 @@ import os
 from argparse import ArgumentParser
 from pathlib import Path
 
+from device_control import conf_dir
 from device_control.vampires import *
 from device_control.vampires import PYRO_KEYS
 from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
@@ -12,7 +13,6 @@ parser = ArgumentParser(
     description="Launch the daemon for the devices controlled by the VAMPIRES computer.",
 )
 
-conf_dir = Path(os.getenv("CONF_DIR", f"{os.getenv('HOME')}/src/device_control/conf/"))
 
 
 def main():
@@ -23,32 +23,32 @@ def main():
 
     devices = {
         "beamsplitter": VAMPIRESBeamsplitter.from_config(
-            conf_dir / "devices/vampires/conf_vampires_beamsplitter.toml"
+            conf_dir / "vampires/conf_vampires_beamsplitter.toml"
         ),
-        "focus": VAMPIRESFocus.from_config(conf_dir / "devices/vampires/conf_vampires_focus.toml"),
+        "focus": VAMPIRESFocus.from_config(conf_dir / "vampires/conf_vampires_focus.toml"),
         "camfocus": VAMPIRESCamFocus.from_config(
-            conf_dir / "devices/vampires/conf_vampires_camfocus.toml"
+            conf_dir / "vampires/conf_vampires_camfocus.toml"
         ),
-        # "flc":  VAMPIRESFLCStage.from_config(conf_dir / "devices/vampires/conf_vampires_flcß.toml"),
+        # "flc":  VAMPIRESFLCStage.from_config(conf_dir / "vampires/conf_vampires_flcß.toml"),
         "diffwheel": VAMPIRESDiffWheel.from_config(
-            conf_dir / "devices/vampires/conf_vampires_diffwheel.toml"
+            conf_dir / "vampires/conf_vampires_diffwheel.toml"
         ),
         "mask": VAMPIRESMaskWheel.from_config(
-            conf_dir / "devices/vampires/conf_vampires_mask.toml"
+            conf_dir / "vampires/conf_vampires_mask.toml"
         ),
-        # "mbi":  VAMPIRESMBIWheel.from_config(conf_dir / "devices/vampires/conf_vampires_mbi.toml"),
+        # "mbi":  VAMPIRESMBIWheel.from_config(conf_dir / "vampires/conf_vampires_mbi.toml"),
         "qwp1": VAMPIRESQWP.from_config(
-            conf_dir / "devices/vampires/conf_vampires_qwp1.toml", number=1
+            conf_dir / "vampires/conf_vampires_qwp1.toml", number=1
         ),
         "qwp2": VAMPIRESQWP.from_config(
-            conf_dir / "devices/vampires/conf_vampires_qwp2.toml", number=2
+            conf_dir / "vampires/conf_vampires_qwp2.toml", number=2
         ),
         "filter": VAMPIRESFilter.from_config(
-            conf_dir / "devices/vampires/conf_vampires_filter.toml"
+            conf_dir / "vampires/conf_vampires_filter.toml"
         ),
-        "tc": VAMPIRESTC.from_config(conf_dir / "devices/vampires/conf_vampires_tc.toml"),
-        # "trigger": VAMPIRESTrigger.from_config(conf_dir / "devices/vampires/conf_vampires_trigger.toml")
-        # "pupil": VAMPIRESPupilLens.from_config(conf_dir / "devices/vampires/conf_vampires_pupil.toml"),
+        "tc": VAMPIRESTC.from_config(conf_dir / "vampires/conf_vampires_tc.toml"),
+        # "trigger": VAMPIRESTrigger.from_config(conf_dir / "vampires/conf_vampires_trigger.toml")
+        # "pupil": VAMPIRESPupilLens.from_config(conf_dir / "vampires/conf_vampires_pupil.toml"),
     }
     ## Add to Pyro server
     print("Adding devices to pyro", end="\n  ")

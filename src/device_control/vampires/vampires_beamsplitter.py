@@ -3,6 +3,7 @@ import sys
 
 from docopt import docopt
 
+from device_control import conf_dir
 from device_control.drivers import CONEXDevice
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
@@ -46,7 +47,12 @@ Configurations:
 
 
 def main():
-    beamsplitter = connect(PYRO_KEYS["beamsplitter"])
+    if os.getenv("WHICHCOMP") != "V":
+        beamsplitter = connect(PYRO_KEYS["beamsplitter"])
+    else:
+        beamsplitter = VAMPIRESBeamsplitter.from_config(
+            conf_dir / "vampires/conf_vampires_beamsplitter.toml"
+        )
     __doc__ = beamsplitter.help_message()
     args = docopt(__doc__, options_first=True)
     if len(sys.argv) == 1:
@@ -61,19 +67,19 @@ def main():
         if args["--wait"]:
             beamsplitter.home()
         else:
-            beamsplitter.home__oneway()
+            beamsplitter.home()
     elif args["goto"]:
         angle = float(args["<angle>"])
         if args["--wait"]:
             beamsplitter.move_absolute(angle % 360)
         else:
-            beamsplitter.move_absolute__oneway(angle % 360)
+            beamsplitter.move_absolute(angle % 360)
     elif args["nudge"]:
         rel_angle = float(args["<angle>"])
         if args["--wait"]:
             beamsplitter.move_relative(rel_angle)
         else:
-            beamsplitter.move_relative__oneway(rel_angle)
+            beamsplitter.move_relative(rel_angle)
     elif args["stop"]:
         beamsplitter.stop()
     elif args["reset"]:
@@ -84,12 +90,12 @@ def main():
             if args["--wait"]:
                 beamsplitter.move_configuration_idx(index)
             else:
-                beamsplitter.move_configuration_idx__oneway(index)
+                beamsplitter.move_configuration_idx(index)
         except ValueError:
             if args["--wait"]:
                 beamsplitter.move_configuration_name(args["<configuration>"])
             else:
-                beamsplitter.move_configuration_name__oneway(args["<configuration>"])
+                beamsplitter.move_configuration_name(args["<configuration>"])
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ import sys
 
 from docopt import docopt
 
+from device_control import conf_dir
 from device_control.drivers import CONEXDevice
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
@@ -46,7 +47,10 @@ Configurations:
 
 # setp 4. action
 def main():
-    vampires_focus = connect(PYRO_KEYS["focus"])
+    if os.getenv("WHICHCOMP") == "V":
+        vampires_focus = VAMPIRESFocus.from_config(conf_dir / "vampires" / "conf_vampires_focus.toml")
+    else:
+        vampires_focus = connect(PYRO_KEYS["focus"])
     __doc__ = vampires_focus.help_message()
     args = docopt(__doc__, options_first=True)
     if len(sys.argv) == 1:
@@ -57,13 +61,13 @@ def main():
     elif args["position"]:
         print(vampires_focus.get_position())
     elif args["home"]:
-        vampires_focus.home__oneway()
+        vampires_focus.home()
     elif args["goto"]:
         pos = float(args["<pos>"])
-        vampires_focus.move_absolute__oneway(pos)
+        vampires_focus.move_absolute(pos)
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
-        vampires_focus.move_relative__oneway(rel_pos)
+        vampires_focus.move_relative(rel_pos)
     elif args["stop"]:
         vampires_focus.stop()
     elif args["reset"]:

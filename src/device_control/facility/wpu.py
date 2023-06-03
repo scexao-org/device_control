@@ -1,36 +1,23 @@
-import socket
+import subprocess
 
 __all__ = ["WPU"]
 
-class SocketDevice:
+class WPUDevice:
 
-    def __init__(self, *args, **kwargs):
-        self.host = "garde.sum.naoj.org"
-        self.port = 18902
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    
-    def ask_command(self, command):
-        raise NotImplementedError()
-        with self.socket as sock:
-            sock.connect((self.host, self.port))
-            sock.send(command.encode())
-            # return sock.r.decode()
+    def send_command(self, command: str):
+        cmd = f"ssh wpu echo '{command}' | nc localhost 18902"
+        subprocess.run(cmd.split())
 
-    def send_command(self, command):
-        with self.socket as sock:
-            sock.connect((self.host, self.port))
-            sock.send(command.encode())
-    
+    def ask_command(self, command: str):
+        cmd = f"ssh wpu echo '{command}' | nc localhost 18902"
+        response = subprocess.run(cmd.split(), capture_output=True)
+        return response.stdout.decode()
 
-class WPU_LP(SocketDevice):
+class WPU_LP(WPUDevice):
+
     def get_state(self):
         pass
-    def get_position(self):
-        pass
 
-    def move_absolute(self, value):
-        self.send_command(f"qwp move {value}") # TODO qwp??
-        
     def insert(self):
         self.send_command("spp move 55.2")
 
@@ -38,17 +25,38 @@ class WPU_LP(SocketDevice):
         self.send_command("spp move 0")
 
 
-class WPU_HWP(SocketDevice):
-    
-    def get_status(self):
+
+class WPU_QWP(WPUDevice):
+
+    def get_state(self):
         pass
 
     def get_position(self):
         pass
 
     def move_absolute(self, value):
+        self.send_command(f"qwp move {value}")
+
+    def insert(self):
+        self.send_command("sqw move 56")
+
+    def retract(self):
+        self.send_command("sqw move 0")
+
+
+
+class WPU_HWP(WPUDevice):
+
+    def get_state(self):
+        pass
+
+    def get_position(self):
+        return self.ask_command(f"hwp status")
+
+
+    def move_absolute(self, value):
         self.send_command(f"hwp move {value}")
-        
+
     def insert(self):
         self.send_command("shw move 56")
 
@@ -58,7 +66,13 @@ class WPU_HWP(SocketDevice):
 
 class WPU:
 
-    def __init__(self) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         self.polarizer = WPU_LP()
         self.hwp = WPU_HWP()
+        self.qwp = WPU_QWP()
 
+    def status(self):
+        f"""
+        Polarizer: {self.polarizer.get_state()}
+        HWP: {self.hwp.get_state()} {{ {self.hwp.get_position():.02f}° }}
+        """

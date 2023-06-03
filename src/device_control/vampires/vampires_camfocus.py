@@ -3,6 +3,7 @@ import sys
 
 from docopt import docopt
 
+from device_control import conf_dir
 from device_control.drivers import ZaberDevice
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
@@ -39,7 +40,12 @@ Wheel commands:
 
 # setp 4. action
 def main():
-    vampires_camfocus = connect(PYRO_KEYS["camfocus"])
+    if os.getenv("WHICHCOMP") != "V":
+        vampires_camfocus = connect(PYRO_KEYS["camfocus"])
+    else:
+        vampires_camfocus = VAMPIRESCamFocus.from_config(
+            conf_dir / "vampires/conf_vampires_camfocus.toml"
+        )
     __doc__ = vampires_camfocus.help_message()
     args = docopt(__doc__, options_first=True)
     if len(sys.argv) == 1:
@@ -52,19 +58,19 @@ def main():
         if args["--wait"]:
             vampires_camfocus.home()
         else:
-            vampires_camfocus.home__oneway()
+            vampires_camfocus.home()
     elif args["goto"]:
         pos = float(args["<pos>"])
         if args["--wait"]:
             vampires_camfocus.move_absolute(pos)
         else:
-            vampires_camfocus.move_absolute__oneway(pos)
+            vampires_camfocus.move_absolute(pos)
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
         if args["--wait"]:
             vampires_camfocus.move_relative(rel_pos)
         else:
-            vampires_camfocus.move_relative__oneway(rel_pos)
+            vampires_camfocus.move_relative(rel_pos)
     elif args["stop"]:
         vampires_camfocus.stop()
     elif args["reset"]:

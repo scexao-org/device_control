@@ -3,6 +3,7 @@ import sys
 
 from docopt import docopt
 
+from device_control import conf_dir
 from device_control.drivers import CONEXDevice
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
@@ -46,7 +47,10 @@ Configurations:
 
 
 def main():
-    vampires_mbi = connect(PYRO_KEYS["vampires_mbi"])
+    if os.getenv("WHICHCOMP") == "V":
+        vampires_mbi = VAMPIRESMBIWheel.from_config(conf_dir / "vampires" / "conf_vampires_mbi.toml")
+    else:
+        vampires_mbi = connect(PYRO_KEYS["vampires_mbi"])
     __doc__ = vampires_mbi.help_message()
     args = docopt(__doc__, options_first=True)
     if len(sys.argv) == 1:
@@ -62,19 +66,19 @@ def main():
         if args["--wait"]:
             vampires_mbi.home()
         else:
-            vampires_mbi.home__oneway()
+            vampires_mbi.home()
     elif args["goto"]:
         angle = float(args["<angle>"])
         if args["--wait"]:
             vampires_mbi.move_absolute(angle % 360)
         else:
-            vampires_mbi.move_absolute__oneway(angle % 360)
+            vampires_mbi.move_absolute(angle % 360)
     elif args["nudge"]:
         rel_angle = float(args["<angle>"])
         if args["--wait"]:
             vampires_mbi.move_relative(rel_angle)
         else:
-            vampires_mbi.move_relative__oneway(rel_angle)
+            vampires_mbi.move_relative(rel_angle)
     elif args["stop"]:
         vampires_mbi.stop()
     elif args["reset"]:
@@ -83,8 +87,8 @@ def main():
         try:
             index = int(args["<configuration>"])
         except ValueError:
-            vampires_mbi.move_configuration_name__oneway(args["<configuration>"])
-        vampires_mbi.move_configuration_idx__oneway(index)
+            vampires_mbi.move_configuration_name(args["<configuration>"])
+        vampires_mbi.move_configuration_idx(index)
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ import click
 import tomli
 from serial import Serial
 
+from device_control import conf_dir
 from device_control.base import ConfigurableDevice
 from swmain.redis import update_keys
 import usb.core

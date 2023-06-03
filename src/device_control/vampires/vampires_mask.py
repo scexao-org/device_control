@@ -1,10 +1,12 @@
 import sys
 from typing import Union
+import os
 
 import numpy as np
 import tomli
 from docopt import docopt
 
+from device_control import conf_dir
 from device_control.multi_device import MultiDevice
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
@@ -58,7 +60,10 @@ Configurations:
 
 # setp 4. action
 def main():
-    vampires_mask = connect(PYRO_KEYS["mask"])
+    if os.getenv("WHICHCOMP") == "V":
+        vampires_mask = VAMPIRESMaskWheel.from_config(conf_dir / "vampires" / "conf_vampires_mask.toml")
+    else:
+        vampires_mask = connect(PYRO_KEYS["mask"])
     __doc__ = vampires_mask.help_message()
     args = docopt(__doc__, options_first=True)
     if len(sys.argv) == 1:
@@ -71,6 +76,7 @@ def main():
         y = vampires_mask.get_position("y")
         th = vampires_mask.get_position("theta")
         print(VAMPIRESMaskWheel.format_str.format(idx, name, x, y, th))
+        vampires_mask.update_keys((x, y, th))
         return
     elif args["x"]:
         substage = "x"
@@ -80,24 +86,25 @@ def main():
         substage = "theta"
     elif args["<configuration>"]:
         index = int(args["<configuration>"])
-        return vampires_mask.move_configuration_idx__oneway(index)
+        return vampires_mask.move_configuration_idx(index)
     if args["status"] or args["position"]:
         print(vampires_mask.get_position(substage))
     elif args["home"]:
-        vampires_mask.home__oneway(substage)
+        vampires_mask.home(substage)
     elif args["goto"]:
         pos = float(args["<pos>"])
         if args["theta"]:
-            vampires_mask.move_absolute__oneway(substage, pos % 360)
+            vampires_mask.move_absolute(substage, pos % 360)
         else:
-            vampires_mask.move_absolute__oneway(substage, pos)
+            vampires_mask.move_absolute(substage, pos)
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
-        vampires_mask.move_relative__oneway(substage, rel_pos)
+        vampires_mask.move_relative(substage, rel_pos)
     elif args["stop"]:
         vampires_mask.stop(substage)
     elif args["reset"]:
         substage.reset()
+    vampires_mask.update_keys()
 
 
 if __name__ == "__main__":

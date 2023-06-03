@@ -1,0 +1,5 @@
+pulse_width = 10 # us
+flc_offset = 20 # us
+
+[serial]
+port = "/dev/serial/by-id/usb-Adafruit_Metro_M4_153EA9065337543239202020FF101C18-if00"

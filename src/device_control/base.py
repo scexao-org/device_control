@@ -205,10 +205,10 @@ class SSHDevice:
         self._prepare_sshclient()
         self.config_file = config_file
 
-    def _prepare_sshclient(self):
+    def _prepare_sshclient(self, **kwargs):
         self.client = paramiko.SSHClient()
         self.client.load_system_host_keys()
-        self.client.connect(self.host, username=self.user)
+        self.client.connect(self.host, username=self.user, **kwargs)
 
     def send_command(self, command: str):
         stdin, stdout, stderr = self.client.exec_command(command)
