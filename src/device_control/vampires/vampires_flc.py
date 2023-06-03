@@ -7,7 +7,7 @@ from device_control import conf_dir
 from device_control.drivers import ZaberDevice
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
-    connect
+    connect,
 )
 from swmain.redis import update_keys
 
@@ -48,7 +48,9 @@ Configurations:
 # setp 4. action
 def main():
     if os.getenv("WHICHCOMP") == "V":
-        vampires_flc = VAMPIRESFLCStage.from_config(conf_dir / "vampires" / "conf_vampires_flc.toml")
+        vampires_flc = VAMPIRESFLCStage.from_config(
+            conf_dir / "vampires" / "conf_vampires_flc.toml"
+        )
     else:
         vampires_flc = connect(PYRO_KEYS["flc"])
     __doc__ = vampires_flc.help_message()

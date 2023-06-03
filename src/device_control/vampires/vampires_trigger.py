@@ -173,7 +173,7 @@ class VAMPIRESInlineUSBReset:
         self.outaddr = 0x1
         self.inaddr = 0x81
         self.bufsize = 64
-        self.device = usb.core.find(idVendor=0x04d8, idProduct=0xf0cd)
+        self.device = usb.core.find(idVendor=0x04D8, idProduct=0xF0CD)
 
     def send_command(self, command: int):
         self.device.write(self.outaddr, chr(command))

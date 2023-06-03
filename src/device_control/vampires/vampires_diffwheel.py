@@ -7,7 +7,7 @@ from device_control import conf_dir
 from device_control.drivers import CONEXDevice
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
-    connect
+    connect,
 )
 from swmain.redis import update_keys
 
@@ -58,12 +58,12 @@ Configurations (cam1 / cam2):
 {configurations}"""
 
 
-
-
 # setp 4. action
 def main():
     if os.getenv("WHICHCOMP") == "V":
-        vampires_diffwheel = VAMPIRESDiffWheel.from_config(conf_dir / "vampires/conf_vampires_diffwheel.toml")
+        vampires_diffwheel = VAMPIRESDiffWheel.from_config(
+            conf_dir / "vampires/conf_vampires_diffwheel.toml"
+        )
     else:
         vampires_diffwheel = connect(PYRO_KEYS["diffwheel"])
     __doc__ = vampires_diffwheel.help_message()

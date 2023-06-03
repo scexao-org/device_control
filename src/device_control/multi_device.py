@@ -12,7 +12,6 @@ from device_control.drivers.zaber import ZaberDevice
 __all__ = ["MultiDevice"]
 
 
-
 class MultiDevice(ConfigurableDevice):
     def __init__(self, devices: dict, **kwargs):
         self.devices = devices

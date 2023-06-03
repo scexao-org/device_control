@@ -7,7 +7,7 @@ from device_control import conf_dir
 from device_control.drivers import CONEXDevice
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
-    connect
+    connect,
 )
 from swmain.redis import update_keys
 
@@ -48,7 +48,9 @@ Configurations:
 
 def main():
     if os.getenv("WHICHCOMP") == "V":
-        vampires_mbi = VAMPIRESMBIWheel.from_config(conf_dir / "vampires" / "conf_vampires_mbi.toml")
+        vampires_mbi = VAMPIRESMBIWheel.from_config(
+            conf_dir / "vampires" / "conf_vampires_mbi.toml"
+        )
     else:
         vampires_mbi = connect(PYRO_KEYS["vampires_mbi"])
     __doc__ = vampires_mbi.help_message()

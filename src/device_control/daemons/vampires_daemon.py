@@ -14,7 +14,6 @@ parser = ArgumentParser(
 )
 
 
-
 def main():
     args = parser.parse_args()
     server = PyroServer(bindTo=(IP_VAMPIRES, 0), nsAddress=(PYRONS3_HOST, PYRONS3_PORT))
@@ -26,26 +25,16 @@ def main():
             conf_dir / "vampires/conf_vampires_beamsplitter.toml"
         ),
         "focus": VAMPIRESFocus.from_config(conf_dir / "vampires/conf_vampires_focus.toml"),
-        "camfocus": VAMPIRESCamFocus.from_config(
-            conf_dir / "vampires/conf_vampires_camfocus.toml"
-        ),
+        "camfocus": VAMPIRESCamFocus.from_config(conf_dir / "vampires/conf_vampires_camfocus.toml"),
         # "flc":  VAMPIRESFLCStage.from_config(conf_dir / "vampires/conf_vampires_flcß.toml"),
         "diffwheel": VAMPIRESDiffWheel.from_config(
             conf_dir / "vampires/conf_vampires_diffwheel.toml"
         ),
-        "mask": VAMPIRESMaskWheel.from_config(
-            conf_dir / "vampires/conf_vampires_mask.toml"
-        ),
+        "mask": VAMPIRESMaskWheel.from_config(conf_dir / "vampires/conf_vampires_mask.toml"),
         # "mbi":  VAMPIRESMBIWheel.from_config(conf_dir / "vampires/conf_vampires_mbi.toml"),
-        "qwp1": VAMPIRESQWP.from_config(
-            conf_dir / "vampires/conf_vampires_qwp1.toml", number=1
-        ),
-        "qwp2": VAMPIRESQWP.from_config(
-            conf_dir / "vampires/conf_vampires_qwp2.toml", number=2
-        ),
-        "filter": VAMPIRESFilter.from_config(
-            conf_dir / "vampires/conf_vampires_filter.toml"
-        ),
+        "qwp1": VAMPIRESQWP.from_config(conf_dir / "vampires/conf_vampires_qwp1.toml", number=1),
+        "qwp2": VAMPIRESQWP.from_config(conf_dir / "vampires/conf_vampires_qwp2.toml", number=2),
+        "filter": VAMPIRESFilter.from_config(conf_dir / "vampires/conf_vampires_filter.toml"),
         "tc": VAMPIRESTC.from_config(conf_dir / "vampires/conf_vampires_tc.toml"),
         # "trigger": VAMPIRESTrigger.from_config(conf_dir / "vampires/conf_vampires_trigger.toml")
         # "pupil": VAMPIRESPupilLens.from_config(conf_dir / "vampires/conf_vampires_pupil.toml"),

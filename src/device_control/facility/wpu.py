@@ -2,8 +2,8 @@ import subprocess
 
 __all__ = ["WPU"]
 
-class WPUDevice:
 
+class WPUDevice:
     def send_command(self, command: str):
         cmd = f"ssh wpu echo '{command}' | nc localhost 18902"
         subprocess.run(cmd.split())
@@ -13,8 +13,8 @@ class WPUDevice:
         response = subprocess.run(cmd.split(), capture_output=True)
         return response.stdout.decode()
 
-class WPU_LP(WPUDevice):
 
+class WPU_LP(WPUDevice):
     def get_state(self):
         pass
 
@@ -25,9 +25,7 @@ class WPU_LP(WPUDevice):
         self.send_command("spp move 0")
 
 
-
 class WPU_QWP(WPUDevice):
-
     def get_state(self):
         pass
 
@@ -44,15 +42,12 @@ class WPU_QWP(WPUDevice):
         self.send_command("sqw move 0")
 
 
-
 class WPU_HWP(WPUDevice):
-
     def get_state(self):
         pass
 
     def get_position(self):
         return self.ask_command(f"hwp status")
-
 
     def move_absolute(self, value):
         self.send_command(f"hwp move {value}")
@@ -65,7 +60,6 @@ class WPU_HWP(WPUDevice):
 
 
 class WPU:
-
     def __init__(self, *args, **kwargs) -> None:
         self.polarizer = WPU_LP()
         self.hwp = WPU_HWP()

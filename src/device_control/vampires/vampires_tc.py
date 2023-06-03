@@ -7,7 +7,7 @@ from device_control import conf_dir
 from device_control.drivers import ThorlabsTC
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
-    connect
+    connect,
 )
 from swmain.redis import update_keys
 

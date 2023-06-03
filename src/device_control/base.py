@@ -197,8 +197,8 @@ class MotionDevice(ConfigurableDevice):
         # save configurations to file
         self.save_config(**kwargs)
 
-class SSHDevice:
 
+class SSHDevice:
     def __init__(self, host, user=None, config_file=None):
         self.host = host
         self.user = user

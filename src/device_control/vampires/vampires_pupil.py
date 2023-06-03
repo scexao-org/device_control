@@ -7,7 +7,7 @@ from device_control import conf_dir
 from device_control.drivers import ThorlabsFlipMount
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
-    connect
+    connect,
 )
 from swmain.redis import update_keys
 
@@ -35,7 +35,9 @@ Stage commands:
 # setp 4. action
 def main():
     if os.getenv("WHICHCOMP") == "V":
-        vampires_pupil = VAMPIRESPupilLens.from_config(conf_dir / "vampires" / "conf_vampires_pupil.toml")
+        vampires_pupil = VAMPIRESPupilLens.from_config(
+            conf_dir / "vampires" / "conf_vampires_pupil.toml"
+        )
     else:
         vampires_pupil = connect(PYRO_KEYS["pupil"])
     __doc__ = vampires_pupil.help_message()

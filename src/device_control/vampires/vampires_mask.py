@@ -10,7 +10,7 @@ from device_control import conf_dir
 from device_control.multi_device import MultiDevice
 from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
-    connect
+    connect,
 )
 from swmain.redis import update_keys
 
@@ -61,7 +61,9 @@ Configurations:
 # setp 4. action
 def main():
     if os.getenv("WHICHCOMP") == "V":
-        vampires_mask = VAMPIRESMaskWheel.from_config(conf_dir / "vampires" / "conf_vampires_mask.toml")
+        vampires_mask = VAMPIRESMaskWheel.from_config(
+            conf_dir / "vampires" / "conf_vampires_mask.toml"
+        )
     else:
         vampires_mask = connect(PYRO_KEYS["mask"])
     __doc__ = vampires_mask.help_message()
