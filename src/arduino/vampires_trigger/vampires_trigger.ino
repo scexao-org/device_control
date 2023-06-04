@@ -18,7 +18,7 @@
 #include <Adafruit_NeoPixel.h>
 #define LED_PIN 13
 #define NEOPIXEL_PIN 40
-#define NEOPIXEL_BRIGHTNESS 50
+#define NEOPIXEL_BRIGHTNESS 10
 Adafruit_NeoPixel strip(1, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 #endif
 
@@ -48,8 +48,8 @@ bool camera_two_ready;
 void setup()
 {    // variable resets
     sweep_mode = false;
-    loop_enabled = true;
-    flc_enabled = true;
+    loop_enabled = false;
+    flc_enabled = false;
     pulse_width = 10; // us
     flc_offset = 20; // us
 

@@ -29,7 +29,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
         **kwargs,
     ):
         serial_kwargs = dict(
-            {"baudrate": 115200, "timeout": 0.1, "write_timeout": 0.5},
+            {"baudrate": 115200, "timeout": 0.1},
             **serial_kwargs,
         )
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
@@ -52,7 +52,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
             response = serial.readline()
             if len(response) == 0:
                 raise ArduinoTimeoutError()
-            if response != "OK":
+            if response.strip() != b"OK":
                 raise ArduinoError(response)
 
     def ask_command(self, command):
