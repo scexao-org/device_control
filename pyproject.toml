@@ -32,7 +32,7 @@ test = [
 
 [project.scripts]
 # daemons
-vampires_daemon = "device_control.daemons.vampires_daemon:main"
+vampires_daemon = "device_control.daemons.vampires_devices:main"
 # VAMPIRES devices
 vampires_bs = "device_control.vampires.vampires_beamsplitter:main"
 vampires_camfocus = "device_control.vampires.vampires_camfocus:main"

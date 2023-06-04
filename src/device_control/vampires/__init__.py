@@ -1,5 +1,5 @@
 PYRO_KEYS = {
-    "beamsplitter": "VAMPIRES_BEAMSPLITTER",
+    "bs": "VAMPIRES_BEAMSPLITTER",
     "camfocus": "VAMPIRES_CAMFOCUS",
     "diffwheel": "VAMPIRES_DIFFWHEEL",
     "filter": "VAMPIRES_FILTER",

@@ -9,7 +9,7 @@ from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 from swmain.network.pyroserver_registerable import PyroServer
 
 parser = ArgumentParser(
-    prog="vampires_daemon",
+    prog="vampires_devices",
     description="Launch the daemon for the devices controlled by the VAMPIRES computer.",
 )
 
@@ -21,7 +21,7 @@ def main():
     print("Initializing devices")
 
     devices = {
-        "beamsplitter": VAMPIRESBeamsplitter.from_config(
+        "bs": VAMPIRESBeamsplitter.from_config(
             conf_dir / "vampires/conf_vampires_beamsplitter.toml"
         ),
         "focus": VAMPIRESFocus.from_config(conf_dir / "vampires/conf_vampires_focus.toml"),

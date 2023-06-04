@@ -143,7 +143,7 @@ class MultiDevice(ConfigurableDevice):
         for dev_name, value in self.current_config.items():
             # TODO async wait
             self.devices[dev_name].move_absolute(value, wait=wait)
-        self.update_keys()
+            self.update_keys()
 
     def move_configuration_name(self, name: str, wait=True):
         for row in self.configurations:
@@ -153,9 +153,8 @@ class MultiDevice(ConfigurableDevice):
         else:
             raise ValueError(f"No configuration saved with name '{name}'")
         for dev_name, value in self.current_config.items():
-            # TODO async wait
             self.devices[dev_name].move_absolute(value, wait=wait)
-        self.update_keys()
+            self.update_keys()
 
     def update_keys(self, positions=None):
         if positions is None:
