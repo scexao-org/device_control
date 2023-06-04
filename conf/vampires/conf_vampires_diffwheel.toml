@@ -1,14 +1,14 @@
 name = "vampires_diffwheel"
 unit = "deg"
 configurations = [
-    {idx=1, name="Open / Defocus lens", value=0},
+    {idx=1, name="Open / Defocus", value=0},
     {idx=2, name="Open / Open", value=45},
     {idx=3, name="775-25 / 675-25", value=90},
-    {idx=4, name="Ha-continuum / H-alpha", value=135},
-    {idx=5, name="Docus lens / Open", value=180},
+    {idx=4, name="Ha-cont / Halpha", value=135},
+    {idx=5, name="Docus / Open", value=180},
     {idx=6, name="Open / Open", value=225},
     {idx=7, name="675-25 / 775-25", value=270},
-    {idx=8, name="H-alpha / Ha-continuum", value=315},
+    {idx=8, name="Halpha / Ha-cont", value=315},
 ]
 [serial]
 port = "/dev/serial/by-id/usb-FTDI_USB-RS422_Cable_FT0B42PZ-if00-port0"
