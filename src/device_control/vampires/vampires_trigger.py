@@ -3,6 +3,8 @@ from device_control.pyro_keys import VAMPIRES
 from device_control.base import ConfigurableDevice
 from swmain.redis import update_keys
 import usb.core
+import usb.util
+import time
 
 
 class ArduinoError(RuntimeError):
@@ -126,6 +128,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
     def reset(self):
         # toggle power using inline switch
         self.reset_switch.disable()
+        time.sleep(0.1)
         self.reset_switch.enable()
 
     def update_keys(self):
@@ -155,12 +158,27 @@ class VAMPIRESInlineUSBReset:
         self.bufsize = 64
         self.device = usb.core.find(idVendor=0x04D8, idProduct=0xF0CD)
 
+    def __enter__(self):
+        self._reattach = False
+        if self.device.is_kernel_driver_active(0):
+            self._reattach = True
+            self.device.detach_kernel_driver(0)
+
+        return self.device
+
+    def __exit__(self, *args):
+        usb.util.dispose_resources(self.device)
+        if self._reattach:
+            self.device.attach_kernel_driver(0)
+
     def send_command(self, command: int):
-        self.device.write(self.outaddr, chr(command))
+        with self as device:
+            device.write(self.outaddr, chr(command))
 
     def ask_command(self, command: int):
-        self.device.write(self.outaddr, chr(command))
-        reply = self.device.read(self.inaddr, self.bufsize)
+        with self as device:
+            device.write(self.outaddr, chr(command))
+            reply = device.read(self.inaddr, self.bufsize)
         return reply
 
     def enable(self):
