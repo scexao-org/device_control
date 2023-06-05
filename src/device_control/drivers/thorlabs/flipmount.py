@@ -1,11 +1,7 @@
 import time
 
-import numpy as np
-import tomli
-from serial import Serial
 
 from device_control.base import ConfigurableDevice
-from swmain.redis import update_keys
 
 # Raw byte commands for "MGMSG_MOT_MOVE_JOG"
 COMMANDS = {

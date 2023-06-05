@@ -1,8 +1,11 @@
 from device_control.base import SSHDevice
 import re
+import click
 
 
 class ImageRotator(SSHDevice):
+    CONF = "facility/conf_image_rotator.toml"
+
     def get_status(self):
         status = self.ask_command("imr st")
         lines = status.splitlines()
@@ -25,3 +28,20 @@ class ImageRotator(SSHDevice):
 
     def move_relative(self, value: float):
         self.send_command(f"imr mr {value}")
+
+
+@click.group("imr", help="Simple interface for interacting with the image rotator.")
+@click.pass_context
+def main(ctx):
+    ctx.ensure_object(dict)
+    ctx.obj["imr"] = ImageRotator.connect()
+
+
+@main.command("status")
+@click.pass_obj
+def status(obj):
+    print(obj["imr"].get_position())
+
+
+if __name__ == "__main__":
+    main()

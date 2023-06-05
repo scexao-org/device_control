@@ -3,16 +3,14 @@ import sys
 
 from docopt import docopt
 
-from device_control import conf_dir
+from device_control.pyro_keys import VAMPIRES
 from device_control.drivers import CONEXDevice
-from device_control.vampires import PYRO_KEYS
-from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
-    connect,
-)
 from swmain.redis import update_keys
 
 
 class VAMPIRESFocus(CONEXDevice):
+    CONF = "vampires/conf_vampires_focus.toml"
+    PYRO_KEY = VAMPIRES.FOCUS
     format_str = "{0}: {1:10s} {{{2:5.02f} mm}}"
 
     def _update_keys(self, position):
@@ -21,16 +19,16 @@ class VAMPIRESFocus(CONEXDevice):
 
     def help_message(self):
         configurations = "\n".join(
-            f"    {VAMPIRESFocus.format_str.format(c['idx'], c['name'], c['value'])}"
+            f"    {self.format_str.format(c['idx'], c['name'], c['value'])}"
             for c in self.configurations
         )
         return f"""Usage:
     vampires_focus [-h | --help]
-    vampires_focus [-w | --wait] (status|position|home|goto|nudge|stop|reset) [<pos>]
+    vampires_focus (status|position|home|goto|nudge|stop|reset) [<pos>]
+    vampires_focus <configuration>
 
 Options:
     -h, --help   Show this screen
-    -w, --wait   Block command until position has been reached, for applicable commands
 
 Stage commands:
     status          Returns the current status of the focus stage
@@ -47,26 +45,24 @@ Configurations:
 
 # setp 4. action
 def main():
-    if os.getenv("WHICHCOMP") == "V":
-        vampires_focus = VAMPIRESFocus.from_config(
-            conf_dir / "vampires" / "conf_vampires_focus.toml"
-        )
-    else:
-        vampires_focus = connect(PYRO_KEYS["focus"])
+    vampires_focus = VAMPIRESFocus.connect(os.getenv("WHICHCOMP") == "V")
     __doc__ = vampires_focus.help_message()
     args = docopt(__doc__, options_first=True)
+    posn = None
     if len(sys.argv) == 1:
         print(__doc__)
     if args["status"]:
-        idx, name = vampires_focus.get_configuration()
-        print(VAMPIRESFocus.format_str.format(idx, name, vampires_focus.get_position()))
+        posn = vampires_focus.get_position()
+        idx, name = vampires_focus.get_configuration(posn)
+        print(VAMPIRESFocus.format_str.format(idx, name, posn))
     elif args["position"]:
-        print(vampires_focus.get_position())
+        posn = vampires_focus.get_position()
+        print(posn)
     elif args["home"]:
         vampires_focus.home()
     elif args["goto"]:
-        pos = float(args["<pos>"])
-        vampires_focus.move_absolute(pos)
+        new_pos = float(args["<pos>"])
+        vampires_focus.move_absolute(new_pos)
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
         vampires_focus.move_relative(rel_pos)
@@ -74,7 +70,9 @@ def main():
         vampires_focus.stop()
     elif args["reset"]:
         vampires_focus.reset()
-    vampires_focus.update_keys()
+    elif args["<configuration>"]:
+        vampires_focus.move_configuration(args["<configuration>"])
+    vampires_focus.update_keys(posn)
 
 
 if __name__ == "__main__":

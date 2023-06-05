@@ -1,5 +1,3 @@
-import time
-
 from device_control.base import ConfigurableDevice
 
 
@@ -21,23 +19,28 @@ def parse_status(bytevalues):
 
 
 class ThorlabsTC(ConfigurableDevice):
-    def __init__(self, serial_kwargs, temp, **kwargs):
+    def __init__(self, serial_kwargs, temp, autoenable=True, **kwargs):
         serial_kwargs = dict({"baudrate": 115200}, **serial_kwargs)
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
         self.set_target(temp)
 
     def send_command(self, cmd: str):
         with self.serial as serial:
+            serial.reset_input_buffer()
             serial.write(f"{cmd}\r".encode())
-            time.sleep(20e-3)
-            serial.read_until(b"\r")
+            cmd_resp = serial.read_until(b"\r").strip()
+            serial.reset_input_buffer()
+            assert cmd_resp.decode() == cmd
 
     def ask_command(self, cmd: str):
         with self.serial as serial:
+            serial.reset_input_buffer()
             serial.write(f"{cmd}\r".encode())
-            time.sleep(20e-3)
-            serial.read_until(b"\r")
-            return serial.read_until(b"\r").decode().strip()
+            cmd_resp = serial.read_until(b"\r").strip()
+            assert cmd_resp.decode() == cmd
+            val_resp = serial.read_until(b"\r").strip()
+            serial.reset_input_buffer()
+            return val_resp.decode()
 
     def get_target(self):
         result = self.ask_command("tset?")

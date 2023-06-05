@@ -1,7 +1,6 @@
 import logging
 import time
 
-from serial import Serial
 
 from ..base import MotionDevice
 
@@ -88,16 +87,16 @@ class CONEXDevice(MotionDevice):
         cmd = f"{self.device_address}{command}\r\n"
         self.logger.debug(f"sending command: {cmd[:-2]}")
         with self.serial as serial:
+            serial.reset_input_buffer()
             serial.write(cmd.encode())
-            time.sleep(20e-3)  # 20 ms
 
     def ask_command(self, command: str):
         # pad command with CRLF ending
         cmd = f"{self.device_address}{command}\r\n"
         self.logger.debug(f"sending command: {cmd[:-2]}")
         with self.serial as serial:
+            serial.reset_input_buffer()
             serial.write(cmd.encode())
-            time.sleep(20e-3)  # 20 ms
             retval = serial.read_until(b"\r\n").decode()
             self.logger.debug(f"received: {retval[:-2]}")
             # strip command and \r\n from string

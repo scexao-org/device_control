@@ -1,5 +1,4 @@
 import subprocess
-from swmain.redis import update_keys
 import click
 
 __all__ = ["WPU"]

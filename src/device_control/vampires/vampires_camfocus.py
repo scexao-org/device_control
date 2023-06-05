@@ -3,9 +3,8 @@ import sys
 
 from docopt import docopt
 
-from device_control import conf_dir
+from device_control.pyro_keys import VAMPIRES
 from device_control.drivers import ZaberDevice
-from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
     connect,
 )
@@ -13,6 +12,8 @@ from swmain.redis import update_keys
 
 
 class VAMPIRESCamFocus(ZaberDevice):
+    CONF = "vampires/conf_vampires_camfocus.toml"
+    PYRO_KEY = VAMPIRES.CAMFCS
     format_str = "{0:4.02f} mm"
 
     def _update_keys(self, position):
@@ -22,11 +23,10 @@ class VAMPIRESCamFocus(ZaberDevice):
     def help_message(self):
         return f"""Usage:
     vampires_camfocus [-h | --help]
-    vampires_camfocus [-w | --wait] (status|position|home|goto|nudge|stop|reset) [<pos>]
+    vampires_camfocus (status|position|home|goto|nudge|stop|reset) [<pos>]
 
 Options:
     -h, --help   Show this screen
-    -w, --wait   Block command until position has been reached, for applicable commands
 
 Wheel commands:
     status          Returns the current status of the focus stage
@@ -40,42 +40,31 @@ Wheel commands:
 
 # setp 4. action
 def main():
-    if os.getenv("WHICHCOMP") != "V":
-        vampires_camfocus = connect(PYRO_KEYS["camfocus"])
-    else:
-        vampires_camfocus = VAMPIRESCamFocus.from_config(
-            conf_dir / "vampires/conf_vampires_camfocus.toml"
-        )
+    vampires_camfocus = VAMPIRESCamFocus.connect(os.getenv("WHICHCOMP") == "V")
     __doc__ = vampires_camfocus.help_message()
     args = docopt(__doc__, options_first=True)
+    posn = None
     if len(sys.argv) == 1:
         print(__doc__)
     if args["status"]:
-        print(VAMPIRESCamFocus.format_str.format(vampires_camfocus.get_position()))
+        posn = vampires_camfocus.get_position()
+        print(vampires_camfocus.format_str.format(posn))
     elif args["position"]:
-        print(vampires_camfocus.get_position())
+        posn = vampires_camfocus.get_position()
+        print(posn)
     elif args["home"]:
-        if args["--wait"]:
-            vampires_camfocus.home()
-        else:
-            vampires_camfocus.home()
+        vampires_camfocus.home()
     elif args["goto"]:
-        pos = float(args["<pos>"])
-        if args["--wait"]:
-            vampires_camfocus.move_absolute(pos)
-        else:
-            vampires_camfocus.move_absolute(pos)
+        new_pos = float(args["<pos>"])
+        vampires_camfocus.move_absolute(new_pos)
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
-        if args["--wait"]:
-            vampires_camfocus.move_relative(rel_pos)
-        else:
-            vampires_camfocus.move_relative(rel_pos)
+        vampires_camfocus.move_relative(rel_pos)
     elif args["stop"]:
         vampires_camfocus.stop()
     elif args["reset"]:
         vampires_camfocus.reset()
-    vampires_camfocus.update_keys()
+    vampires_camfocus.update_keys(posn)
 
 
 if __name__ == "__main__":

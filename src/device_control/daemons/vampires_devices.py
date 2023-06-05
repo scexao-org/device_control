@@ -1,10 +1,6 @@
-import os
 from argparse import ArgumentParser
-from pathlib import Path
 
-from device_control import conf_dir
 from device_control.vampires import *
-from device_control.vampires import PYRO_KEYS
 from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 from swmain.network.pyroserver_registerable import PyroServer
 
@@ -15,36 +11,32 @@ parser = ArgumentParser(
 
 
 def main():
-    args = parser.parse_args()
+    parser.parse_args()
     server = PyroServer(bindTo=(IP_VAMPIRES, 0), nsAddress=(PYRONS3_HOST, PYRONS3_PORT))
     ## create device objects
     print("Initializing devices")
 
     devices = {
-        "bs": VAMPIRESBeamsplitter.from_config(
-            conf_dir / "vampires/conf_vampires_beamsplitter.toml"
-        ),
-        "focus": VAMPIRESFocus.from_config(conf_dir / "vampires/conf_vampires_focus.toml"),
-        "camfocus": VAMPIRESCamFocus.from_config(conf_dir / "vampires/conf_vampires_camfocus.toml"),
-        # "flc":  VAMPIRESFLCStage.from_config(conf_dir / "vampires/conf_vampires_flcß.toml"),
-        "diffwheel": VAMPIRESDiffWheel.from_config(
-            conf_dir / "vampires/conf_vampires_diffwheel.toml"
-        ),
-        "mask": VAMPIRESMaskWheel.from_config(conf_dir / "vampires/conf_vampires_mask.toml"),
-        # "mbi":  VAMPIRESMBIWheel.from_config(conf_dir / "vampires/conf_vampires_mbi.toml"),
-        "qwp1": VAMPIRESQWP.from_config(conf_dir / "vampires/conf_vampires_qwp1.toml", number=1),
-        "qwp2": VAMPIRESQWP.from_config(conf_dir / "vampires/conf_vampires_qwp2.toml", number=2),
-        "filter": VAMPIRESFilter.from_config(conf_dir / "vampires/conf_vampires_filter.toml"),
-        "tc": VAMPIRESTC.from_config(conf_dir / "vampires/conf_vampires_tc.toml"),
-        # "trigger": VAMPIRESTrigger.from_config(conf_dir / "vampires/conf_vampires_trigger.toml")
-        # "pupil": VAMPIRESPupilLens.from_config(conf_dir / "vampires/conf_vampires_pupil.toml"),
+        "bs": VAMPIRESBeamsplitter.connect(local=True),
+        "focus": VAMPIRESFocus.connect(local=True),
+        "camfocus": VAMPIRESCamFocus.connect(local=True),
+        # "flc":  VAMPIRESFLCStage.connect(local=True),
+        "diffwheel": VAMPIRESDiffWheel.connect(local=True),
+        "mask": VAMPIRESMaskWheel.connect(local=True),
+        # "mbi":  VAMPIRESMBIWheel.connect(local=True),
+        "qwp1": VAMPIRESQWP.connect(1, local=True),
+        "qwp2": VAMPIRESQWP.connect(2, local=True),
+        "filter": VAMPIRESFilter.connect(local=True),
+        "tc": VAMPIRESTC.connect(local=True),
+        # "trigger": VAMPIRESTrigger.connect(local=True),
+        # "pupil": VAMPIRESPupilLens.connect(local=True),
     }
     ## Add to Pyro server
     print("Adding devices to pyro", end="\n  ")
     for key, device in devices.items():
-        print(f"{key}: {PYRO_KEYS[key]}", end="\n  ")
+        print(f"{key}: {device.PYRO_KEY}", end="\n  ")
         globals()[key] = device
-        server.add_device(device, PYRO_KEYS[key], add_oneway_callables=True)
+        server.add_device(device, device.PYRO_KEY, add_oneway_callables=True)
     print()
     print(f"the following variables are available in the shell:\n{', '.join(devices.keys())}")
     ## Start server

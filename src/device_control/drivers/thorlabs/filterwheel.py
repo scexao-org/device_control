@@ -1,34 +1,41 @@
-import time
-
 from device_control.base import MotionDevice
 
 
 class ThorlabsWheel(MotionDevice):
     def __init__(self, serial_kwargs, **kwargs):
-        serial_kwargs = dict({"baudrate": 115200}, **serial_kwargs)
+        serial_kwargs = dict(
+            {
+                "baudrate": 115200,
+            },
+            **serial_kwargs,
+        )
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
+        self.max_filters = 6  # self.get_count()
 
     def send_command(self, cmd: str):
         with self.serial as serial:
+            serial.reset_input_buffer()
             serial.write(f"{cmd}\r".encode())
-            time.sleep(20e-3)
-            serial.read_until(b"\r")
+            cmd_resp = serial.read_until(b"\r").strip()
+            serial.reset_input_buffer()
+            assert cmd_resp == cmd
 
     def ask_command(self, cmd: str):
         with self.serial as serial:
+            serial.reset_input_buffer()
             serial.write(f"{cmd}\r".encode())
-            time.sleep(20e-3)
-            serial.read_until(b"\r")
-            return serial.read_until(b"\r").decode().strip()
+            cmd_resp = serial.read_until(b"\r").strip()
+            val_resp = serial.read_until(b"\r").strip()
+            assert cmd == cmd_resp.decode()
+            return val_resp.decode()
 
     def _get_position(self):
         result = self.ask_command("pos?")
         return int(result)
 
     def _move_absolute(self, value, **kwargs):
-        max_filters = self.get_count()
-        if value < 1 or value > max_filters:
-            raise ValueError(f"Filter position must be between 1 and {max_filters}")
+        if value < 1 or value > self.max_filters:
+            raise ValueError(f"Filter position must be between 1 and {self.max_filters}")
         self.send_command(f"pos={value}")
 
     def status(self):

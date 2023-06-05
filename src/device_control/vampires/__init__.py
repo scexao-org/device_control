@@ -1,18 +1,3 @@
-PYRO_KEYS = {
-    "bs": "VAMPIRES_BEAMSPLITTER",
-    "camfocus": "VAMPIRES_CAMFOCUS",
-    "diffwheel": "VAMPIRES_DIFFWHEEL",
-    "filter": "VAMPIRES_FILTER",
-    "flc": "VAMPIRES_FLC",
-    "focus": "VAMPIRES_FOCUS",
-    "mask": "VAMPIRES_MASK",
-    "mbi": "VAMPIRES_MBI",
-    "qwp1": "VAMPIRES_QWP1",
-    "qwp2": "VAMPIRES_QWP2",
-    "tc": "VAMPIRES_TC",
-    "trigger": "VAMPIRES_TRIGGER",
-}
-
 from .vampires_beamsplitter import VAMPIRESBeamsplitter
 from .vampires_camfocus import VAMPIRESCamFocus
 from .vampires_diffwheel import VAMPIRESDiffWheel
@@ -26,7 +11,6 @@ from .vampires_tc import VAMPIRESTC
 from .vampires_trigger import VAMPIRESTrigger
 
 __all__ = [
-    "PYRO_KEYS",
     "VAMPIRESBeamsplitter",
     "VAMPIRESCamFocus",
     "VAMPIRESDiffWheel",

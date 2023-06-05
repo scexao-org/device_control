@@ -1,4 +1,3 @@
-import logging
 import time
 
 from zaber_motion import Library, Units

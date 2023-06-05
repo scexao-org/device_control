@@ -3,21 +3,22 @@ import sys
 
 from docopt import docopt
 
-from device_control import conf_dir
+from device_control.pyro_keys import VAMPIRES
 from device_control.drivers import CONEXDevice
-from device_control.vampires import PYRO_KEYS
-from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
-    connect,
-)
 from swmain.redis import update_keys
 
 
 class VAMPIRESMBIWheel(CONEXDevice):
+    CONF = "vampires/conf_vampires_mbi.toml"
+    PYRO_KEY = VAMPIRES.MBI
     format_str = "{0}: {1:15s} {{{2:6.02f} deg}}"
 
     def _update_keys(self, theta):
         _, name = self.get_configuration(position=theta)
         update_keys(U_MBI=name, U_MBITH=theta)
+
+    def _move_absolute(self, value: float, wait=True):
+        return super()._move_absolute(value % 360, wait)
 
     def help_message(self):
         configurations = "\n".join(
@@ -26,12 +27,11 @@ class VAMPIRESMBIWheel(CONEXDevice):
         )
         return f"""Usage:
     vampires_mbi [-h | --help]
-    vampires_mbi [-w | --wait] (status|position|home|goto|nudge|stop|reset) [<angle>]
-    vampires_mbi [-w | --wait] <configuration>
+    vampires_mbi (status|position|home|goto|nudge|stop|reset) [<angle>]
+    vampires_mbi <configuration>
 
 Options:
     -h, --help   Show this screen
-    -w, --wait   Block command until position has been reached, for applicable commands
 
 Wheel commands:
     status          Returns the current status of the MBI wheel
@@ -47,50 +47,35 @@ Configurations:
 
 
 def main():
-    if os.getenv("WHICHCOMP") == "V":
-        vampires_mbi = VAMPIRESMBIWheel.from_config(
-            conf_dir / "vampires" / "conf_vampires_mbi.toml"
-        )
-    else:
-        vampires_mbi = connect(PYRO_KEYS["vampires_mbi"])
+    vampires_mbi = VAMPIRESMBIWheel.connect(os.getenv("WHICHCOMP") == "V")
     __doc__ = vampires_mbi.help_message()
     args = docopt(__doc__, options_first=True)
+    posn = None
     if len(sys.argv) == 1:
         print(__doc__)
         return
     if args["status"]:
         posn = vampires_mbi.get_position()
         idx, name = vampires_mbi.get_configuration(posn)
-        print(VAMPIRESMBIWheel.format_str.format(idx, name, posn))
+        print(vampires_mbi.format_str.format(idx, name, posn))
     elif args["position"]:
-        print(vampires_mbi.get_position())
+        posn = vampires_mbi.get_position()
+        print(posn)
     elif args["home"]:
-        if args["--wait"]:
-            vampires_mbi.home()
-        else:
-            vampires_mbi.home()
+        vampires_mbi.home()
     elif args["goto"]:
         angle = float(args["<angle>"])
-        if args["--wait"]:
-            vampires_mbi.move_absolute(angle % 360)
-        else:
-            vampires_mbi.move_absolute(angle % 360)
+        vampires_mbi.move_absolute(angle)
     elif args["nudge"]:
         rel_angle = float(args["<angle>"])
-        if args["--wait"]:
-            vampires_mbi.move_relative(rel_angle)
-        else:
-            vampires_mbi.move_relative(rel_angle)
+        vampires_mbi.move_relative(rel_angle)
     elif args["stop"]:
         vampires_mbi.stop()
     elif args["reset"]:
         vampires_mbi.reset()
     elif args["<configuration>"]:
-        try:
-            index = int(args["<configuration>"])
-        except ValueError:
-            vampires_mbi.move_configuration_name(args["<configuration>"])
-        vampires_mbi.move_configuration_idx(index)
+        vampires_mbi.move_configuration(args["<configuration>"])
+    vampires_mbi.update_keys(posn)
 
 
 if __name__ == "__main__":

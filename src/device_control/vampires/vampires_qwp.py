@@ -3,23 +3,28 @@ import sys
 
 from docopt import docopt
 
+from device_control.pyro_keys import VAMPIRES
 from device_control import conf_dir
 from device_control.drivers import CONEXDevice
-from device_control.vampires import PYRO_KEYS
-from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
-    connect,
-)
 from swmain.redis import update_keys
 
 
 class VAMPIRESQWP(CONEXDevice):
-    format_str = "{0:1d}: {1:8s}"
+    CONF = "vampires/conf_vampires_qwp{0:d}.toml"
+    format_str = "QWP{0:1d}: {1:6.02f}"
 
     def __init__(self, number, **kwargs):
         super().__init__(**kwargs)
-        if not number in (1, 2):
-            raise ValueError("VAMPIRES only has QWP1 and QWP2")
+        if number == 1:
+            self.PYRO_KEY = VAMPIRES.QWP1
+        elif number == 2:
+            self.PYRO_KEY = VAMPIRES.QWP2
+        else:
+            raise ValueError(f"Invalid QWP number: {number}")
         self.number = number
+
+    def _config_extras(self):
+        return {"number": self.number}
 
     def _update_keys(self, theta):
         kwargs = {
@@ -28,12 +33,26 @@ class VAMPIRESQWP(CONEXDevice):
         }
         update_keys(**kwargs)
 
+    def _move_absolute(self, value: float, wait=True):
+        return super()._move_absolute(value % 360, wait)
+
+    @classmethod
+    def connect(__cls__, num: int, local=False):
+        filename = conf_dir / __cls__.CONF.format(num)
+        if num == 1:
+            pyro_key = VAMPIRES.QWP1
+        elif num == 2:
+            pyro_key = VAMPIRES.QWP2
+        else:
+            raise ValueError(f"Invalid QWP number: {num}")
+        return super().connect(local, filename=filename, pyro_key=pyro_key)
+
 
 __doc__ = f"""Usage:
     vampires_qwp [-h | --help]
-    vampires_qwp [-w | --wait] status
-    vampires_qwp [-w | --wait] 1 (status|position|home|goto|nudge|stop|reset) [<pos>]
-    vampires_qwp [-w | --wait] 2 (status|position|home|goto|nudge|stop|reset) [<pos>]
+    vampires_qwp status
+    vampires_qwp 1 (status|position|home|goto|nudge|stop|reset) [<pos>]
+    vampires_qwp 2 (status|position|home|goto|nudge|stop|reset) [<pos>]
 
 Options:
     -h, --help   Show this screen
@@ -55,28 +74,31 @@ def main():
     if len(sys.argv) == 1:
         print(__doc__)
         return
-
+    local = os.getenv("WHICHCOMP") == "V"
     if args["1"]:
-        vampires_qwp = connect(PYRO_KEYS["qwp1"])
+        vampires_qwp = VAMPIRESQWP.connect(1, local=local)
     elif args["2"]:
-        vampires_qwp = connect(PYRO_KEYS["qwp2"])
+        vampires_qwp = VAMPIRESQWP.connect(2, local=local)
     elif args["status"]:
-        for key in ("qwp1", "qwp2"):
-            qwp = connect(PYRO_KEYS[key])
-            print(f"{key.upper()}: {qwp.get_position():5.01f} deg")
-            qwp.update_keys()
+        for cam in (1, 2):
+            qwp = VAMPIRESQWP.connect(cam, local=local)
+            posn = qwp.get_position()
+            qwp.update_keys(posn)
+            print(qwp.format_str.format(cam, posn))
         return
 
+    posn = None
     if args["status"]:
-        pos = vampires_qwp.get_position()
-        print(f"{pos:5.01f} deg")
+        posn = vampires_qwp.get_position()
+        print(vampires_qwp.format_str.format(vampires_qwp.number, posn))
     elif args["position"]:
-        print(vampires_qwp.get_position())
+        posn = vampires_qwp.get_position()
+        print(posn)
     elif args["home"]:
         vampires_qwp.home()
     elif args["goto"]:
-        pos = float(args["<pos>"])
-        vampires_qwp.move_absolute(pos % 360)
+        new_pos = float(args["<pos>"])
+        vampires_qwp.move_absolute(new_pos)
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
         vampires_qwp.move_relative(rel_pos)
@@ -84,6 +106,7 @@ def main():
         vampires_qwp.stop()
     elif args["reset"]:
         vampires_qwp.reset()
+    vampires_qwp.update_keys(posn)
 
 
 if __name__ == "__main__":

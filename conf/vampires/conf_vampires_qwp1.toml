@@ -1,6 +1,7 @@
 name = "vampires_qwp1"
 offset = -45
 unit = "deg"
+number = 1
 
 [serial]
 port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6WXETGZ-if00-port0"

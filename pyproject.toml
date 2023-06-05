@@ -34,6 +34,7 @@ test = [
 # daemons
 vampires_daemon = "device_control.daemons.vampires_devices:main"
 # facility devices
+imr = "device_control.facility.image_rotator:main"
 wpu = "device_control.facility.wpu:main"
 # VAMPIRES devices
 vampires_bs = "device_control.vampires.vampires_beamsplitter:main"

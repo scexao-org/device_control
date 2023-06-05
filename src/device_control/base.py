@@ -1,12 +1,13 @@
 from logging import getLogger
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 import tomli
 import tomli_w
 from serial import Serial
 import paramiko
+from device_control import conf_dir
+from swmain.network.pyroclient import connect
 
 __all__ = ["ConfigurableDevice", "MotionDevice", "SSHDevice"]
 
@@ -15,6 +16,9 @@ __all__ = ["ConfigurableDevice", "MotionDevice", "SSHDevice"]
 
 
 class ConfigurableDevice:
+    CONF = None
+    PYRO_KEY = None
+
     def __init__(
         self,
         name=None,
@@ -38,6 +42,16 @@ class ConfigurableDevice:
         serial_kwargs = parameters.pop("serial", None)
         parameters.update(kwargs)
         return __cls__(serial_kwargs=serial_kwargs, config_file=filename, **parameters)
+
+    @classmethod
+    def connect(__cls__, local=False, filename=None, pyro_key=None):
+        if local:
+            if filename is None:
+                filename = conf_dir / __cls__.CONF
+            return __cls__.from_config(filename)
+        if pyro_key is None:
+            pyro_key = __cls__.PYRO_KEY
+        return connect(pyro_key)
 
     def save_config(self, filename=None):
         if filename is None:
@@ -146,6 +160,12 @@ class MotionDevice(ConfigurableDevice):
     def _update_keys(self, position):
         pass
 
+    def move_configuration(self, idx_or_name, **kwargs):
+        if idx_or_name.isdigit():
+            return self.move_configuration_idx(int(idx_or_name), **kwargs)
+
+        return self.move_configuration_name(idx_or_name, **kwargs)
+
     def move_configuration_idx(self, idx: int, **kwargs):
         for row in self.configurations:
             if row["idx"] == idx:
@@ -154,7 +174,7 @@ class MotionDevice(ConfigurableDevice):
 
     def move_configuration_name(self, name: str, **kwargs):
         for row in self.configurations:
-            if row["name"] == name:
+            if row["name"].lower() == name.lower():
                 return self.move_absolute(row["value"], **kwargs)
         raise ValueError(f"No configuration saved with name '{name}'")
 
@@ -199,6 +219,9 @@ class MotionDevice(ConfigurableDevice):
 
 
 class SSHDevice:
+    CONF = None
+    PYRO_KEY = None
+
     def __init__(self, host, user=None, config_file=None):
         self.host = host
         self.user = user
@@ -223,3 +246,8 @@ class SSHDevice:
             parameters = tomli.load(fh)
         parameters.update(kwargs)
         return __cls__(config_file=filename, **parameters.pop("ssh"), **parameters)
+
+    @classmethod
+    def connect(__cls__):
+        filename = conf_dir / __cls__.CONF
+        return __cls__.from_config(filename)

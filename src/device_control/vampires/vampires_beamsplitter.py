@@ -3,21 +3,22 @@ import sys
 
 from docopt import docopt
 
-from device_control import conf_dir
+from device_control.pyro_keys import VAMPIRES
 from device_control.drivers import CONEXDevice
-from device_control.vampires import PYRO_KEYS
-from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
-    connect,
-)
 from swmain.redis import update_keys
 
 
 class VAMPIRESBeamsplitter(CONEXDevice):
+    CONF = "vampires/conf_vampires_beamsplitter.toml"
+    PYRO_KEY = VAMPIRES.BS
     format_str = "{0}: {1:15s} {{{2:5.01f} deg}}"
 
     def _update_keys(self, theta):
         _, name = self.get_configuration(position=theta)
         update_keys(U_BS=name, U_BSTH=theta)
+
+    def _move_absolute(self, value: float, wait=True):
+        return super()._move_absolute(value % 360, wait)
 
     def help_message(self):
         configurations = "\n".join(
@@ -26,12 +27,11 @@ class VAMPIRESBeamsplitter(CONEXDevice):
         )
         return f"""Usage:
     vampires_beamsplitter [-h | --help]
-    vampires_beamsplitter [-w | --wait] (status|position|home|goto|nudge|stop|reset) [<angle>]
-    vampires_beamsplitter [-w | --wait] <configuration>
+    vampires_beamsplitter (status|position|home|goto|nudge|stop|reset) [<angle>]
+    vampires_beamsplitter <configuration>
 
 Options:
     -h, --help   Show this screen
-    -w, --wait   Block command until position has been reached, for applicable commands
 
 Wheel commands:
     status          Returns the current status of the beamsplitter wheel
@@ -47,55 +47,35 @@ Configurations:
 
 
 def main():
-    if os.getenv("WHICHCOMP") != "V":
-        beamsplitter = connect(PYRO_KEYS["beamsplitter"])
-    else:
-        beamsplitter = VAMPIRESBeamsplitter.from_config(
-            conf_dir / "vampires/conf_vampires_beamsplitter.toml"
-        )
+    beamsplitter = VAMPIRESBeamsplitter.connect(local=os.getenv("WHICHCOMP") == "V")
     __doc__ = beamsplitter.help_message()
     args = docopt(__doc__, options_first=True)
+    posn = None
     if len(sys.argv) == 1:
         print(__doc__)
         return
     if args["status"]:
-        idx, name = beamsplitter.get_configuration()
-        print(f"{idx}: {name} {{{beamsplitter.get_position():5.01f} {beamsplitter.get_unit()}}}")
+        posn = beamsplitter.get_position()
+        idx, name = beamsplitter.get_configuration(posn)
+        print(beamsplitter.format_str.format(idx, name, posn))
     elif args["position"]:
-        print(beamsplitter.get_position())
+        posn = beamsplitter.get_position()
+        print(posn)
     elif args["home"]:
-        if args["--wait"]:
-            beamsplitter.home()
-        else:
-            beamsplitter.home()
+        beamsplitter.home()
     elif args["goto"]:
         angle = float(args["<angle>"])
-        if args["--wait"]:
-            beamsplitter.move_absolute(angle % 360)
-        else:
-            beamsplitter.move_absolute(angle % 360)
+        beamsplitter.move_absolute(angle)
     elif args["nudge"]:
         rel_angle = float(args["<angle>"])
-        if args["--wait"]:
-            beamsplitter.move_relative(rel_angle)
-        else:
-            beamsplitter.move_relative(rel_angle)
+        beamsplitter.move_relative(rel_angle)
     elif args["stop"]:
         beamsplitter.stop()
     elif args["reset"]:
         beamsplitter.reset()
     elif args["<configuration>"]:
-        try:
-            index = int(args["<configuration>"])
-            if args["--wait"]:
-                beamsplitter.move_configuration_idx(index)
-            else:
-                beamsplitter.move_configuration_idx(index)
-        except ValueError:
-            if args["--wait"]:
-                beamsplitter.move_configuration_name(args["<configuration>"])
-            else:
-                beamsplitter.move_configuration_name(args["<configuration>"])
+        beamsplitter.move_configuration(args["<configuration>"])
+    beamsplitter.update_keys(posn)
 
 
 if __name__ == "__main__":

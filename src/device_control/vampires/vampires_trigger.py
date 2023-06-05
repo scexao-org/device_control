@@ -1,9 +1,5 @@
 import astropy.units as u
-import click
-import tomli
-from serial import Serial
-
-from device_control import conf_dir
+from device_control.pyro_keys import VAMPIRES
 from device_control.base import ConfigurableDevice
 from swmain.redis import update_keys
 import usb.core
@@ -18,13 +14,16 @@ class ArduinoTimeoutError(ArduinoError):
 
 
 class VAMPIRESTrigger(ConfigurableDevice):
+    CONF = "vampires/conf_vampires_trigger.toml"
+    PYRO_KEY = VAMPIRES.TRIG
+
     def __init__(
         self,
         serial_kwargs,
         delay: int = 0,  # us
         pulse_width: int = 10,  # us
         flc_offset: int = 20,  # us
-        flc_enabled: bool = True,
+        flc_enabled: bool = False,
         sweep_mode: bool = False,
         **kwargs,
     ):
@@ -137,7 +136,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
             U_TRIGPW=self.pulse_width,
         )
 
-    def _extra_config(self):
+    def _config_extras(self):
         return {
             "pulse_width": self.pulse_width,
             "flc_offset": self.flc_offset,
@@ -147,25 +146,6 @@ class VAMPIRESTrigger(ConfigurableDevice):
         info = self.get_timing_info()
         # self.update_keys()
         return info
-
-
-__doc__ = """
-    vampires_trigger [-h | --help]
-    vampires_trigger (disable|reset|status)
-    vampires_trigger [--flc | --no-flc]  enable [-w | --pulse-width] <width> [-o | --flc-offset] <off>
-
-    Options:
-        -h | --help                 Print this help message
-        --flc | --no-flc            Enables or disables the FLC
-        -w | --pulse-width <width>  Use a custom pulse width. Default is 10 us.
-        -o | --flc-offset <off>     Use a custom FLC time delay (only used if FLC is enabled). Defauls is 20 us.
-
-    Commands:
-        enable      Enables the trigger.
-        disable     Disables the trigger. This should not need to be called in general unless you want to physically stop triggering. For simple acquisition control prefer software measures.
-        reset       Resets the trigger via power-cycle.
-        status      Returns the status of the trigger and its timing info.
-"""
 
 
 class VAMPIRESInlineUSBReset:
@@ -201,6 +181,25 @@ class VAMPIRESInlineUSBReset:
         else:
             st = "UNKNOWN"
         return st
+
+
+__doc__ = """
+    vampires_trigger [-h | --help]
+    vampires_trigger (disable|reset|status)
+    vampires_trigger [--flc | --no-flc]  enable [-w | --pulse-width] <width> [-o | --flc-offset] <off>
+
+    Options:
+        -h | --help                 Print this help message
+        --flc | --no-flc            Enables or disables the FLC
+        -w | --pulse-width <width>  Use a custom pulse width. Default is 10 us.
+        -o | --flc-offset <off>     Use a custom FLC time delay (only used if FLC is enabled). Defauls is 20 us.
+
+    Commands:
+        enable      Enables the trigger.
+        disable     Disables the trigger. This should not need to be called in general unless you want to physically stop triggering. For simple acquisition control prefer software measures.
+        reset       Resets the trigger via power-cycle.
+        status      Returns the status of the trigger and its timing info.
+"""
 
 
 def main():

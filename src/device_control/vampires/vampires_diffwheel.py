@@ -3,9 +3,8 @@ import sys
 
 from docopt import docopt
 
-from device_control import conf_dir
+from device_control.pyro_keys import VAMPIRES
 from device_control.drivers import CONEXDevice
-from device_control.vampires import PYRO_KEYS
 from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
     connect,
 )
@@ -13,6 +12,8 @@ from swmain.redis import update_keys
 
 
 class VAMPIRESDiffWheel(CONEXDevice):
+    CONF = "vampires/conf_vampires_diffwheel.toml"
+    PYRO_KEY = VAMPIRES.DIFF
     format_str = "{0}: {1:22s} {{{2:5.01f} deg}}"
 
     def _update_keys(self, theta):
@@ -31,19 +32,21 @@ class VAMPIRESDiffWheel(CONEXDevice):
                 U_DIFFTH=theta,
             )
 
+    def _move_absolute(self, value: float, wait=True):
+        return super()._move_absolute(value % 360, wait)
+
     def help_message(self):
         configurations = "\n".join(
-            f"    {VAMPIRESDiffWheel.format_str.format(c['idx'], c['name'], c['value'])}"
+            f"    {self.format_str.format(c['idx'], c['name'], c['value'])}"
             for c in self.configurations
         )
         return f"""Usage:
     vampires_diffwheel [-h | --help]
-    vampires_diffwheel [-w | --wait] (status|position|home|goto|nudge|stop|reset) [<angle>]
-    vampires_diffwheel [-w | --wait] <configuration>
+    vampires_diffwheel (status|position|home|goto|nudge|stop|reset) [<angle>]
+    vampires_diffwheel <configuration>
 
 Options:
     -h, --help   Show this screen
-    -w, --wait   Block command until position has been reached, for applicable commands
 
 Wheel commands:
     status          Returns the current status of the differential filter wheel
@@ -60,19 +63,16 @@ Configurations (cam1 / cam2):
 
 # setp 4. action
 def main():
-    if os.getenv("WHICHCOMP") == "V":
-        vampires_diffwheel = VAMPIRESDiffWheel.from_config(
-            conf_dir / "vampires/conf_vampires_diffwheel.toml"
-        )
-    else:
-        vampires_diffwheel = connect(PYRO_KEYS["diffwheel"])
+    vampires_diffwheel = VAMPIRESDiffWheel.connect(os.getenv("WHICHCOMP") == "V")
     __doc__ = vampires_diffwheel.help_message()
     args = docopt(__doc__, options_first=True)
+    posn = None
     if len(sys.argv) == 1:
         print(__doc__)
     if args["status"]:
-        idx, name = vampires_diffwheel.get_configuration()
-        print(VAMPIRESDiffWheel.format_str.format(idx, name, vampires_diffwheel.get_position()))
+        posn = vampires_diffwheel.get_position()
+        idx, name = vampires_diffwheel.get_configuration(posn)
+        print(vampires_diffwheel.format_str.format(idx, name, posn))
     elif args["position"]:
         print(vampires_diffwheel.get_position())
     elif args["home"]:
@@ -88,12 +88,8 @@ def main():
     elif args["reset"]:
         vampires_diffwheel.reset()
     elif args["<configuration>"]:
-        try:
-            index = int(args["<configuration>"])
-        except ValueError:
-            vampires_diffwheel.move_configuration_name(args["<configuration>"])
-        vampires_diffwheel.move_configuration_idx(index)
-    vampires_diffwheel.update_keys()
+        vampires_diffwheel.move_configuration(args["<configuration>"])
+    vampires_diffwheel.update_keys(posn)
 
 
 if __name__ == "__main__":

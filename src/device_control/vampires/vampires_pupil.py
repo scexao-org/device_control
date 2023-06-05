@@ -3,16 +3,16 @@ import os
 
 from docopt import docopt
 
-from device_control import conf_dir
+from device_control.pyro_keys import VAMPIRES
 from device_control.drivers import ThorlabsFlipMount
-from device_control.vampires import PYRO_KEYS
-from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
-    connect,
-)
 from swmain.redis import update_keys
 
 
 class VAMPIRESPupilLens(ThorlabsFlipMount):
+    CONF = "vampires/conf_vampires_pupil.toml"
+    PYRO_KEY = VAMPIRES.PUPIL
+    format_str = "{0}: {1}"
+
     def _update_keys(self, position):
         state = self.get_configuration(position)
         update_keys(U_PUPST=state.upper())
@@ -20,12 +20,11 @@ class VAMPIRESPupilLens(ThorlabsFlipMount):
     def help_message(self):
         return f"""Usage:
     vampires_pupil [-h | --help]
-    vampires_pupil <pos>
     vampires_pupil status
+    vampires_pupil <pos>
 
 Options:
     -h, --help   Show this screen
-    -w, --wait   Block command until position has been reached, for applicable commands
     <pos>        Move the mount 'in' or 'out'
 
 Stage commands:
@@ -34,29 +33,21 @@ Stage commands:
 
 # setp 4. action
 def main():
-    if os.getenv("WHICHCOMP") == "V":
-        vampires_pupil = VAMPIRESPupilLens.from_config(
-            conf_dir / "vampires" / "conf_vampires_pupil.toml"
-        )
-    else:
-        vampires_pupil = connect(PYRO_KEYS["pupil"])
+    vampires_pupil = VAMPIRESPupilLens.connect(os.getenv("WHICHCOMP") == "V")
     __doc__ = vampires_pupil.help_message()
     args = docopt(__doc__, options_first=True)
+    posn = None
     if len(sys.argv) == 1:
         print(__doc__)
         return
-    elif args["<pos>"].lower() in ("status", "st"):
-        if vampires_pupil.configurations:
-            print("{}: {}".format(vampires_pupil.get_configuration()))
-        else:
-            print(vampires_pupil.get_position())
+    elif args["status"]:
+        posn = vampires_pupil.get_position()
+        idx, name = vampires_pupil.get_configuration(posn)
+        print(vampires_pupil.format_str.format(idx, name))
     elif args["<pos>"]:
-        try:
-            index = int(args["<pos>"])
-        except ValueError:
-            vampires_pupil.move_configuration_name(args["<pos>"])
-        vampires_pupil.move_configuration_idx(index)
-    vampires_pupil.update_keys()
+        vampires_pupil.move_configuration(args["<pos>"])
+
+    vampires_pupil.update_keys(posn)
 
 
 if __name__ == "__main__":
