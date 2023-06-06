@@ -50,7 +50,8 @@ def main():
         return
     elif args["status"]:
         posn = vampires_filter.get_position()
-        print(vampires_filter.format_str.format(posn, vampires_filter.status()))
+        name = vampires_filter.status(posn)
+        print(vampires_filter.format_str.format(posn, name))
     elif args["position"]:
         posn = vampires_filter.get_position()
         print(posn)
