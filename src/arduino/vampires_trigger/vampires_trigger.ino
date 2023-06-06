@@ -26,11 +26,14 @@ Adafruit_NeoPixel strip(1, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 // We use unsigned long for everything time-related in microseconds.
 // FLC only works for integration times < 1 second
 const unsigned long max_flc_integration_time = 1000000; // us
+// The maximum integration time is 100 second
+const unsigned long max_integration_time = 100000000; // us
 
 // global variable initialization
 unsigned int cmd_code;
 unsigned long start_time;
 // settings
+unsigned long trig_delay;
 unsigned long integration_time;
 unsigned long pulse_width;
 unsigned long flc_offset;
@@ -50,6 +53,7 @@ void setup()
     sweep_mode = false;
     loop_enabled = false;
     flc_enabled = false;
+    trig_delay = 0; // us
     pulse_width = 10; // us
     flc_offset = 20; // us
 
@@ -112,7 +116,7 @@ void trigger_loop_flc() {
     // First exposure FLC is relaxed
     digitalWrite(FLC_TRIGGER_PIN, LOW);
     // delaying this way works around integer overflow
-    for (start_time = micros(); micros() - start_time < flc_offset;) continue;
+    for (start_time = micros(); micros() - start_time < flc_offset + trig_delay;) continue;
     // Send camera trigger pulse
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
     for (start_time = micros(); micros() - start_time < pulse_width;) continue;
@@ -120,12 +124,18 @@ void trigger_loop_flc() {
     // wait for both cameras to have sent their trigger ready pulses
     // note that since the output is a pulse, we use |= as a tripwire
     // so all subsequent loops are True, even when the pulse goes back LOW
-    while (!camera_one_ready || !camera_two_ready) {
+    for (start_time = micros(); micros() - start_time < max_integration_time - pulse_width;) {
       camera_one_ready |= digitalRead(CAMERA_ONE_READY);
       camera_two_ready |= digitalRead(CAMERA_TWO_READY);
+      if (camera_one_ready && camera_two_ready) break;
     }
+    // In the case that we short-circuited, let's disable the loop
+    // as a means of signalling the failure.
+    if (!camera_one_ready || !camera_one_ready) disable_loop();
+
     // start second half- reset variables
     camera_one_ready = camera_two_ready = false;
+    for (start_time = micros(); micros() - start_time < trig_delay;) continue;
     // Second exposure FLC is active
     digitalWrite(FLC_TRIGGER_PIN, HIGH);
     for (start_time = micros(); micros() - start_time < flc_offset;) continue;
@@ -168,10 +178,14 @@ void trigger_loop_noflc() {
     // wait for both cameras to have sent their trigger ready pulses
     // note that since the output is a pulse, we use |= as a tripwire
     // so all subsequent loops are True, even when the pulse goes back LOW
-    while (!camera_one_ready || !camera_two_ready) {
+    for (;micros() - start_time < max_integration_time;) {
       camera_one_ready |= digitalRead(CAMERA_ONE_READY);
       camera_two_ready |= digitalRead(CAMERA_TWO_READY);
+      if (camera_one_ready && camera_two_ready) break;
     }
+    // In the case that we short-circuited, let's disable the loop
+    // as a means of signalling the failure.
+    if (!camera_one_ready || !camera_one_ready) disable_loop();
 }
 
 void disable_loop() {
@@ -240,8 +254,8 @@ void handle_serial() {
             break;
         case 1: // SET
             // set parameters
-            // pulse width (us), flc offset (us), trigger mode
-            set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
+            // delay (us), pulse width (us), flc offset (us), trigger mode
+            set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
             Serial.println("OK");
             break;
         case 2: // DISABLE
@@ -263,6 +277,8 @@ void handle_serial() {
 void get() {
     Serial.print(loop_enabled);
     Serial.print(" ");
+    Serial.print(trig_delay);
+    Serial.print(" ");
     Serial.print(pulse_width);
     Serial.print(" ");
     Serial.print(flc_offset);
@@ -270,8 +286,11 @@ void get() {
     Serial.println(trigger_mode);
 }
 
-void set(int _pulse_width, int _flc_offset, int _trigger_mode) {
+void set(int _trig_delay, int _pulse_width, int _flc_offset, int _trigger_mode) {
     // argument checking
+    if (_trig_delay < 0) {
+      Serial.println("ERROR - invalid delay: must be >= 0");
+    }
     if (_flc_offset < 0 || _flc_offset > 1000) {
         Serial.println("ERROR - invalid FLC offset: must be between 0 and 1000");
         return;
@@ -281,6 +300,7 @@ void set(int _pulse_width, int _flc_offset, int _trigger_mode) {
       return;
     }
     // set global variables
+    trig_delay = _trig_delay;
     pulse_width = _pulse_width;
     flc_offset = _flc_offset;
     trigger_mode = _trigger_mode;
