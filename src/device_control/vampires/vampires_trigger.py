@@ -54,7 +54,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
             serial.write(f"{command}\n".encode())
             response = serial.readline()
             if len(response) == 0:
-                raise ArduinoTimeoutError()
+                raise ArduinoTimeoutError('Arduino did not respond within timeout, which suggests it is locked up waiting for a "ready" response from the cameras. Try resetting the trigger.')
             if response.strip() != b"OK":
                 raise ArduinoError(response)
 
@@ -63,7 +63,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
             serial.write(f"{command}\n".encode())
             response = serial.readline().decode().strip()
             if len(response) == 0:
-                raise ArduinoTimeoutError()
+                raise ArduinoTimeoutError('Arduino did not respond within timeout, which suggests it is locked up waiting for a "ready" response from the cameras. Try resetting the trigger.')
             return response
 
     def get_pulse_width(self) -> int:
@@ -99,16 +99,18 @@ class VAMPIRESTrigger(ConfigurableDevice):
 
     def get_parameters(self):
         response = self.ask_command(0)
-        tokens = response.split()
-        enabled = bool(int(tokens[0]))
-        self.pulse_width = int(tokens[1])
-        self.flc_offset = int(tokens[2])
-        trigger_mode = int(tokens[3])
+        tokens = map(int, response.split())
+        enabled = bool(next(tokens))
+        self.delay = next(tokens)
+        self.pulse_width = next(tokens)
+        self.flc_offset = next(tokens)
+        trigger_mode = next(tokens)
         self.flc_enabled = bool(trigger_mode & 0x1)
         self.sweep_mode = bool(trigger_mode & 0x2)
-        # self.update_keys()
+        self.update_keys()
         return {
             "enabled": enabled,
+            "delay": self.delay,
             "pulse_width": self.pulse_width,
             "flc_offset": self.flc_offset,
             "flc_enabled": self.flc_enabled,
@@ -157,6 +159,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
             flc_offset = self.flc_offset
         if pulse_width is None:
             pulse_width = self.pulse_width
+        return # TODO
         update_keys(
             U_FLCEN="ON" if flc_enabled else "OFF",
             U_FLCOFF=flc_offset,
@@ -166,6 +169,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
 
     def _config_extras(self):
         return {
+            "delay": self.delay,
             "pulse_width": self.pulse_width,
             "flc_offset": self.flc_offset,
         }
