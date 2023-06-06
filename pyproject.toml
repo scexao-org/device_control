@@ -49,6 +49,7 @@ vampires_mbi = "device_control.vampires.vampires_mbi:main"
 vampires_pupil = "device_control.vampires.vampires_pupil:main"
 vampires_qwp = "device_control.vampires.vampires_qwp:main"
 vampires_tc = "device_control.vampires.vampires_tc:main"
+vampires_trigger = "device_control.vampires.vampires_trigger:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "device_control.__version__"}

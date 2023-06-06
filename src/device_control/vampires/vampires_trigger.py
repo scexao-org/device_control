@@ -5,6 +5,8 @@ from swmain.redis import update_keys
 import usb.core
 import usb.util
 import time
+import click
+import os
 
 
 class ArduinoError(RuntimeError):
@@ -113,11 +115,26 @@ class VAMPIRESTrigger(ConfigurableDevice):
             "sweep_mode": self.sweep_mode,
         }
 
-    def set_parameters(self):
-        trigger_mode = int(self.flc_enabled) + (int(self.sweep_mode) << 1)
-        cmd = "1 {:d} {:d} {:d}".format(self.pulse_width, self.flc_offset, trigger_mode)
+    def set_parameters(
+        self, flc_enabled=None, delay=None, flc_offset=None, pulse_width=None, sweep_mode=None
+    ):
+        if flc_enabled is None:
+            flc_enabled = self.flc_enabled
+        if delay is None:
+            delay = self.delay
+        if flc_offset is None:
+            flc_offset = self.flc_offset
+        if pulse_width is None:
+            pulse_width = self.pulse_width
+        if sweep_mode is None:
+            sweep_mode = self.sweep_mode
+
+        trigger_mode = int(flc_enabled) + (int(sweep_mode) << 1)
+        cmd = "1 {:d} {:d} {:d} {:d}".format(delay, pulse_width, flc_offset, trigger_mode)
         self.send_command(cmd)
-        # self.update_keys()
+        self.update_keys(
+            delay=delay, pulse_width=pulse_width, flc_offset=flc_offset, flc_enabled=flc_enabled
+        )
 
     def disable(self):
         self.send_command(2)
@@ -131,12 +148,20 @@ class VAMPIRESTrigger(ConfigurableDevice):
         time.sleep(0.1)
         self.reset_switch.enable()
 
-    def update_keys(self):
+    def update_keys(self, flc_enabled=None, delay=None, flc_offset=None, pulse_width=None):
+        if flc_enabled is None:
+            flc_enabled = self.flc_enabled
+        if delay is None:
+            delay = self.delay
+        if flc_offset is None:
+            flc_offset = self.flc_offset
+        if pulse_width is None:
+            pulse_width = self.pulse_width
         update_keys(
-            U_FLCEN="ON" if self.flc_enabled else "OFF",
-            U_FLCOFF=self.flc_offset,
-            U_TRIGDL=self.delay,
-            U_TRIGPW=self.pulse_width,
+            U_FLCEN="ON" if flc_enabled else "OFF",
+            U_FLCOFF=flc_offset,
+            U_TRIGDL=delay,
+            U_TRIGPW=pulse_width,
         )
 
     def _config_extras(self):
@@ -145,9 +170,11 @@ class VAMPIRESTrigger(ConfigurableDevice):
             "flc_offset": self.flc_offset,
         }
 
-    def status(self):
-        info = self.get_timing_info()
-        # self.update_keys()
+    def get_status(self):
+        switch_status = self.reset_switch.status()
+        if switch_status != "ON":
+            return f"USB reset switch is {switch_status}"
+        info = self.get_parameters()
         return info
 
 
@@ -201,27 +228,81 @@ class VAMPIRESInlineUSBReset:
         return st
 
 
-__doc__ = """
-    vampires_trigger [-h | --help]
-    vampires_trigger (disable|reset|status)
-    vampires_trigger [--flc | --no-flc]  enable [-w | --pulse-width] <width> [-o | --flc-offset] <off>
-
-    Options:
-        -h | --help                 Print this help message
-        --flc | --no-flc            Enables or disables the FLC
-        -w | --pulse-width <width>  Use a custom pulse width. Default is 10 us.
-        -o | --flc-offset <off>     Use a custom FLC time delay (only used if FLC is enabled). Defauls is 20 us.
-
-    Commands:
-        enable      Enables the trigger.
-        disable     Disables the trigger. This should not need to be called in general unless you want to physically stop triggering. For simple acquisition control prefer software measures.
-        reset       Resets the trigger via power-cycle.
-        status      Returns the status of the trigger and its timing info.
-"""
+@click.group("vampires_trigger", no_args_is_help=True)
+@click.pass_context
+def main(ctx):
+    trigger = VAMPIRESTrigger.connect(local=os.getenv("WHICHCOMP", None) == "V")
+    ctx.ensure_object(VAMPIRESTrigger)
+    ctx.obj = trigger
 
 
-def main():
-    pass
+@main.command(help="Disable the external trigger")
+@click.pass_obj
+def disable(trigger):
+    trigger.disable()
+
+
+@main.command(help="Enable the external trigger")
+@click.pass_obj
+def enable(trigger):
+    trigger.enable()
+
+
+@main.command(
+    short_help="Get the trigger status",
+    help="Get the timing parameters and status of the external trigger",
+)
+@click.pass_obj
+def status(trigger):
+    status = trigger.get_status()
+    click.echo(status)
+
+
+@main.command(help="Reset the external trigger")
+@click.pass_obj
+def reset(trigger):
+    trigger.reset()
+    click.echo("trigger has been reset and is now disabled")
+
+
+@main.command(
+    "set",
+    short_help="Set the trigger parameters",
+    help="Set the external trigger parameters, which will automatically disable and enable the trigger if it is running.",
+)
+@click.option(
+    "-f/-nf",
+    "--flc/--no-flc",
+    default=False,
+    help="Enable/disable AFLC usage. Please limit AFLC usage to prevent ageing.",
+)
+@click.option(
+    "-d", "--delay", type=int, default=0, help="Add a delay (in us) to the start of each trigger."
+)
+@click.option(
+    "-o", "--flc-offset", type=int, default=20, help="Use a custom FLC time delay, in us."
+)
+@click.option("-w", "--pulse-width", type=int, default=20, help="Use a custom pulse width, in us.")
+@click.option(
+    "--sweep-mode",
+    default=False,
+    type=bool,
+    help="Enable sweep mode, which will increment the FLC offset by 1 us each loop (so two exposures).",
+)
+@click.pass_obj
+def set_parameters(
+    trigger, flc: bool, delay: int, flc_offset: int, pulse_width: int, sweep_mode: bool
+):
+    trig_enabled = trigger.get_parameters["enabled"]
+    if trig_enabled:
+        trigger.disable()
+    trigger.set_parameters(
+        flc_enabled=flc,
+        delay=delay,
+        flc_offset=flc_offset,
+        pulse_width=pulse_width,
+        sweep_mode=sweep_mode,
+    )
 
 
 if __name__ == "__main__":
