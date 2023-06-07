@@ -1,4 +1,5 @@
 from device_control.base import MotionDevice
+import re
 
 
 class ThorlabsWheel(MotionDevice):
@@ -6,6 +7,7 @@ class ThorlabsWheel(MotionDevice):
         serial_kwargs = dict(
             {
                 "baudrate": 115200,
+                "timeout": 0.5
             },
             **serial_kwargs,
         )
@@ -16,18 +18,20 @@ class ThorlabsWheel(MotionDevice):
         with self.serial as serial:
             serial.reset_input_buffer()
             serial.write(f"{cmd}\r".encode())
-            cmd_resp = serial.read_until(b"\r").strip()
-            serial.reset_input_buffer()
-            assert cmd_resp == cmd
+            line = serial.readline()
+            res = re.search(".+\r", line.decode())
+            print(res.group(0))
+            # assert cmd_resp == cmd
 
     def ask_command(self, cmd: str):
         with self.serial as serial:
             serial.reset_input_buffer()
             serial.write(f"{cmd}\r".encode())
-            cmd_resp = serial.read_until(b"\r").strip()
-            val_resp = serial.read_until(b"\r").strip()
-            assert cmd == cmd_resp.decode()
-            return val_resp.decode()
+            line = serial.readline()
+            res = re.search("(.+)\r(.+)\r", line.decode())
+            print(res.group(0))
+            print(res.group(1))
+            return res.group(1)
 
     def _get_position(self):
         result = self.ask_command("pos?")
