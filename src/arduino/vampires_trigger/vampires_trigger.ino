@@ -6,7 +6,7 @@
  will turn on or off when the FLC is enabled/disable. The NeoPixel
  LED will be red when the trigger loop is disabled and green when
  the trigger loop is enabled. */
-#define DEBUG_MODE true
+#define DEBUG_MODE false
 // Pin mapping
 #define CAMERA_TRIGGER_PIN 12
 #define CAMERA_ONE_READY 10
@@ -26,8 +26,8 @@ Adafruit_NeoPixel strip(1, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 // We use unsigned long for everything time-related in microseconds.
 // FLC only works for integration times < 1 second
 const unsigned long max_flc_integration_time = 1000000; // us
-// The maximum integration time is 100 second
-const unsigned long max_integration_time = 100000000; // us
+// The maximum integration time is 120 second
+const unsigned long max_integration_time = 120000000; // us
 
 // global variable initialization
 unsigned int cmd_code;
@@ -124,7 +124,7 @@ void trigger_loop_flc() {
     // wait for both cameras to have sent their trigger ready pulses
     // note that since the output is a pulse, we use |= as a tripwire
     // so all subsequent loops are True, even when the pulse goes back LOW
-    for (start_time = micros(); micros() - start_time < max_integration_time - pulse_width;) {
+    for (start_time = micros(); micros() - start_time < max_flc_integration_time - pulse_width;) {
       camera_one_ready |= digitalRead(CAMERA_ONE_READY);
       camera_two_ready |= digitalRead(CAMERA_TWO_READY);
       if (camera_one_ready && camera_two_ready) break;
@@ -135,13 +135,12 @@ void trigger_loop_flc() {
 
     // start second half- reset variables
     camera_one_ready = camera_two_ready = false;
-    for (start_time = micros(); micros() - start_time < trig_delay;) continue;
     // Second exposure FLC is active
     digitalWrite(FLC_TRIGGER_PIN, HIGH);
-    for (start_time = micros(); micros() - start_time < flc_offset;) continue;
+    for (start_time = micros(); micros() - start_time < flc_offset + trig_delay;) continue;
     // Send camera pulse
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
-    for (;micros() - start_time < pulse_width + flc_offset;) continue;
+    for (;micros() - start_time < pulse_width + flc_offset + trig_delay;) continue;
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
     // This time we need to add a short-circuit to avoid over-exciting the FLC
     for (;micros() - start_time < max_flc_integration_time;) {
@@ -295,9 +294,12 @@ void set(int _trig_delay, int _pulse_width, int _flc_offset, int _trigger_mode) 
         Serial.println("ERROR - invalid FLC offset: must be between 0 and 1000");
         return;
     }
-    if (_pulse_width < 0 || _pulse_width > _flc_offset) {
-      Serial.println("ERROR - invalid pulse width: must be between 0 and FLC offset");
+    if (_pulse_width < 0 || _pulse_width > 1000) {
+      Serial.println("ERROR - invalid pulse width: must be between 0 and 1000");
       return;
+    }
+    if ((_trigger_mode & 0x1) && (_flc_offset + _trig_delay >= max_flc_integration_time)) {
+      Serial.println("ERROR - invalid delay or FLC offset: both must add up to less than 1s");
     }
     // set global variables
     trig_delay = _trig_delay;

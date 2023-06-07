@@ -54,16 +54,20 @@ class VAMPIRESTrigger(ConfigurableDevice):
             serial.write(f"{command}\n".encode())
             response = serial.readline()
             if len(response) == 0:
-                raise ArduinoTimeoutError('Arduino did not respond within timeout, which suggests it is locked up waiting for a "ready" response from the cameras. Try resetting the trigger.')
+                raise ArduinoTimeoutError(
+                    'Arduino did not respond within timeout, which suggests it is locked up waiting for a "ready" response from the cameras. Try resetting the trigger.'
+                )
             if response.strip() != b"OK":
-                raise ArduinoError(response)
+                raise ArduinoError(response.decode().strip())
 
     def ask_command(self, command):
         with self.serial as serial:
             serial.write(f"{command}\n".encode())
             response = serial.readline().decode().strip()
             if len(response) == 0:
-                raise ArduinoTimeoutError('Arduino did not respond within timeout, which suggests it is locked up waiting for a "ready" response from the cameras. Try resetting the trigger.')
+                raise ArduinoTimeoutError(
+                    'Arduino did not respond within timeout, which suggests it is locked up waiting for a "ready" response from the cameras. Try resetting the trigger.'
+                )
             return response
 
     def get_pulse_width(self) -> int:
@@ -159,7 +163,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
             flc_offset = self.flc_offset
         if pulse_width is None:
             pulse_width = self.pulse_width
-        return # TODO
+        return  # TODO
         update_keys(
             U_FLCEN="ON" if flc_enabled else "OFF",
             U_FLCOFF=flc_offset,
