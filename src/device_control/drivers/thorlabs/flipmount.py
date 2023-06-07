@@ -1,5 +1,5 @@
 import time
-
+from swmain.autoretry import autoretry
 
 from device_control.base import ConfigurableDevice
 
@@ -21,6 +21,7 @@ class ThorlabsFlipMount(ConfigurableDevice):
         serial_kwargs = dict({"baudrate": 115200, "rtscts": True}, **serial_kwargs)
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
 
+    @autoretry
     def set_position(self, position: str):
         if position.lower() == "down":
             cmd = COMMANDS["down"]
@@ -33,6 +34,7 @@ class ThorlabsFlipMount(ConfigurableDevice):
             serial.write(cmd)
         self.update_keys()
 
+    @autoretry
     def get_position(self):
         with self.serial as serial:
             serial.write(COMMANDS["status"])

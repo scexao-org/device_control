@@ -1,4 +1,5 @@
 from device_control.base import ConfigurableDevice
+from swmain.autoretry import autoretry
 
 
 def parse_status(bytevalues):
@@ -24,6 +25,7 @@ class ThorlabsTC(ConfigurableDevice):
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
         self.set_target(temp)
 
+    @autoretry
     def send_command(self, cmd: str):
         with self.serial as serial:
             serial.reset_input_buffer()
@@ -32,6 +34,7 @@ class ThorlabsTC(ConfigurableDevice):
             serial.reset_input_buffer()
             assert cmd_resp.decode() == cmd
 
+    @autoretry
     def ask_command(self, cmd: str):
         with self.serial as serial:
             serial.reset_input_buffer()
