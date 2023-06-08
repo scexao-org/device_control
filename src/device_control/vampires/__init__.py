@@ -1,6 +1,7 @@
 from .vampires_beamsplitter import VAMPIRESBeamsplitter
 from .vampires_camfocus import VAMPIRESCamFocus
 from .vampires_diffwheel import VAMPIRESDiffWheel
+from .vampires_fieldstop import VAMPIRESFieldstop
 from .vampires_filter import VAMPIRESFilter
 from .vampires_flc import VAMPIRESFLCStage
 from .vampires_focus import VAMPIRESFocus
@@ -14,6 +15,7 @@ __all__ = [
     "VAMPIRESBeamsplitter",
     "VAMPIRESCamFocus",
     "VAMPIRESDiffWheel",
+    "VAMPIRESFieldstop",
     "VAMPIRESFilter",
     "VAMPIRESFLCStage",
     "VAMPIRESFocus",

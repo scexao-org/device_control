@@ -5,6 +5,7 @@ class VAMPIRES:
     BS: str = "VAMPIRES_BS"
     CAMFCS: str = "VAMPIRES_CAMFCS"
     DIFF: str = "VAMPIRES_DIFF"
+    FIELDSTOP: str = "VAMPIRES_FIELDSTOP"
     FILT: str = "VAMPIRES_FILT"
     FLC: str = "VAMPIRES_FLC"
     FOCUS: str = "VAMPIRES_FOCUS"

@@ -1,24 +1,24 @@
 name = "vampires_fieldstop"
 configurations = [
-    {idx=1, name="Open", value={x=3.5, y=3}},
-    {idx=2, name="Field Stop (192 px)", value={x=3.5, y=13}},
-    {idx=3, name="Field Stop (129 px)", value={x=3, y=23}},
-    {idx=4, name="Field Stop (64 px)", value={x=13, y=23}},
-    {idx=5, name="Open", value={x=13.57, y=13.5}},
-    {idx=6, name="CLC-2 (36 mas IWA)", value={x=13.57, y=13.5}},
-    {idx=7, name="CLC-3 (55 mas IWA)", value={x=23.548, y=13.431}},
-    {idx=8, name="CLC-5 (92 mas IWA)", value={x=23.507, y=3.295}},
-    {idx=9, name="CLC-7 (129 mas IWA)", value={x=13.706, y=3.291}},
+    {idx=1, name="FIELDSTOP", value={x=5.75, y=20.25}},
+    {idx=2, name="CLC2", value={x=1.97, y=10.2}},
+    {idx=3, name="CLC3", value={x=1.97, y=3.30}},
+    {idx=4, name="CLC5", value={x=8.53, y=3.30}},
+    {idx=5, name="CLC7", value={x=8.53, y=10.2}},
 ]
 
-[vampires_fieldstop.x]
+[[devices]]
+name = "x"
 type = "conex"
 unit = "mm"
-[serial]
+
+[devices.serial]
 port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A60MCHL5-if00-port0"
 
-[vampires_fieldstop.y]
+[[devices]]
+name = "y"
 type = "conex"
 unit = "mm"
-[serial]
+
+[devices.serial]
 port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A60MCIFA-if00-port0"
