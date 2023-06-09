@@ -116,12 +116,15 @@ void trigger_loop_flc() {
     camera_one_ready = camera_two_ready = false;
     // First exposure FLC is relaxed
     digitalWrite(FLC_TRIGGER_PIN, LOW);
+    
+    
     // delaying this way works around integer overflow
     for (start_time = micros(); micros() - start_time < flc_offset + trig_delay;) continue;
     // Send camera trigger pulse
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
     for (start_time = micros(); micros() - start_time < pulse_width;) continue;
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
+    
     // wait for both cameras to have sent their trigger ready pulses
     // note that since the output is a pulse, we use |= as a tripwire
     // so all subsequent loops are True, even when the pulse goes back LOW
@@ -130,9 +133,13 @@ void trigger_loop_flc() {
       camera_two_ready |= digitalRead(CAMERA_TWO_READY);
       if (camera_one_ready && camera_two_ready) break;
     }
+
     // In the case that we short-circuited, let's disable the loop
     // as a means of signalling the failure.
     if (!camera_one_ready || !camera_one_ready) disable_loop();
+    
+    // Sleep 60 micros to create +/- 30 timing jitter.
+    for (start_time = micros(); micros() - start_time < 60;) continue;
 
     // start second half- reset variables
     camera_one_ready = camera_two_ready = false;
