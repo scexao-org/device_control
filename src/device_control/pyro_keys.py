@@ -11,6 +11,7 @@ class VAMPIRES:
     FOCUS: str = "VAMPIRES_FOCUS"
     MASK: str = "VAMPIRES_MASK"
     MBI: str = "VAMPIRES_MBI"
+    PUPIL: str = "VAMPIRES_PUPIL"
     QWP1: str = "VAMPIRES_QWP1"
     QWP2: str = "VAMPIRES_QWP2"
     TC: str = "VAMPIRES_TC"

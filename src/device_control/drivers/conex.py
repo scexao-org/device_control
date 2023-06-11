@@ -1,9 +1,9 @@
 import logging
 import time
 
+from swmain.autoretry import autoretry
 
 from ..base import MotionDevice
-from swmain.autoretry import autoretry
 
 __all__ = ["CONEXDevice"]
 
@@ -83,7 +83,7 @@ class CONEXDevice(MotionDevice):
         self.delay = delay
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    @autoretry(max_retries=10)
+    # @autoretry(max_retries=10)
     def send_command(self, command: str):
         # pad command with CRLF ending
         cmd = f"{self.device_address}{command}\r\n"
@@ -92,7 +92,7 @@ class CONEXDevice(MotionDevice):
             serial.reset_input_buffer()
             serial.write(cmd.encode())
 
-    @autoretry(max_retries=10)
+    # @autoretry(max_retries=10)
     def ask_command(self, command: str):
         # pad command with CRLF ending
         cmd = f"{self.device_address}{command}\r\n"

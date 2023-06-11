@@ -31,6 +31,7 @@ class VAMPIRESFieldstop(MultiDevice):
         )
         return f"""Usage:
     vampires_fieldstop [-h | --help]
+    vampires_fieldstop status
     vampires_fieldstop x (status|target|home|goto|nudge|stop|reset) [<pos>]
     vampires_fieldstop y (status|target|home|goto|nudge|stop|reset) [<pos>]
     vampires_fieldstop <configuration>

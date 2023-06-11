@@ -1,7 +1,8 @@
-from device_control.base import MotionDevice
 import re
-from swmain.autoretry import autoretry
 import time
+
+from device_control.base import MotionDevice
+from swmain.autoretry import autoretry
 
 
 class ThorlabsWheel(MotionDevice):
@@ -13,7 +14,7 @@ class ThorlabsWheel(MotionDevice):
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
         self.max_filters = 6  # self.get_count()
 
-    @autoretry
+    # @autoretry
     def send_command(self, cmd: str):
         with self.serial as serial:
             serial.reset_input_buffer()
@@ -23,7 +24,7 @@ class ThorlabsWheel(MotionDevice):
             print(res.group(0))
             assert res.group(0).strip() == cmd
 
-    @autoretry
+    # @autoretry
     def ask_command(self, cmd: str):
         with self.serial as serial:
             serial.reset_input_buffer()

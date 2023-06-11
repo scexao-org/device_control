@@ -7,6 +7,7 @@ from .vampires_flc import VAMPIRESFLCStage
 from .vampires_focus import VAMPIRESFocus
 from .vampires_mask import VAMPIRESMaskWheel
 from .vampires_mbi import VAMPIRESMBIWheel
+from .vampires_pupil import VAMPIRESPupilLens
 from .vampires_qwp import VAMPIRESQWP
 from .vampires_tc import VAMPIRESTC
 from .vampires_trigger import VAMPIRESTrigger
@@ -21,6 +22,7 @@ __all__ = [
     "VAMPIRESFocus",
     "VAMPIRESMaskWheel",
     "VAMPIRESMBIWheel",
+    "VAMPIRESPupilLens",
     "VAMPIRESQWP",
     "VAMPIRESTC",
     "VAMPIRESTrigger",

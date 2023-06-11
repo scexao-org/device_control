@@ -25,7 +25,7 @@ class ThorlabsTC(ConfigurableDevice):
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
         self.set_target(temp)
 
-    @autoretry
+    # @autoretry
     def send_command(self, cmd: str):
         with self.serial as serial:
             serial.reset_input_buffer()
@@ -34,7 +34,7 @@ class ThorlabsTC(ConfigurableDevice):
             serial.reset_input_buffer()
             assert cmd_resp.decode() == cmd
 
-    @autoretry
+    # @autoretry
     def ask_command(self, cmd: str):
         with self.serial as serial:
             serial.reset_input_buffer()

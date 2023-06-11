@@ -1,3 +1,4 @@
+name = "vampires_trigger"
 delay = 0 # us
 pulse_width = 10 # us
 flc_offset = 20 # us

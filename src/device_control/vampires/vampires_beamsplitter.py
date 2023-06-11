@@ -3,12 +3,22 @@ import sys
 
 from docopt import docopt
 
-from device_control.pyro_keys import VAMPIRES
 from device_control.drivers import CONEXDevice
+from device_control.pyro_keys import VAMPIRES
 from swmain.redis import update_keys
 
 
 class VAMPIRESBeamsplitter(CONEXDevice):
+    """
+    VAMPIRES Beamsplitter
+
+    Controls the CONEX rotation stage for the beamsplitter cube wheel. Inside this wheel there are two optics installed:
+    1. Polarizing beamsplitter cube (PBS)
+    2. Non-polarizing beamsplitter cube (NPBS)
+
+    For single-cam mode, choose any of the in-between angles to remove the beamsplitter.
+    """
+
     CONF = "vampires/conf_vampires_beamsplitter.toml"
     PYRO_KEY = VAMPIRES.BS
     format_str = "{0}: {1:15s} {{{2:5.01f} deg}}"
@@ -18,6 +28,7 @@ class VAMPIRESBeamsplitter(CONEXDevice):
         update_keys(U_BS=name, U_BSTH=theta)
 
     def _move_absolute(self, value: float, wait=True):
+        # make sure to mod360 the input value
         return super()._move_absolute(value % 360, wait)
 
     def help_message(self):

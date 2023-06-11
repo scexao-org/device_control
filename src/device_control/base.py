@@ -2,10 +2,11 @@ from logging import getLogger
 from pathlib import Path
 
 import numpy as np
+import paramiko
 import tomli
 import tomli_w
 from serial import Serial
-import paramiko
+
 from device_control import conf_dir
 from swmain.network.pyroclient import connect
 
@@ -39,8 +40,8 @@ class ConfigurableDevice:
     def from_config(__cls__, filename, **kwargs):
         with open(filename, "rb") as fh:
             parameters = tomli.load(fh)
-        serial_kwargs = parameters.pop("serial", None)
         parameters.update(kwargs)
+        serial_kwargs = parameters.pop("serial", None)
         return __cls__(serial_kwargs=serial_kwargs, config_file=filename, **parameters)
 
     @classmethod

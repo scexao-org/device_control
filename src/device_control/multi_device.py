@@ -26,6 +26,11 @@ class MultiDevice(ConfigurableDevice):
     def get_position(self, name):
         return self.devices[name].get_position()
 
+    def home(self, name, **kwargs):
+        result = self.devices[name].home(**kwargs)
+        self.update_keys()
+        return result
+
     def move_absolute(self, name, value, **kwargs):
         result = self.devices[name].move_absolute(value, **kwargs)
         self.update_keys()
@@ -131,6 +136,12 @@ class MultiDevice(ConfigurableDevice):
         self.configurations.sort(key=lambda d: d["idx"])
         # save configurations to file
         return self.save_config(**kwargs)
+
+    def move_configuration(self, idx_or_name, **kwargs):
+        if idx_or_name.isdigit():
+            return self.move_configuration_idx(int(idx_or_name), **kwargs)
+
+        return self.move_configuration_name(idx_or_name, **kwargs)
 
     def move_configuration_idx(self, idx: int, wait=True):
         for row in self.configurations:

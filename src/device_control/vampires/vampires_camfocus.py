@@ -3,11 +3,8 @@ import sys
 
 from docopt import docopt
 
-from device_control.pyro_keys import VAMPIRES
 from device_control.drivers import ZaberDevice
-from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
-    connect,
-)
+from device_control.pyro_keys import VAMPIRES
 from swmain.redis import update_keys
 
 
