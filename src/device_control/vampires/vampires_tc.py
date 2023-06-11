@@ -1,17 +1,17 @@
-import sys
 import os
+import sys
 
 from docopt import docopt
 
-from device_control.pyro_keys import VAMPIRES
 from device_control.drivers import ThorlabsTC
+from device_control.pyro_keys import VAMPIRES
 from swmain.redis import update_keys
 
 
 class VAMPIRESTC(ThorlabsTC):
     CONF = "vampires/conf_vampires_tc.toml"
     PYRO_KEY = VAMPIRES.TC
-    format_str = "{0:s}: Tact = {1:4.01f}°C / {2:4.01f}°C Taux = {3:4.01f}°C"
+    format_str = "{0:s}: Tact = {1:4.01f}°C / {2:4.01f}°C"
 
     def update_keys(self, temperatures=None):
         if temperatures is None:
@@ -51,8 +51,7 @@ def main():
         enabled_str = "Enabled" if stat_dict["enabled"] else "Disabled"
         flc_temp = vampires_tc.get_temp()
         targ_temp = vampires_tc.get_target()
-        aux_temp = vampires_tc.get_aux_temp()
-        print(vampires_tc.format_str.format(enabled_str, flc_temp, targ_temp, aux_temp))
+        print(vampires_tc.format_str.format(enabled_str, flc_temp, targ_temp))
     elif args["temp"]:
         print(vampires_tc.get_temp())
     elif args["enable"]:

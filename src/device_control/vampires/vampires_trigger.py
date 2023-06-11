@@ -230,18 +230,18 @@ class VAMPIRESInlineUSBReset:
         return reply
 
     def enable(self):
-        subprocess.run("ykushcmd ykushxs -u".split(), shell=True, check=True)
+        subprocess.run(["ykushcmd ykushxs -u"], shell=True, check=True)
         # reply = self.ask_command(0x11)
         # assert reply[0] == 0x1
 
     def disable(self):
-        subprocess.run("ykushcmd ykushxs -d".split(), shell=True, check=True)
+        subprocess.run(["ykushcmd ykushxs -d"], shell=True, check=True)
         # reply = self.ask_command(0x01)
         # assert reply[0] == 0x1
 
     def status(self):
         result = subprocess.run(
-            "ykushcmd ykushxs -g".split(), shell=True, check=True, capture_output=True
+            ["ykushcmd ykushxs -g"], shell=True, check=True, capture_output=True
         )
         retval = result.stdout.decode().strip()
         if "ON" in retval:
