@@ -1,4 +1,5 @@
 import os
+import subprocess
 import time
 
 import astropy.units as u
@@ -44,6 +45,8 @@ class VAMPIRESTrigger(ConfigurableDevice):
             self.pulse_width = int(pulse_width.to(u.us).value)
         if isinstance(flc_offset, u.Quantity):
             self.flc_offset = int(flc_offset.to(u.us).value)
+        self.enabled = False
+        self.delay = int(delay)
         self.pulse_width = int(pulse_width)
         self.flc_offset = int(flc_offset)
         self.flc_enabled = flc_enabled
@@ -104,7 +107,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
     def get_parameters(self):
         response = self.ask_command(0)
         tokens = map(int, response.split())
-        enabled = bool(next(tokens))
+        self.enabled = bool(next(tokens))
         self.delay = next(tokens)
         self.pulse_width = next(tokens)
         self.flc_offset = next(tokens)
@@ -113,7 +116,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
         self.sweep_mode = bool(trigger_mode & 0x2)
         self.update_keys()
         return {
-            "enabled": enabled,
+            "enabled": self.enabled,
             "delay": self.delay,
             "pulse_width": self.pulse_width,
             "flc_offset": self.flc_offset,
@@ -144,17 +147,27 @@ class VAMPIRESTrigger(ConfigurableDevice):
 
     def disable(self):
         self.send_command(2)
+        self.enabled = False
+        self.update_keys()
 
     def enable(self):
         self.send_command(3)
+        self.enabled = True
+        self.update_keys()
 
     def reset(self):
         # toggle power using inline switch
         self.reset_switch.disable()
         time.sleep(0.1)
         self.reset_switch.enable()
+        self.enabled = False
+        self.update_keys()
 
-    def update_keys(self, flc_enabled=None, delay=None, flc_offset=None, pulse_width=None):
+    def update_keys(
+        self, enabled=None, flc_enabled=None, delay=None, flc_offset=None, pulse_width=None
+    ):
+        if enabled is None:
+            enabled = self.enabled
         if flc_enabled is None:
             flc_enabled = self.flc_enabled
         if delay is None:
@@ -164,7 +177,8 @@ class VAMPIRESTrigger(ConfigurableDevice):
         if pulse_width is None:
             pulse_width = self.pulse_width
         update_keys(
-            U_FLCEN="ON" if flc_enabled else "OFF",
+            U_TRIGEN=str(enabled),
+            U_FLCEN=str(flc_enabled),
             U_FLCOFF=flc_offset,
             U_TRIGDL=delay,
             U_TRIGPW=pulse_width,
@@ -216,23 +230,35 @@ class VAMPIRESInlineUSBReset:
         return reply
 
     def enable(self):
-        reply = self.ask_command(0x11)
-        assert reply[0] == 0x1
+        subprocess.run("ykushcmd ykushxs -u".split(), shell=True, check=True)
+        # reply = self.ask_command(0x11)
+        # assert reply[0] == 0x1
 
     def disable(self):
-        reply = self.ask_command(0x01)
-        assert reply[0] == 0x1
+        subprocess.run("ykushcmd ykushxs -d".split(), shell=True, check=True)
+        # reply = self.ask_command(0x01)
+        # assert reply[0] == 0x1
 
     def status(self):
-        reply = self.ask_command(0x21)
-        assert reply[0] == 0x1
-        if reply[1] == 0x01:
-            st = "OFF"
-        elif reply[1] == 0x11:
-            st = "ON"
+        result = subprocess.run(
+            "ykushcmd ykushxs -g".split(), shell=True, check=True, capture_output=True
+        )
+        retval = result.stdout.decode().strip()
+        if "ON" in retval:
+            return "ON"
+        elif "OFF" in retval:
+            return "OFF"
         else:
-            st = "UNKNOWN"
-        return st
+            return "UNKNOWN"
+        # reply = self.ask_command(0x21)
+        # assert reply[0] == 0x1
+        # if reply[1] == 0x01:
+        #     st = "OFF"
+        # elif reply[1] == 0x11:
+        #     st = "ON"
+        # else:
+        #     st = "UNKNOWN"
+        # return st
 
 
 @click.group("vampires_trigger", no_args_is_help=True)
@@ -267,7 +293,7 @@ def status(obj):
 
 @main.command(help="Reset the external trigger")
 @click.pass_obj
-def reset(trigger):
+def reset(obj):
     obj["trigger"].reset()
     click.echo("trigger has been reset and is now disabled")
 
