@@ -1,11 +1,11 @@
 import os
 import sys
 
-from docopt import docopt
-
-from device_control.pyro_keys import VAMPIRES
 from device_control import conf_dir
 from device_control.drivers import CONEXDevice
+from device_control.pyro_keys import VAMPIRES
+from device_control.vampires import connect_cameras
+from docopt import docopt
 from swmain.redis import update_keys
 
 
@@ -13,8 +13,8 @@ class VAMPIRESQWP(CONEXDevice):
     CONF = "vampires/conf_vampires_qwp{0:d}.toml"
     format_str = "QWP{0:1d}: {1:6.02f}"
 
-    def __init__(self, number, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, number, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         if number == 1:
             self.PYRO_KEY = VAMPIRES.QWP1
         elif number == 2:
@@ -22,6 +22,7 @@ class VAMPIRESQWP(CONEXDevice):
         else:
             raise ValueError(f"Invalid QWP number: {number}")
         self.number = number
+        self.cams = connect_cameras()
 
     def _config_extras(self):
         return {"number": self.number}
@@ -32,6 +33,10 @@ class VAMPIRESQWP(CONEXDevice):
             f"U_QWP{self.number:1d}TH": theta - self.offset,
         }
         update_keys(**kwargs)
+        for cam in self.cams:
+            if cam is not None:
+                cam.set_keyword(f"U_QWP{self.number:1d}", theta)
+                cam.set_keyword(f"U_QWP{self.number:1d}TH", theta - self.offset)
 
     def _move_absolute(self, value: float, wait=True):
         return super()._move_absolute(value % 360, wait)

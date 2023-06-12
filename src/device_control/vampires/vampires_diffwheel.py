@@ -1,13 +1,13 @@
 import os
 import sys
 
-from docopt import docopt
-
-from device_control.pyro_keys import VAMPIRES
 from device_control.drivers import CONEXDevice
-from swmain.network.pyroclient import (  # Requires scxconf and will fetch the IP addresses there.
+from device_control.pyro_keys import VAMPIRES
+from device_control.vampires import connect_cameras
+from docopt import docopt
+from swmain.network.pyroclient import (
     connect,
-)
+)  # Requires scxconf and will fetch the IP addresses there.
 from swmain.redis import update_keys
 
 
@@ -16,21 +16,24 @@ class VAMPIRESDiffWheel(CONEXDevice):
     PYRO_KEY = VAMPIRES.DIFF
     format_str = "{0}: {1:22s} {{{2:5.01f} deg}}"
 
+    def __init__(self, device_address=1, delay=0.1, **kwargs):
+        super().__init__(device_address, delay, **kwargs)
+        self.cams = connect_cameras()
+
     def _update_keys(self, theta):
         _, status = self.get_configuration(position=theta)
         if status == "Unknown":
-            update_keys(
-                U_DIFFL1="Unknown",
-                U_DIFFL2="Unknown",
-                U_DIFFTH=theta,
-            )
+            state1 = state2 = "Unknown"
         else:
             state1, state2 = status.split(" / ")
-            update_keys(
-                U_DIFFL1=state1,
-                U_DIFFL2=state2,
-                U_DIFFTH=theta,
-            )
+        update_keys(
+            U_DIFFL1=state1,
+            U_DIFFL2=state2,
+            U_DIFFTH=theta,
+        )
+        for cam, state in zip(self.cams, (state1, state2)):
+            if cam is not None:
+                cam.set_keyword("FILTER02", state)
 
     def _move_absolute(self, value: float, wait=True):
         return super()._move_absolute(value % 360, wait)

@@ -4,9 +4,9 @@ import time
 
 import astropy.units as u
 import click
+
 import usb.core
 import usb.util
-
 from device_control.base import ConfigurableDevice
 from device_control.pyro_keys import VAMPIRES
 from swmain.redis import update_keys
@@ -99,10 +99,12 @@ class VAMPIRESTrigger(ConfigurableDevice):
     def enable_flc(self):
         self.flc_enabled = True
         self.set_parameters()
+        self.update_keys()
 
     def disable_flc(self):
         self.flc_enabled = False
         self.set_parameters()
+        self.update_keys()
 
     def get_parameters(self):
         response = self.ask_command(0)
@@ -114,8 +116,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
         trigger_mode = next(tokens)
         self.flc_enabled = bool(trigger_mode & 0x1)
         self.sweep_mode = bool(trigger_mode & 0x2)
-        self.update_keys()
-        return {
+        params = {
             "enabled": self.enabled,
             "delay": self.delay,
             "pulse_width": self.pulse_width,
@@ -123,6 +124,8 @@ class VAMPIRESTrigger(ConfigurableDevice):
             "flc_enabled": self.flc_enabled,
             "sweep_mode": self.sweep_mode,
         }
+        self.update_keys(params=params)
+        return params
 
     def set_parameters(
         self, flc_enabled=None, delay=None, flc_offset=None, pulse_width=None, sweep_mode=None
@@ -141,19 +144,24 @@ class VAMPIRESTrigger(ConfigurableDevice):
         trigger_mode = int(flc_enabled) + (int(sweep_mode) << 1)
         cmd = "1 {:d} {:d} {:d} {:d}".format(delay, pulse_width, flc_offset, trigger_mode)
         self.send_command(cmd)
-        self.update_keys(
-            delay=delay, pulse_width=pulse_width, flc_offset=flc_offset, flc_enabled=flc_enabled
+        params = dict(
+            enabled=self.enabled,
+            delay=delay,
+            pulse_width=pulse_width,
+            flc_offset=flc_offset,
+            flc_enabled=flc_enabled,
         )
+        self.update_keys(params)
 
     def disable(self):
         self.send_command(2)
         self.enabled = False
-        self.update_keys()
+        self.update_keys(self.enabled)
 
     def enable(self):
-        self.send_command(3)
         self.enabled = True
-        self.update_keys()
+        self.update_keys(self.enabled)
+        self.send_command(3)
 
     def reset(self):
         # toggle power using inline switch
@@ -161,25 +169,21 @@ class VAMPIRESTrigger(ConfigurableDevice):
         time.sleep(0.1)
         self.reset_switch.enable()
         self.enabled = False
-        self.update_keys()
+        self.update_keys(self.enabled)
 
-    def update_keys(
-        self, enabled=None, flc_enabled=None, delay=None, flc_offset=None, pulse_width=None
-    ):
+    def update_keys(self, enabled=None, params=None):
+        if params is None:
+            params = self.get_parameters()
         if enabled is None:
-            enabled = self.enabled
-        if flc_enabled is None:
-            flc_enabled = self.flc_enabled
-        if delay is None:
-            delay = self.delay
-        if flc_offset is None:
-            flc_offset = self.flc_offset
-        if pulse_width is None:
-            pulse_width = self.pulse_width
+            enabled = params["enabled"]
+        flc_enabled = params["flc_enabled"]
+        delay = params["delay"]
+        flc_offset = params["flc_offset"]
+        pulse_width = params["pulse_width"]
         update_keys(
             U_TRIGEN=str(enabled),
             U_FLCEN=str(flc_enabled),
-            U_FLCOFF=flc_offset,
+            U_TRIGOF=flc_offset,
             U_TRIGDL=delay,
             U_TRIGPW=pulse_width,
         )
@@ -240,9 +244,7 @@ class VAMPIRESInlineUSBReset:
         # assert reply[0] == 0x1
 
     def status(self):
-        result = subprocess.run(
-            ["ykushcmd ykushxs -g"], shell=True, check=True, capture_output=True
-        )
+        result = subprocess.run(["ykushcmd ykushxs -g"], shell=True, capture_output=True)
         retval = result.stdout.decode().strip()
         if "ON" in retval:
             return "ON"
@@ -324,7 +326,7 @@ def reset(obj):
 )
 @click.pass_obj
 def set_parameters(obj, flc: bool, delay: int, flc_offset: int, pulse_width: int, sweep_mode: bool):
-    trig_enabled = obj["trigger"].get_parameters["enabled"]
+    trig_enabled = obj["trigger"].get_parameters()["enabled"]
     if trig_enabled:
         obj["trigger"].disable()
     obj["trigger"].set_parameters(

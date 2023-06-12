@@ -1,10 +1,11 @@
-import sys
 import os
+import sys
 
-from docopt import docopt
-
-from device_control.pyro_keys import VAMPIRES
 from device_control.drivers import ThorlabsWheel
+from device_control.pyro_keys import VAMPIRES
+from device_control.vampires import connect_cameras
+from docopt import docopt
+from swmain.network.pyroclient import connect
 from swmain.redis import update_keys
 
 
@@ -13,9 +14,16 @@ class VAMPIRESFilter(ThorlabsWheel):
     PYRO_KEY = VAMPIRES.FILT
     format_str = "{0:1d}: {1:8s}"
 
+    def __init__(self, serial_kwargs, **kwargs):
+        super().__init__(serial_kwargs, **kwargs)
+        self.cams = connect_cameras()
+
     def _update_keys(self, position):
         pos, name = self.get_configuration(position=position)
         update_keys(U_FILTER=name, U_FILTTH=pos)
+        for cam in self.cams:
+            if cam is not None:
+                cam.set_keyword("FILTER01", name)
 
     def help_message(self):
         configurations = "\n".join(

@@ -90,6 +90,7 @@ class CONEXDevice(MotionDevice):
         self.logger.debug(f"sending command: {cmd[:-2]}")
         with self.serial as serial:
             serial.reset_input_buffer()
+            serial.reset_output_buffer()
             serial.write(cmd.encode())
 
     # @autoretry(max_retries=10)
@@ -99,6 +100,7 @@ class CONEXDevice(MotionDevice):
         self.logger.debug(f"sending command: {cmd[:-2]}")
         with self.serial as serial:
             serial.reset_input_buffer()
+            serial.reset_output_buffer()
             serial.write(cmd.encode())
             retval = serial.read_until(b"\r\n").decode()
             self.logger.debug(f"received: {retval[:-2]}")
@@ -154,6 +156,12 @@ class CONEXDevice(MotionDevice):
     def is_homing(self) -> bool:
         return isinstance(self.get_state(), Homing)
 
+    def is_ready(self) -> bool:
+        return isinstance(self.get_state(), Ready)
+
+    def needs_homing(self) -> bool:
+        return isinstance(self.get_state(), NotReferenced)
+
     def disable(self):
         self.send_command("MM0")
 
@@ -168,14 +176,32 @@ class CONEXDevice(MotionDevice):
                 time.sleep(self.delay)
 
     def _move_absolute(self, value: float, wait=True):
+        # check if we're not referenced
+        if self.needs_homing():
+            self.logger.warn("CONEX device needs to be homed.")
+            return
+        # wait until we're ready to move
+        while not self.is_ready():
+            time.sleep(self.delay)
+        # send move command
         self.send_command(f"PA{value}")
+        # if blocking, loop while moving
         if wait:
             while self.is_moving():
                 self.update_keys()
                 time.sleep(self.delay)
 
     def _move_relative(self, value: float, wait=True):
+        # check if we're not referenced
+        if self.needs_homing():
+            self.logger.warn("CONEX device needs to be homed.")
+            return
+            # wait until we're ready to move
+        while not self.is_ready():
+            time.sleep(self.delay)
+        # send move command
         self.send_command(f"PR{value}")
+        # if blocking, loop while moving
         if wait:
             while self.is_moving():
                 self.update_keys()

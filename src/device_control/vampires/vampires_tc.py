@@ -1,10 +1,9 @@
 import os
 import sys
 
-from docopt import docopt
-
 from device_control.drivers import ThorlabsTC
 from device_control.pyro_keys import VAMPIRES
+from docopt import docopt
 from swmain.redis import update_keys
 
 
@@ -13,13 +12,10 @@ class VAMPIRESTC(ThorlabsTC):
     PYRO_KEY = VAMPIRES.TC
     format_str = "{0:s}: Tact = {1:4.01f}°C / {2:4.01f}°C"
 
-    def update_keys(self, temperatures=None):
-        if temperatures is None:
-            flc_temp = self.get_temp()
-            aux_temp = self.get_aux_temp()
-        else:
-            flc_temp, aux_temp = temperatures
-        update_keys(U_BENTMP=aux_temp, U_FLCTMP=flc_temp)
+    def update_keys(self, temperature=None):
+        if temperature is None:
+            temperature = self.get_temp()
+        update_keys(U_FLCTMP=temperature)
 
     def help_message(self):
         return f"""Usage:
