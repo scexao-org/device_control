@@ -157,7 +157,7 @@ class MultiDevice(ConfigurableDevice):
 
     def move_configuration_name(self, name: str, wait=True):
         for row in self.configurations:
-            if row["name"] == name:
+            if row["name"].lower() == name.lower():
                 self.current_config = row["value"]
                 break
         else:
