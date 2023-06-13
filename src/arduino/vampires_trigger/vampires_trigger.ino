@@ -13,6 +13,7 @@
 #define CAMERA_TWO_READY 6
 #define FLC_TRIGGER_PIN 8
 #define FLC_CONTROL_PIN 4
+#define FLC_RETURN_PIN 2
 
 #if DEBUG_MODE
 #include <Adafruit_NeoPixel.h>
@@ -61,6 +62,7 @@ void setup()
     pinMode(CAMERA_TRIGGER_PIN, OUTPUT);
     pinMode(FLC_TRIGGER_PIN, OUTPUT);
     pinMode(FLC_CONTROL_PIN, OUTPUT);
+    pinMode(FLC_RETURN_PIN, INPUT);
     pinMode(CAMERA_ONE_READY, INPUT);
     pinMode(CAMERA_TWO_READY, INPUT);
 
@@ -249,7 +251,6 @@ void handle_serial() {
     switch (cmd_code) {
         case 0: // GET
             get();
-            Serial.println("OK");
             break;
         case 1: // SET
             // set parameters
@@ -264,6 +265,9 @@ void handle_serial() {
         case 3: // ENABLE
             enable_loop();
             Serial.println("OK");
+            break;
+        case 4: // FLC CHECK
+            check_flc();
             break;
         default:
             Serial.println("ERROR - invalid command");
@@ -314,4 +318,23 @@ void set(int _trig_delay, int _pulse_width, int _flc_offset, int _trigger_mode) 
     }
     // 'trigger_mode' 2nd bit is sweep mode flag
     sweep_mode = trigger_mode & 0x2;
+}
+
+/* 
+  Sends a pulse to the FLC controller and waits for
+  input on the return.
+*/
+void check_flc() {
+  // enable FLC deadlock
+    bool flc_return = false;
+    unsigned long flc_test_width = 1000;
+    digitalWrite(FLC_TRIGGER_PIN, LOW);
+    digitalWrite(FLC_CONTROL_PIN, HIGH);
+    digitalWrite(FLC_TRIGGER_PIN, HIGH);
+    for (start_time = micros(); micros() - start_time < flc_test_width;) {
+      flc_return |= digitalRead(FLC_RETURN_PIN);
+    }
+    digitalWrite(FLC_TRIGGER_PIN, LOW);
+    digitalWrite(FLC_CONTROL_PIN, LOW);
+    Serial.println(flc_return);
 }

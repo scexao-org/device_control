@@ -4,9 +4,9 @@ import time
 
 import astropy.units as u
 import click
-
 import usb.core
 import usb.util
+
 from device_control.base import ConfigurableDevice
 from device_control.pyro_keys import VAMPIRES
 from swmain.redis import update_keys
@@ -199,8 +199,15 @@ class VAMPIRESTrigger(ConfigurableDevice):
         switch_status = self.reset_switch.status()
         if switch_status != "ON":
             return f"USB reset switch is {switch_status}"
+        flc_good = self.flc_controller_enabled()
+        if not flc_good:
+            return f"FLC controller is not active"
         info = self.get_parameters()
         return info
+
+    def flc_controller_enabled(self):
+        response = self.ask_command(4)
+        return bool(int(response))
 
 
 class VAMPIRESInlineUSBReset:
