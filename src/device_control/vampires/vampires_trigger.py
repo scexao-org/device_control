@@ -199,9 +199,6 @@ class VAMPIRESTrigger(ConfigurableDevice):
         switch_status = self.reset_switch.status()
         if switch_status != "ON":
             return f"USB reset switch is {switch_status}"
-        flc_good = self.flc_controller_enabled()
-        if not flc_good:
-            return f"FLC controller is not active"
         info = self.get_parameters()
         return info
 
@@ -343,6 +340,21 @@ def set_parameters(obj, flc: bool, delay: int, flc_offset: int, pulse_width: int
         pulse_width=pulse_width,
         sweep_mode=sweep_mode,
     )
+
+
+@main.command(
+    "check",
+    short_help="Check the FLC controller",
+    help="Send an FLC trigger pulse to see if controller is active",
+)
+@click.pass_obj
+def check(obj):
+    flc_good = obj["trigger"].flc_controller_enabled()
+    if flc_good:
+        click.echo("FLC controller is active")
+    else:
+        click.echo("FLC activity check failed!")
+        click.echo("FLC controller is not active")
 
 
 if __name__ == "__main__":

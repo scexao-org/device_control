@@ -12,7 +12,7 @@
 #define CAMERA_ONE_READY 10
 #define CAMERA_TWO_READY 6
 #define FLC_TRIGGER_PIN 8
-#define FLC_CONTROL_PIN 4
+#define FLC_DEADLOCK_PIN 4
 #define FLC_RETURN_PIN 2
 
 #if DEBUG_MODE
@@ -27,12 +27,10 @@ Adafruit_NeoPixel strip(1, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 // We use unsigned long for everything time-related in microseconds.
 // FLC only works for integration times < 1 second
 const unsigned long max_flc_integration_time = 1000000; // us
-// The maximum integration time is 120 second
-const unsigned long max_integration_time = 120000000; // us
-
-// global variable initialization
-unsigned int cmd_code;
-unsigned long start_time;
+// The maximum integration time is 5 minutes
+const unsigned long max_integration_time = 300000000; // us
+// For FLC check, length of test pulse (10 ms)
+const unsigned long flc_test_width = 10000; // us
 // settings
 unsigned long trig_delay;
 unsigned long integration_time;
@@ -61,7 +59,7 @@ void setup()
     // set pin modes
     pinMode(CAMERA_TRIGGER_PIN, OUTPUT);
     pinMode(FLC_TRIGGER_PIN, OUTPUT);
-    pinMode(FLC_CONTROL_PIN, OUTPUT);
+    pinMode(FLC_DEADLOCK_PIN, OUTPUT);
     pinMode(FLC_RETURN_PIN, INPUT);
     pinMode(CAMERA_ONE_READY, INPUT);
     pinMode(CAMERA_TWO_READY, INPUT);
@@ -69,7 +67,7 @@ void setup()
     // reset outputs to low
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
     digitalWrite(FLC_TRIGGER_PIN, LOW);
-    digitalWrite(FLC_CONTROL_PIN, LOW);
+    digitalWrite(FLC_DEADLOCK_PIN, LOW);
 
 #if DEBUG_MODE
     pinMode(LED_PIN, OUTPUT);
@@ -114,6 +112,7 @@ void loop()
     This allows testing
 */
 void trigger_loop_flc() {
+    unsigned long start_time;
     camera_one_ready = camera_two_ready = false;
     // First exposure FLC is relaxed
     digitalWrite(FLC_TRIGGER_PIN, LOW);
@@ -170,6 +169,7 @@ void trigger_loop_flc() {
     Here each arduino loop comprises a single camera trigger pulse.
 */
 void trigger_loop_noflc() {
+    unsigned long start_time;
     // reset ready flags
     camera_one_ready = camera_two_ready = false;
     // initiate pulse
@@ -209,7 +209,7 @@ void enable_loop() {
 
 void disable_flc() {
   flc_enabled = false;
-  digitalWrite(FLC_CONTROL_PIN, LOW);
+  digitalWrite(FLC_DEADLOCK_PIN, LOW);
 #if DEBUG_MODE
     digitalWrite(LED_PIN, LOW);
 #endif
@@ -217,7 +217,7 @@ void disable_flc() {
 
 void enable_flc() {
   flc_enabled = true;
-  digitalWrite(FLC_CONTROL_PIN, HIGH);
+  digitalWrite(FLC_DEADLOCK_PIN, HIGH);
 #if DEBUG_MODE
     digitalWrite(LED_PIN, HIGH);
 #endif
@@ -245,9 +245,12 @@ Commands:
         This command will disable the trigger loop.
     3 - ENABLE
         This command will enable the trigger loop.
+    4 - FLC check
+        This command will send a test pulse to the FLC controller to see
+        if it is active.
 */
 void handle_serial() {
-    cmd_code = Serial.parseInt();
+    unsigned int cmd_code = Serial.parseInt();
     switch (cmd_code) {
         case 0: // GET
             get();
@@ -325,16 +328,23 @@ void set(int _trig_delay, int _pulse_width, int _flc_offset, int _trigger_mode) 
   input on the return.
 */
 void check_flc() {
-  // enable FLC deadlock
     bool flc_return = false;
-    unsigned long flc_test_width = 1000;
+    unsigned long start_time;
+    // send short (1 ms) high signal to FLC controller
     digitalWrite(FLC_TRIGGER_PIN, LOW);
-    digitalWrite(FLC_CONTROL_PIN, HIGH);
+    digitalWrite(FLC_DEADLOCK_PIN, HIGH);
     digitalWrite(FLC_TRIGGER_PIN, HIGH);
+    for (start_time = micros(); micros() - start_time < flc_test_width;) {
+      // check for any activity on the B flc control line from the controller
+      flc_return |= digitalRead(FLC_RETURN_PIN);
+    }
+    // trigger low
+    digitalWrite(FLC_TRIGGER_PIN, LOW);
+    // continue to check for activity for the second half of the on/off cycle
     for (start_time = micros(); micros() - start_time < flc_test_width;) {
       flc_return |= digitalRead(FLC_RETURN_PIN);
     }
-    digitalWrite(FLC_TRIGGER_PIN, LOW);
-    digitalWrite(FLC_CONTROL_PIN, LOW);
+    // deadlock off
+    digitalWrite(FLC_DEADLOCK_PIN, LOW);
     Serial.println(flc_return);
 }
