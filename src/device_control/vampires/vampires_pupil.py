@@ -1,10 +1,11 @@
-import sys
 import os
+import sys
+import time
 
 from docopt import docopt
 
-from device_control.pyro_keys import VAMPIRES
 from device_control.drivers import ThorlabsFlipMount
+from device_control.pyro_keys import VAMPIRES
 from swmain.redis import update_keys
 
 
@@ -14,7 +15,7 @@ class VAMPIRESPupilLens(ThorlabsFlipMount):
     format_str = "{0}: {1}"
 
     def _update_keys(self, position):
-        state = self.get_configuration(position)
+        _, state = self.get_configuration(position)
         update_keys(U_PUPST=state.upper())
 
     def help_message(self):
@@ -45,8 +46,8 @@ def main():
         idx, name = vampires_pupil.get_configuration(posn)
         print(vampires_pupil.format_str.format(idx, name))
     elif args["<pos>"]:
-        vampires_pupil.move_configuration(args["<pos>"])
-
+        vampires_pupil.move_configuration_name(args["<pos>"])
+        time.sleep(0.5)
     vampires_pupil.update_keys(posn)
 
 

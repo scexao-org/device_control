@@ -1,11 +1,13 @@
 name = "vampires_camfocus"
-unit = "mm"
-
 configurations = [
-    {idx=1, name="HOME", value=7.12},
-    {idx=2, name="DEFOCUS", value=7.3}
+    { idx = 1, name = "dual", value = 21.7 },
+    { idx = 2, name = "single", value = 13.200221250000002 },
+    { idx = 3, name = "defocus", value = 8 },
 ]
+unit = "mm"
+offset = 0
 
 [serial]
+timeout = 0.5
 port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
 device_number = 3

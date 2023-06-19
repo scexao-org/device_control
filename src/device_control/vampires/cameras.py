@@ -1,16 +1,15 @@
-from Pyro4.errors import CommunicationError
-
 from swmain.network.pyroclient import connect
 
 
 def connect_cameras():
-    vcam1 = vcam2 = None
     try:
         vcam1 = connect("VCAM1")
-    except CommunicationError:
-        pass
+        vcam1.get_tint()
+    except:
+        vcam1 = None
     try:
         vcam2 = connect("VCAM2")
-    except CommunicationError:
-        pass
+        vcam2.get_tint()
+    except:
+        vcam2 = None
     return vcam1, vcam2

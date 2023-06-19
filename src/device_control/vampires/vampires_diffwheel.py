@@ -6,8 +6,9 @@ from docopt import docopt
 from device_control.drivers import CONEXDevice
 from device_control.pyro_keys import VAMPIRES
 from device_control.vampires.cameras import connect_cameras
-from swmain.network.pyroclient import \
-    connect  # Requires scxconf and will fetch the IP addresses there.
+from swmain.network.pyroclient import (
+    connect,
+)  # Requires scxconf and will fetch the IP addresses there.
 from swmain.redis import update_keys
 
 

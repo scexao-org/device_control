@@ -1,10 +1,10 @@
-import sys
 import os
+import sys
 
 from docopt import docopt
 
-from device_control.pyro_keys import VAMPIRES
 from device_control.multi_device import MultiDevice
+from device_control.pyro_keys import VAMPIRES
 from swmain.redis import update_keys
 
 
@@ -35,7 +35,7 @@ class VAMPIRESMaskWheel(MultiDevice):
         )
         return f"""Usage:
     vampires_mask [-h | --help]
-    vampires_mask [-h | --help] status
+    vampires_mask status
     vampires_mask x (status|position|home|goto|nudge|stop|reset) [<pos>]
     vampires_mask y (status|position|home|goto|nudge|stop|reset) [<pos>]
     vampires_mask theta (status|position|home|goto|nudge|stop|reset) [<pos>]

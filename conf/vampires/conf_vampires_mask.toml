@@ -5,18 +5,18 @@ idx = 1
 name = "Open"
 
 [configurations.value]
-x = 9.477
-y = 6.858
-theta = 0
+x = 7.47702975
+y = 5.858017875000001
+theta = 0.0001981506
 
 [[configurations]]
 idx = 2
 name = "SAM-7"
 
 [configurations.value]
-x = 7.213044375000001
-y = 9.743932125
-theta = 28.00016
+x = 5.373100125000001
+y = 10.78391925
+theta = 28.00066
 
 [[configurations]]
 idx = 3
@@ -41,27 +41,27 @@ idx = 5
 name = "SAM-18-Nudged"
 
 [configurations.value]
-x = 7.110031500000001
-y = 3.671935125
-theta = 95.30022
+x = 5.482923375
+y = 4.63191225
+theta = 95.30042
 
 [[configurations]]
 idx = 6
 name = "SAM-Ann-Nudged"
 
 [configurations.value]
-x = 7.3220103750000005
-y = 4.572000000000001
-theta = 120.0002
+x = 5.502068625000001
+y = 5.531977125
+theta = 120.0003
 
 [[configurations]]
 idx = 7
 name = "Mirror"
 
 [configurations.value]
-x = 8.253
-y = 5.153
-theta = 143
+x = 7.2529541250000005
+y = 4.152947625
+theta = 143.0002
 
 [[configurations]]
 idx = 8
@@ -77,9 +77,9 @@ idx = 9
 name = "LyotStop"
 
 [configurations.value]
-x = 7.352014125
-y = 4.935997875000001
-theta = 191.9996
+x = 5.432059875
+y = 5.136022875
+theta = 191.6997
 
 [[configurations]]
 idx = 10
@@ -137,7 +137,7 @@ offset = 0
 [devices.serial]
 timeout = 0.5
 port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
-device_number = 2 
+device_number = 2
 
 [[devices]]
 name = "theta"

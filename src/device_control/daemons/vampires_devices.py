@@ -11,6 +11,8 @@ from device_control.vampires import (
     VAMPIRESFLCStage,
     VAMPIRESFocus,
     VAMPIRESMaskWheel,
+    VAMPIRESMBIWheel,
+    VAMPIRESPupilLens,
     VAMPIRESTrigger,
 )
 from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
@@ -29,20 +31,20 @@ def main():
     print("Initializing devices")
 
     devices = {
-        # "bs": VAMPIRESBeamsplitter.connect(local=True),
-        # "focus": VAMPIRESFocus.connect(local=True),
+        "bs": VAMPIRESBeamsplitter.connect(local=True),
+        "focus": VAMPIRESFocus.connect(local=True),
         "camfocus": VAMPIRESCamFocus.connect(local=True),
         "flc": VAMPIRESFLCStage.connect(local=True),
         # "diffwheel": VAMPIRESDiffWheel.connect(local=True),
         "mask": VAMPIRESMaskWheel.connect(local=True),
-        # "mbi":  VAMPIRESMBIWheel.connect(local=True),
+        "mbi": VAMPIRESMBIWheel.connect(local=True),
         "qwp1": VAMPIRESQWP.connect(1, local=True),
         "qwp2": VAMPIRESQWP.connect(2, local=True),
-        # "filt": VAMPIRESFilter.connect(local=True),
+        "filt": VAMPIRESFilter.connect(local=True),
         # "fieldstop": VAMPIRESFieldstop.connect(local=True),
         "tc": VAMPIRESTC.connect(local=True),
         "trigger": VAMPIRESTrigger.connect(local=True),
-        # "pupil": VAMPIRESPupilLens.connect(local=True),
+        "pupil": VAMPIRESPupilLens.connect(local=True),
     }
     ## Add to Pyro server
     print("Adding devices to pyro", end="\n  ")

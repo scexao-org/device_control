@@ -37,7 +37,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
         def_serial_kwargs = {"baudrate": 115200, "timeout": 0.1}
         def_serial_kwargs.update(serial_kwargs)
         super().__init__(serial_kwargs=def_serial_kwargs, **kwargs)
-        self.reset_switch = VAMPIRESInlineUSBReset()
+        self.reset_switch = VAMPIRESInlineUSBReset(serial="YKD6404")
 
         if isinstance(delay, u.Quantity):
             self.delay = int(delay.to(u.us).value)
@@ -208,7 +208,8 @@ class VAMPIRESTrigger(ConfigurableDevice):
 
 
 class VAMPIRESInlineUSBReset:
-    def __init__(self):
+    def __init__(self, serial=None):
+        self.serial = serial
         self.outaddr = 0x1
         self.inaddr = 0x81
         self.bufsize = 64
@@ -238,17 +239,29 @@ class VAMPIRESInlineUSBReset:
         return reply
 
     def enable(self):
-        subprocess.run(["ykushcmd ykushxs -u"], shell=True, check=True)
+        command = ["ykushcmd", "ykushxs", "-u"]
+        if self.serial is not None:
+            command.extend(("-s", self.serial))
+
+        subprocess.run(command, shell=True, check=True)
         # reply = self.ask_command(0x11)
         # assert reply[0] == 0x1
 
     def disable(self):
-        subprocess.run(["ykushcmd ykushxs -d"], shell=True, check=True)
+        command = ["ykushcmd", "ykushxs", "-d"]
+        if self.serial is not None:
+            command.extend(("-s", self.serial))
+
+        subprocess.run(command, shell=True, check=True)
         # reply = self.ask_command(0x01)
         # assert reply[0] == 0x1
 
     def status(self):
-        result = subprocess.run(["ykushcmd ykushxs -g"], shell=True, capture_output=True)
+        command = ["ykushcmd", "ykushxs", "-u"]
+        if self.serial is not None:
+            command.extend(("-s", self.serial))
+
+        result = subprocess.run(command, shell=True, capture_output=True)
         retval = result.stdout.decode().strip()
         if "ON" in retval:
             return "ON"

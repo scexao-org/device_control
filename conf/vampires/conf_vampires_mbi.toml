@@ -1,11 +1,13 @@
 name = "vampires_mbi"
-unit = "deg"
 configurations = [
-    {idx=1, name="IN", value=80},
-    {idx=2, name="OUT", value=260},
+    { idx = 1, name = "dichroics", value = 81.69981 },
+    { idx = 2, name = "mirror", value = 260 },
 ]
+unit = "deg"
+offset = 0
 
 [serial]
+timeout = 0.5
 port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A67H119F-if00-port0"
 baudrate = 921600
 xonxoff = true

@@ -104,11 +104,11 @@ class MultiDevice(ConfigurableDevice):
 
     def save_configuration(self, positions=None, index=None, name=None, tol=1e-1, **kwargs):
         if positions is None:
-            values = {k: dev.get_position() for k, dev, in self.devices.items()}
+            dev_posns = {k: dev.get_position() for k, dev, in self.devices.items()}
         else:
-            values = {k: pos for k, pos in zip(self.devices.keys(), positions)}
+            dev_posns = {k: pos for k, pos in zip(self.devices.keys(), positions)}
 
-        current_config = self.get_configuration(positions=values.values(), tol=tol)
+        current_config = self.get_configuration(positions=dev_posns.values(), tol=tol)
         if index is None:
             if current_config[0] is None:
                 raise RuntimeError("Cannot save to an unknown configuration. Please provide index.")
@@ -121,7 +121,7 @@ class MultiDevice(ConfigurableDevice):
             if row["idx"] == index:
                 if name is not None:
                     row["name"] = name
-                row["value"] = values
+                row["value"] = dev_posns
                 self.logger.info(
                     f"updated configuration {index} '{row['name']}' to value {row['value']}"
                 )
@@ -129,13 +129,16 @@ class MultiDevice(ConfigurableDevice):
         else:
             if name is None:
                 raise ValueError("Must provide name for new configuration")
-            self.configurations.append(dict(idx=index, name=name, values=values))
-            self.logger.info(f"added new configuration {index} '{name}' with value {values}")
+            self.configurations.append(dict(idx=index, name=name, values=dev_posns.values()))
+            self.logger.info(
+                f"added new configuration {index} '{name}' with values {dev_posns.values()}"
+            )
 
         # sort configurations dictionary in-place by index
         self.configurations.sort(key=lambda d: d["idx"])
         # save configurations to file
-        return self.save_config(**kwargs)
+        self.save_config(**kwargs)
+        self.update_keys()
 
     def move_configuration(self, idx_or_name, **kwargs):
         if idx_or_name.isdigit():

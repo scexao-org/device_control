@@ -45,7 +45,7 @@ class ThorlabsWheel(MotionDevice):
         if value < 1 or value > self.max_filters:
             raise ValueError(f"Filter position must be between 1 and {self.max_filters}")
         self.send_command(f"pos={value}")
-        time.sleep(1)
+        time.sleep(4)
 
     def get_status(self, idx=None):
         if idx is None:

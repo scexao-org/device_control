@@ -11,16 +11,21 @@ from swmain.redis import update_keys
 class VAMPIRESCamFocus(ZaberDevice):
     CONF = "vampires/conf_vampires_camfocus.toml"
     PYRO_KEY = VAMPIRES.CAMFCS
-    format_str = "{0:4.02f} mm"
+    format_str = "{0}: {1:10s} {{{2:5.02f} mm}}"
 
     def _update_keys(self, position):
         _, name = self.get_configuration(position=position)
         update_keys(U_CAMFCS=name.upper(), U_CAMFCF=position)
 
     def help_message(self):
+        configurations = "\n".join(
+            f"    {self.format_str.format(c['idx'], c['name'], c['value'])}"
+            for c in self.configurations
+        )
         return f"""Usage:
     vampires_camfocus [-h | --help]
     vampires_camfocus (status|position|home|goto|nudge|stop|reset) [<pos>]
+    vampires_camfocus <configuration>
 
 Options:
     -h, --help   Show this screen
@@ -32,7 +37,10 @@ Wheel commands:
     goto  <pos>     Move the focus stage to the given position, in mm
     nudge <pos>     Move the focus stage relatively by the given position, in mm
     stop            Stop the focus stage
-    reset           Reset the focus stage"""
+    reset           Reset the focus stage  
+
+Configurations:
+{configurations}"""
 
 
 # setp 4. action
@@ -61,6 +69,8 @@ def main():
         vampires_camfocus.stop()
     elif args["reset"]:
         vampires_camfocus.reset()
+    elif args["<configuration>"]:
+        vampires_camfocus.move_configuration(args["<configuration>"])
     vampires_camfocus.update_keys(posn)
 
 

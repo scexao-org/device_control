@@ -207,6 +207,7 @@ class MotionDevice(ConfigurableDevice):
                 self.logger.info(
                     f"updated configuration {index} '{row['name']}' to value {row['value']}"
                 )
+                break
         else:
             if name is None:
                 raise ValueError("Must provide name for new configuration")
@@ -217,6 +218,7 @@ class MotionDevice(ConfigurableDevice):
         self.configurations.sort(key=lambda d: d["idx"])
         # save configurations to file
         self.save_config(**kwargs)
+        self.update_keys()
 
 
 class SSHDevice:

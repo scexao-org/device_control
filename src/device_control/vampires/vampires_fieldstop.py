@@ -54,7 +54,7 @@ Configurations:
 
 # setp 4. action
 def main():
-    fieldstop = VAMPIRESFieldstop.connect(local=os.getenv("WHICHCOMP", None) == "V")
+    fieldstop = VAMPIRESFieldstop.connect(local=os.getenv("WHICHCOMP", None) == "2")
     __doc__ = fieldstop.help_message()
     args = docopt(__doc__, options_first=True)
     posns = None
