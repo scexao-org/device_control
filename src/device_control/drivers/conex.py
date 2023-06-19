@@ -93,6 +93,7 @@ class CONEXDevice(MotionDevice):
             serial.reset_input_buffer()
             serial.reset_output_buffer()
             serial.write(cmd.encode())
+            time.sleep(self.delay)
 
     # @autoretry(max_retries=10)
     def ask_command(self, command: str):
@@ -103,6 +104,7 @@ class CONEXDevice(MotionDevice):
             serial.reset_input_buffer()
             serial.reset_output_buffer()
             serial.write(cmd.encode())
+            time.sleep(self.delay)
             retval = serial.read_until(b"\r\n").decode()
             self.logger.debug(f"received: {retval[:-2]}")
             # strip command and \r\n from string
@@ -173,10 +175,8 @@ class CONEXDevice(MotionDevice):
     def _home(self, wait=True):
         self.send_command("OR")
         if wait:
-            time.sleep(self.delay)
             while self.is_homing():
                 self.update_keys()
-                time.sleep(self.delay)
 
     def _move_absolute(self, value: float, wait=True):
         # check if we're not referenced
@@ -185,15 +185,13 @@ class CONEXDevice(MotionDevice):
             return
         # wait until we're ready to move
         while not self.is_ready():
-            time.sleep(self.delay)
+            pass
         # send move command
         self.send_command(f"PA{value}")
         # if blocking, loop while moving
         if wait:
-            time.sleep(self.delay)
             while self.is_moving():
                 self.update_keys()
-                time.sleep(self.delay)
 
     def _move_relative(self, value: float, wait=True):
         # check if we're not referenced
@@ -202,15 +200,13 @@ class CONEXDevice(MotionDevice):
             return
             # wait until we're ready to move
         while not self.is_ready():
-            time.sleep(self.delay)
+            continue
         # send move command
         self.send_command(f"PR{value}")
         # if blocking, loop while moving
         if wait:
-            time.sleep(self.delay)
             while self.is_moving():
                 self.update_keys()
-                time.sleep(self.delay)
 
     def reset(self):
         self.send_command("RS")
