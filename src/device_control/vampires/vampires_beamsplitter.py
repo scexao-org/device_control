@@ -1,10 +1,10 @@
 import os
 import sys
 
-from docopt import docopt
-
 from device_control.drivers import CONEXDevice
 from device_control.pyro_keys import VAMPIRES
+from docopt import docopt
+
 from swmain.redis import update_keys
 
 
@@ -66,9 +66,8 @@ def main():
         print(__doc__)
         return
     if args["status"]:
-        posn = beamsplitter.get_position()
-        idx, name = beamsplitter.get_configuration(posn)
-        print(beamsplitter.format_str.format(idx, name, posn))
+        posn, status = beamsplitter.get_status()
+        print(status)
     elif args["position"]:
         posn = beamsplitter.get_position()
         print(posn)

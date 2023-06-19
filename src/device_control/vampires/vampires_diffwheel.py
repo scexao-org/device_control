@@ -1,11 +1,11 @@
 import os
 import sys
 
-from docopt import docopt
-
 from device_control.drivers import CONEXDevice
 from device_control.pyro_keys import VAMPIRES
 from device_control.vampires.cameras import connect_cameras
+from docopt import docopt
+
 from swmain.network.pyroclient import (
     connect,
 )  # Requires scxconf and will fetch the IP addresses there.
@@ -74,9 +74,8 @@ def main():
     if len(sys.argv) == 1:
         print(__doc__)
     if args["status"]:
-        posn = vampires_diffwheel.get_position()
-        idx, name = vampires_diffwheel.get_configuration(posn)
-        print(vampires_diffwheel.format_str.format(idx, name, posn))
+        posn, status = vampires_diffwheel.get_status()
+        print(status)
     elif args["position"]:
         print(vampires_diffwheel.get_position())
     elif args["home"]:

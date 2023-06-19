@@ -3,7 +3,6 @@ from pathlib import Path
 import numpy as np
 import tomli
 import tomli_w
-
 from device_control.base import ConfigurableDevice
 from device_control.drivers.conex import CONEXDevice
 from device_control.drivers.zaber import ZaberDevice
@@ -189,3 +188,9 @@ class MultiDevice(ConfigurableDevice):
             if match:
                 return row["idx"], row["name"]
         return None, "Unknown"
+
+    def get_status(self):
+        posns = [dev.get_position() for dev in self.devices.values()]
+        idx, name = self.get_configuration(posns)
+        output = self.format_str.format(idx, name, *posns)
+        return posns, output

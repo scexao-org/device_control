@@ -4,6 +4,7 @@ import sys
 from device_control.drivers import ThorlabsTC
 from device_control.pyro_keys import VAMPIRES
 from docopt import docopt
+
 from swmain.redis import update_keys
 
 
@@ -39,15 +40,12 @@ def main():
     vampires_tc = VAMPIRESTC.connect(local=os.getenv("WHICHCOMP") == "V")
     __doc__ = vampires_tc.help_message()
     args = docopt(__doc__, options_first=True)
-    temps = None
+    temperature = None
     if len(sys.argv) == 1:
         print(__doc__)
     elif args["status"]:
-        stat_dict = vampires_tc.status()
-        enabled_str = "Enabled" if stat_dict["enabled"] else "Disabled"
-        flc_temp = vampires_tc.get_temp()
-        targ_temp = vampires_tc.get_target()
-        print(vampires_tc.format_str.format(enabled_str, flc_temp, targ_temp))
+        temperature, status = vampires_tc.get_status()
+        print(status)
     elif args["temp"]:
         print(vampires_tc.get_temp())
     elif args["enable"]:
@@ -56,7 +54,7 @@ def main():
         vampires_tc.disable()
     elif args["<setpoint>"]:
         vampires_tc.set_target(float(args["<setpoint>"]))
-    vampires_tc.update_keys(temps)
+    vampires_tc.update_keys(temperature)
 
 
 if __name__ == "__main__":

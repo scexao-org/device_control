@@ -2,10 +2,10 @@ import os
 import sys
 import time
 
-from docopt import docopt
-
 from device_control.drivers import ThorlabsFlipMount
 from device_control.pyro_keys import VAMPIRES
+from docopt import docopt
+
 from swmain.redis import update_keys
 
 
@@ -42,9 +42,8 @@ def main():
         print(__doc__)
         return
     elif args["status"]:
-        posn = vampires_pupil.get_position()
-        idx, name = vampires_pupil.get_configuration(posn)
-        print(vampires_pupil.format_str.format(idx, name))
+        posn, status = vampires_pupil.get_status()
+        print(status)
     elif args["<pos>"]:
         vampires_pupil.move_configuration_name(args["<pos>"])
         time.sleep(0.5)

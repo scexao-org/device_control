@@ -15,6 +15,7 @@ from device_control.vampires import (
     VAMPIRESPupilLens,
     VAMPIRESTrigger,
 )
+
 from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 from swmain.network.pyroserver_registerable import PyroServer
 
@@ -43,7 +44,7 @@ def main():
         "filt": VAMPIRESFilter.connect(local=True),
         # "fieldstop": VAMPIRESFieldstop.connect(local=True),
         "tc": VAMPIRESTC.connect(local=True),
-        "trigger": VAMPIRESTrigger.connect(local=True),
+        # "trigger": VAMPIRESTrigger.connect(local=True),
         "pupil": VAMPIRESPupilLens.connect(local=True),
     }
     ## Add to Pyro server

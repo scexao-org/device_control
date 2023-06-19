@@ -1,10 +1,10 @@
 import os
 import sys
 
-from docopt import docopt
-
 from device_control.drivers import ZaberDevice
 from device_control.pyro_keys import VAMPIRES
+from docopt import docopt
+
 from swmain.redis import update_keys
 
 
@@ -52,8 +52,8 @@ def main():
     if len(sys.argv) == 1:
         print(__doc__)
     if args["status"]:
-        posn = vampires_camfocus.get_position()
-        print(vampires_camfocus.format_str.format(posn))
+        posn, status = vampires_camfocus.get_status()
+        print(status)
     elif args["position"]:
         posn = vampires_camfocus.get_position()
         print(posn)

@@ -1,4 +1,5 @@
 from device_control.base import ConfigurableDevice
+
 from swmain.autoretry import autoretry
 
 
@@ -79,3 +80,11 @@ class ThorlabsTC(ConfigurableDevice):
         status = self.status()
         if status["enabled"]:
             self.send_command("ens")
+
+    def get_status(self):
+        stat_dict = self.status()
+        enabled_str = "Enabled" if stat_dict["enabled"] else "Disabled"
+        flc_temp = self.get_temp()
+        targ_temp = self.get_target()
+        output = self.format_str.format(enabled_str, flc_temp, targ_temp)
+        return flc_temp, output

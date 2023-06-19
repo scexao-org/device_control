@@ -5,9 +5,9 @@ import numpy as np
 import paramiko
 import tomli
 import tomli_w
+from device_control import conf_dir
 from serial import Serial
 
-from device_control import conf_dir
 from swmain.network.pyroclient import connect
 
 __all__ = ["ConfigurableDevice", "MotionDevice", "SSHDevice"]
@@ -86,6 +86,8 @@ class ConfigurableDevice:
 
 
 class MotionDevice(ConfigurableDevice):
+    FORMAT_STR = "{0}: {1} {{{2}}}"
+
     def __init__(
         self,
         unit=None,
@@ -219,6 +221,12 @@ class MotionDevice(ConfigurableDevice):
         # save configurations to file
         self.save_config(**kwargs)
         self.update_keys()
+
+    def get_status(self):
+        posn = self.get_position()
+        idx, name = self.get_configuration(posn)
+        output = self.format_str.format(idx, name, posn)
+        return posn, output
 
 
 class SSHDevice:

@@ -1,11 +1,11 @@
 import os
 import sys
 
-from docopt import docopt
-
 from device_control.drivers import ThorlabsWheel
 from device_control.pyro_keys import VAMPIRES
 from device_control.vampires.cameras import connect_cameras
+from docopt import docopt
+
 from swmain.network.pyroclient import connect
 from swmain.redis import update_keys
 
@@ -58,9 +58,8 @@ def main():
         print(__doc__)
         return
     elif args["status"]:
-        posn = vampires_filter.get_position()
-        name = vampires_filter.get_status(posn)
-        print(vampires_filter.format_str.format(posn, name))
+        posn, status = vampires_filter.get_status()
+        print(status)
     elif args["position"]:
         posn = vampires_filter.get_position()
         print(posn)

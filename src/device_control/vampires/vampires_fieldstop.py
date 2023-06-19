@@ -1,10 +1,10 @@
 import os
 import sys
 
-from docopt import docopt
-
 from device_control.multi_device import MultiDevice
 from device_control.pyro_keys import VAMPIRES
+from docopt import docopt
+
 from swmain.redis import update_keys
 
 __all__ = ["VAMPIRESFieldstop"]
@@ -62,11 +62,8 @@ def main():
         print(__doc__)
         return
     elif len(sys.argv) == 2 and args["status"]:
-        idx, name = fieldstop.get_configuration()
-        x = fieldstop.get_position("x")
-        y = fieldstop.get_position("y")
-        posns = (x, y)
-        print(fieldstop.format_str.format(idx, name, x, y))
+        posns, status = fieldstop.get_status()
+        print(status)
         fieldstop.update_keys(posns)
         return
     elif args["x"]:

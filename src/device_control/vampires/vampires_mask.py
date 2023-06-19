@@ -1,10 +1,10 @@
 import os
 import sys
 
-from docopt import docopt
-
 from device_control.multi_device import MultiDevice
 from device_control.pyro_keys import VAMPIRES
+from docopt import docopt
+
 from swmain.redis import update_keys
 
 
@@ -67,14 +67,8 @@ def main():
         print(__doc__)
         return
     elif len(sys.argv) == 2 and args["status"]:
-        idx, name = vampires_mask.get_configuration()
-        if idx is None:
-            idx = -1
-        x = vampires_mask.get_position("x")
-        y = vampires_mask.get_position("y")
-        th = vampires_mask.get_position("theta")
-        posns = (x, y, th)
-        print(VAMPIRESMaskWheel.format_str.format(idx, name, x, y, th))
+        posns, status = vampires_mask.get_status()
+        print(status)
         vampires_mask.update_keys(posns)
         return
     elif args["x"]:

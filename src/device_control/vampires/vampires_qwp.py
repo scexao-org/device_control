@@ -1,12 +1,12 @@
 import os
 import sys
 
-from docopt import docopt
-
 from device_control import conf_dir
 from device_control.drivers import CONEXDevice
 from device_control.pyro_keys import VAMPIRES
 from device_control.vampires.cameras import connect_cameras
+from docopt import docopt
+
 from swmain.redis import update_keys
 
 
@@ -95,8 +95,8 @@ def main():
 
     posn = None
     if args["status"]:
-        posn = vampires_qwp.get_position()
-        print(vampires_qwp.format_str.format(vampires_qwp.number, posn))
+        posn, status = vampires_qwp.get_status()
+        print(status)
     elif args["position"]:
         posn = vampires_qwp.get_position()
         print(posn)

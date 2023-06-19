@@ -1,6 +1,7 @@
 import time
 
 from device_control.base import ConfigurableDevice
+
 from swmain.autoretry import autoretry
 
 # Raw byte commands for "MGMSG_MOT_MOVE_JOG"
@@ -77,3 +78,9 @@ class ThorlabsFlipMount(ConfigurableDevice):
             if position == row["value"]:
                 return row["idx"], row["name"]
         return None, "Unknown"
+
+    def get_status(self):
+        posn = self.get_position()
+        idx, config = self.get_configuration(posn)
+        output = self.format_str.format(idx, config)
+        return posn, output

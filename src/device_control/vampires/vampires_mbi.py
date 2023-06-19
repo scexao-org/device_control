@@ -1,10 +1,10 @@
 import os
 import sys
 
+from device_control.drivers import CONEXDevice
+from device_control.pyro_keys import VAMPIRES
 from docopt import docopt
 
-from device_control.pyro_keys import VAMPIRES
-from device_control.drivers import CONEXDevice
 from swmain.redis import update_keys
 
 
@@ -55,9 +55,8 @@ def main():
         print(__doc__)
         return
     if args["status"]:
-        posn = vampires_mbi.get_position()
-        idx, name = vampires_mbi.get_configuration(posn)
-        print(vampires_mbi.format_str.format(idx, name, posn))
+        posn, status = vampires_mbi.get_status()
+        print(status)
     elif args["position"]:
         posn = vampires_mbi.get_position()
         print(posn)

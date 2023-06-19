@@ -2,6 +2,7 @@ import re
 import time
 
 from device_control.base import MotionDevice
+
 from swmain.autoretry import autoretry
 
 
@@ -47,13 +48,11 @@ class ThorlabsWheel(MotionDevice):
         self.send_command(f"pos={value}")
         time.sleep(4)
 
-    def get_status(self, idx=None):
-        if idx is None:
-            idx = self.get_position()
-        for row in self.configurations:
-            if row["idx"] == idx:
-                return row["name"]
-        return "Unknown"
+    def get_status(self):
+        posn = self.get_position()
+        idx, config = self.get_configuration(posn)
+        output = self.format_str.format(idx, config)
+        return posn, output
 
     def get_id(self):
         result = self.ask_command("*idn?")

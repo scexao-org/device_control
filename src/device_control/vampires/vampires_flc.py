@@ -1,10 +1,10 @@
 import os
 import sys
 
+from device_control.drivers import ZaberDevice
+from device_control.pyro_keys import VAMPIRES
 from docopt import docopt
 
-from device_control.pyro_keys import VAMPIRES
-from device_control.drivers import ZaberDevice
 from swmain.redis import update_keys
 
 
@@ -52,9 +52,8 @@ def main():
     if len(sys.argv) == 1:
         print(__doc__)
     if args["status"]:
-        posn = vampires_flc.get_position()
-        idx, name = vampires_flc.get_configuration(posn)
-        print(vampires_flc.format_str.format(idx, name, posn))
+        posn, status = vampires_flc.get_status()
+        print(status)
     elif args["position"]:
         posn = vampires_flc.get_position()
         print(posn)
