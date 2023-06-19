@@ -66,6 +66,7 @@ CONEX_STATES = {
     "34": Ready(Disable()),
     "3c": Disable(Ready()),
     "3d": Disable(Moving()),
+    "": None,
 }
 
 
@@ -171,6 +172,7 @@ class CONEXDevice(MotionDevice):
     def _home(self, wait=True):
         self.send_command("OR")
         if wait:
+            time.sleep(self.delay)
             while self.is_homing():
                 self.update_keys()
                 time.sleep(self.delay)
@@ -187,6 +189,7 @@ class CONEXDevice(MotionDevice):
         self.send_command(f"PA{value}")
         # if blocking, loop while moving
         if wait:
+            time.sleep(self.delay)
             while self.is_moving():
                 self.update_keys()
                 time.sleep(self.delay)
@@ -203,6 +206,7 @@ class CONEXDevice(MotionDevice):
         self.send_command(f"PR{value}")
         # if blocking, loop while moving
         if wait:
+            time.sleep(self.delay)
             while self.is_moving():
                 self.update_keys()
                 time.sleep(self.delay)
