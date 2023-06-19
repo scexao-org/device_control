@@ -5,8 +5,8 @@ from scxconf import IP_SC2, PYRONS3_HOST, PYRONS3_PORT
 from swmain.network.pyroserver_registerable import PyroServer
 
 parser = ArgumentParser(
-    prog="vampires_devices",
-    description="Launch the daemon for the devices controlled by the VAMPIRES computer.",
+    prog="scexao2_devices",
+    description="Launch the daemon for the devices controlled by the scexao2 computer.",
 )
 
 

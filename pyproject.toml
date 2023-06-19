@@ -32,6 +32,7 @@ test = [
 
 [project.scripts]
 # daemons
+scexao2_daemon = "device_control.daemons.scexao2_devices:main"
 vampires_daemon = "device_control.daemons.vampires_devices:main"
 # facility devices
 imr = "device_control.facility.image_rotator:main"
