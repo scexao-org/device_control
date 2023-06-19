@@ -77,7 +77,7 @@ def main():
         index = args["<configuration>"]
         return fieldstop.move_configuration(index)
 
-    if args["status"] or args["position"]:
+    if args["status"]:
         print(fieldstop.get_position(substage))
     elif args["home"]:
         fieldstop.home(substage)
