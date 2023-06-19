@@ -40,6 +40,7 @@ class ThorlabsFlipMount(ConfigurableDevice):
 
         with self.serial as serial:
             serial.write(cmd)
+            time.sleep(1)
         self.update_keys()
 
     # @autoretry
@@ -65,7 +66,7 @@ class ThorlabsFlipMount(ConfigurableDevice):
 
     def move_configuration_name(self, name: str):
         for row in self.configurations:
-            if row["name"] == name:
+            if row["name"].lower() == name.lower():
                 return self.set_position(row["value"])
         raise ValueError(f"No configuration saved with name '{name}'")
 
