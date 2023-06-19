@@ -14,6 +14,8 @@ unit = "mm"
 
 [devices.serial]
 port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A60MCHL5-if00-port0"
+baudrate = 921600
+xonxoff = true
 
 [[devices]]
 name = "y"
@@ -22,4 +24,5 @@ unit = "mm"
 
 [devices.serial]
 port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A60MCIFA-if00-port0"
-
+baudrate = 921600
+xonxoff = true
