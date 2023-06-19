@@ -106,7 +106,8 @@ class CONEXDevice(MotionDevice):
             retval = serial.read_until(b"\r\n").decode()
             self.logger.debug(f"received: {retval[:-2]}")
             # strip command and \r\n from string
-            return retval[3:-2]
+            value = retval.strip().split(command)[-1]
+            return value
 
     def get_stage_identifier(self) -> str:
         return self.ask_command("ID?")
