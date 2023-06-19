@@ -1,10 +1,10 @@
 name = "vampires_fieldstop"
 configurations = [
-    {idx=1, name="fieldstop", value={x=5.45, y=20.6}},
-    {idx=2, name="CLC2", value={x=1.97, y=10.2}},
-    {idx=3, name="CLC3", value={x=1.97, y=3.30}},
-    {idx=4, name="CLC5", value={x=8.53, y=3.30}},
-    {idx=5, name="CLC7", value={x=8.53, y=10.2}},
+    {idx=1, name="FIELDSTOP", value={x=5.45, y=20.6}},
+    {idx=2, name="CLC2", value={x=2.43, y=8.19}},
+    {idx=3, name="CLC3", value={x=2.43, y=2.15}},
+    {idx=4, name="CLC5", value={x=8.47, y=2.15}},
+    {idx=5, name="CLC7", value={x=8.47, y=8.19}},
 ]
 
 [[devices]]

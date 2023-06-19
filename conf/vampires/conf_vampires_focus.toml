@@ -1,9 +1,8 @@
 name = "vampires_focus"
 unit = "mm"
 configurations = [
-    {idx=1, name="standard", value=2},
-    {idx=2, name="pupil", value=11},
-    {idx=3, name="SDI", value=3},
+    {idx=1, name="STANDARD", value=1},
+    {idx=2, name="SDI", value=0.5},
 ]
 
 [serial]

@@ -2,7 +2,7 @@ name = "vampires_mask"
 
 [[configurations]]
 idx = 1
-name = "Open"
+name = "OPEN"
 
 [configurations.value]
 x = 7.47702975
@@ -38,7 +38,7 @@ theta = 73.00015
 
 [[configurations]]
 idx = 5
-name = "SAM-18-Nudged"
+name = "SAM-18-NUDGED"
 
 [configurations.value]
 x = 5.482923375
@@ -47,7 +47,7 @@ theta = 95.30042
 
 [[configurations]]
 idx = 6
-name = "SAM-Ann-Nudged"
+name = "SAM-ANN-NUDGED"
 
 [configurations.value]
 x = 5.502068625000001
@@ -56,7 +56,7 @@ theta = 120.0003
 
 [[configurations]]
 idx = 7
-name = "Mirror"
+name = "MIRROR"
 
 [configurations.value]
 x = 7.2529541250000005
@@ -65,7 +65,7 @@ theta = 143.0002
 
 [[configurations]]
 idx = 8
-name = "SAM-Ann"
+name = "SAM-ANN"
 
 [configurations.value]
 x = 8.087
@@ -74,7 +74,7 @@ theta = 164
 
 [[configurations]]
 idx = 9
-name = "LyotStop"
+name = "LYOTSTOP"
 
 [configurations.value]
 x = 5.432059875
@@ -83,7 +83,7 @@ theta = 191.6997
 
 [[configurations]]
 idx = 10
-name = "Open"
+name = "OPEN"
 
 [configurations.value]
 x = 7.12
@@ -110,7 +110,7 @@ theta = 265
 
 [[configurations]]
 idx = 13
-name = "SAM-Ann-Ref"
+name = "SAM-ANN-REF"
 
 [configurations.value]
 x = 7.048
