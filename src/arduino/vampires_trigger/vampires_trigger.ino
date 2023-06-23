@@ -31,6 +31,7 @@ const unsigned long max_flc_integration_time = 1000000; // us
 const unsigned long max_integration_time = 300000000; // us
 // For FLC check, length of test pulse (10 ms)
 const unsigned long flc_test_width = 10000; // us
+const unsigned long jitter_half_width = 30; // us
 // settings
 unsigned long trig_delay;
 unsigned long integration_time;
@@ -116,12 +117,15 @@ void trigger_loop_flc() {
     camera_one_ready = camera_two_ready = false;
     // First exposure FLC is relaxed
     digitalWrite(FLC_TRIGGER_PIN, LOW);
+    
+    
     // delaying this way works around integer overflow
     for (start_time = micros(); micros() - start_time < flc_offset + trig_delay;) continue;
     // Send camera trigger pulse
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
     for (start_time = micros(); micros() - start_time < pulse_width;) continue;
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
+    
     // wait for both cameras to have sent their trigger ready pulses
     // note that since the output is a pulse, we use |= as a tripwire
     // so all subsequent loops are True, even when the pulse goes back LOW
@@ -130,18 +134,24 @@ void trigger_loop_flc() {
       camera_two_ready |= digitalRead(CAMERA_TWO_READY);
       if (camera_one_ready && camera_two_ready) break;
     }
+
     // In the case that we short-circuited, let's disable the loop
     // as a means of signalling the failure.
     if (!camera_one_ready || !camera_one_ready) disable_loop();
+    
+    // Sleep 30 micros before FLC active to create +/- 30 timing jitter.
+    for (start_time = micros(); micros() - start_time < jitter_half_width;) continue;
 
     // start second half- reset variables
     camera_one_ready = camera_two_ready = false;
     // Second exposure FLC is active
     digitalWrite(FLC_TRIGGER_PIN, HIGH);
-    for (start_time = micros(); micros() - start_time < flc_offset + trig_delay;) continue;
+    // Sleep 30 micros after FLC active to create +/- 30 timing jitter
+    // in addition to the FLC offset and extra delay
+    for (start_time = micros(); micros() - start_time < flc_offset + trig_delay + jitter_half_width;) continue;
     // Send camera pulse
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
-    for (;micros() - start_time < pulse_width + flc_offset + trig_delay;) continue;
+    for (;micros() - start_time < pulse_width + flc_offset + trig_delay + jitter_half_width;) continue;
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
     // This time we need to add a short-circuit to avoid over-exciting the FLC
     for (;micros() - start_time < max_flc_integration_time;) {
