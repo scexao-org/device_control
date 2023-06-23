@@ -6,9 +6,9 @@ import astropy.units as u
 import click
 import usb.core
 import usb.util
-
 from device_control.base import ConfigurableDevice
 from device_control.pyro_keys import VAMPIRES
+
 from swmain.redis import update_keys
 
 
@@ -355,19 +355,20 @@ def set_parameters(obj, flc: bool, delay: int, flc_offset: int, pulse_width: int
     )
 
 
-@main.command(
-    "check",
-    short_help="Check the FLC controller",
-    help="Send an FLC trigger pulse to see if controller is active",
-)
-@click.pass_obj
-def check(obj):
-    flc_good = obj["trigger"].flc_controller_enabled()
-    if flc_good:
-        click.echo("FLC controller is active")
-    else:
-        click.echo("FLC activity check failed!")
-        click.echo("FLC controller is not active")
+## Disabled currently because output from FLC controller fried arduino
+# @main.command(
+#     "check",
+#     short_help="Check the FLC controller",
+#     help="Send an FLC trigger pulse to see if controller is active",
+# )
+# @click.pass_obj
+# def check(obj):
+#     flc_good = obj["trigger"].flc_controller_enabled()
+#     if flc_good:
+#         click.echo("FLC controller is active")
+#     else:
+#         click.echo("FLC activity check failed!")
+#         click.echo("FLC controller is not active")
 
 
 if __name__ == "__main__":
