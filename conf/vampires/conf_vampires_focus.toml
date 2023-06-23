@@ -1,11 +1,13 @@
 name = "vampires_focus"
-unit = "mm"
 configurations = [
-    {idx=1, name="STANDARD", value=1},
-    {idx=2, name="SDI", value=0.5},
+    { idx = 1, name = "STANDARD", value = 1.1 },
+    { idx = 2, name = "SDI", value = 0.5 },
 ]
+unit = "mm"
+offset = 0
 
 [serial]
+timeout = 0.5
 port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6Z9D9VP-if00-port0"
 baudrate = 921600
 xonxoff = true

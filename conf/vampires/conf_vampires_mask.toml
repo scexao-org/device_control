@@ -5,9 +5,9 @@ idx = 1
 name = "OPEN"
 
 [configurations.value]
-x = 7.47702975
+x = 4.317063375
 y = 5.858017875000001
-theta = 0.0001981506
+theta = -0.005647291
 
 [[configurations]]
 idx = 2
@@ -77,9 +77,9 @@ idx = 9
 name = "LYOTSTOP"
 
 [configurations.value]
-x = 5.432059875
-y = 5.136022875
-theta = 191.6997
+x = 5.1120198750000005
+y = 3.816143625
+theta = 190.5001
 
 [[configurations]]
 idx = 10
