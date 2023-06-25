@@ -1,7 +1,6 @@
 
 // Here's some constants up front for easy retrieval
 #define BAUDRATE 115200
-#define TIMEOUT 500 // ms
 /* If true, turns LEDs on for visual debugging. The read "L" LED
  will turn on or off when the FLC is enabled/disable. The NeoPixel
  LED will be red when the trigger loop is disabled and green when
@@ -79,7 +78,6 @@ void setup()
     strip.show();
 #endif
     // start serial connection
-    Serial.setTimeout(TIMEOUT);
     Serial.begin(BAUDRATE);
 }
 

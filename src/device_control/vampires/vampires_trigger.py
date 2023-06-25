@@ -6,9 +6,9 @@ import astropy.units as u
 import click
 import usb.core
 import usb.util
+
 from device_control.base import ConfigurableDevice
 from device_control.pyro_keys import VAMPIRES
-
 from swmain.redis import update_keys
 
 
@@ -34,7 +34,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
         sweep_mode: bool = False,
         **kwargs,
     ):
-        def_serial_kwargs = {"baudrate": 115200, "timeout": 0.1}
+        def_serial_kwargs = {"baudrate": 115200}
         def_serial_kwargs.update(serial_kwargs)
         super().__init__(serial_kwargs=def_serial_kwargs, **kwargs)
         self.reset_switch = VAMPIRESInlineUSBReset(serial="YKD6404")
@@ -202,10 +202,6 @@ class VAMPIRESTrigger(ConfigurableDevice):
         info = self.get_parameters()
         return info
 
-    def flc_controller_enabled(self):
-        response = self.ask_command(4)
-        return bool(int(response))
-
 
 class VAMPIRESInlineUSBReset:
     def __init__(self, serial=None):
@@ -268,7 +264,7 @@ class VAMPIRESInlineUSBReset:
         elif "OFF" in retval:
             return "OFF"
         else:
-            return "UNKNOWN"
+            return "Unknown"
         # reply = self.ask_command(0x21)
         # assert reply[0] == 0x1
         # if reply[1] == 0x01:
