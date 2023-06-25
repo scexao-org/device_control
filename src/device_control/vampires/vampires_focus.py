@@ -1,10 +1,10 @@
 import os
 import sys
 
-from device_control.drivers import CONEXDevice
-from device_control.pyro_keys import VAMPIRES
 from docopt import docopt
 
+from device_control.drivers import CONEXDevice
+from device_control.pyro_keys import VAMPIRES
 from swmain.redis import update_keys
 
 
@@ -15,7 +15,7 @@ class VAMPIRESFocus(CONEXDevice):
 
     def _update_keys(self, position):
         _, name = self.get_configuration(position=position)
-        update_keys(U_FCS=name.upper(), U_FCSF=position)
+        update_keys(U_FCS=name, U_FCSF=position)
 
     def help_message(self):
         configurations = "\n".join(
