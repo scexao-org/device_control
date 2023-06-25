@@ -1,12 +1,12 @@
 name = "vampires_diffwheel"
 unit = "deg"
 configurations = [
-    {idx=1, name="OPEN / OPEN", value=0},
-    {idx=2, name="HALPHA / HA-CONT", value=60},
-    {idx=3, name="SII / SII-CONT", value=120},
-    {idx=4, name="OPEN / OPEN", value=180},
-    {idx=5, name="HA-CONT / HALPHA", value=240},
-    {idx=6, name="SII-CONT / HALPHA", value=300},
+    {idx=1, name="Open / Open", value=0},
+    {idx=2, name="SII-Cont / SII", value=60},
+    {idx=3, name="Ha-Cont / Halpha", value=120},
+    {idx=4, name="Open / Open", value=180},
+    {idx=5, name="SII / SII-Cont", value=240},
+    {idx=6, name="Halpha / Ha-Cont", value=300},
 ]
 [serial]
 port = "/dev/serial/by-id/usb-FTDI_USB-RS422_Cable_FT0B42PZ-if00-port0"

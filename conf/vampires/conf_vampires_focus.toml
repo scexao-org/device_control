@@ -1,6 +1,6 @@
 name = "vampires_focus"
 configurations = [
-    { idx = 1, name = "STANDARD", value = 1.1 },
+    { idx = 1, name = "Standard", value = 1.6 },
     { idx = 2, name = "SDI", value = 0.5 },
 ]
 unit = "mm"

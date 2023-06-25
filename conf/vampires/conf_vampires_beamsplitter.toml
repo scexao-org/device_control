@@ -1,9 +1,9 @@
 name = "vampires_beamsplitter"
 unit = "deg"
 configurations = [
-    {idx=1, name="OPEN", value=0.0},
+    {idx=1, name="Open", value=0.0},
     {idx=2, name="PBS", value=90},
-    {idx=3, name="OPEN", value=180},
+    {idx=3, name="Open", value=180},
     {idx=4, name="NPBS", value=270},
 ]
 [serial]
