@@ -29,10 +29,8 @@ class ZaberDevice(MotionDevice):
         self.zab_unit = ZABER_UNITS[self.unit]
         self.delay = delay
 
-    def save_config(self, filename=None):
-        self.serial_kwargs["device_number"] = self.device_number
-        super().save_config(filename)
-        self.serial_kwargs.pop("device_number")
+    def get_serial_kwargs(self):
+        return {**self.serial_kwargs, "device_number": self.device_number}
 
     def __enter__(self):
         self.connection = Connection.open_serial_port(self.serial_kwargs["port"])

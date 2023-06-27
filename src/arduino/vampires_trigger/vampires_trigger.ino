@@ -1,6 +1,7 @@
 
 // Here's some constants up front for easy retrieval
 #define BAUDRATE 115200
+#define TIMEOUT 500 // ms
 /* If true, turns LEDs on for visual debugging. The read "L" LED
  will turn on or off when the FLC is enabled/disable. The NeoPixel
  LED will be red when the trigger loop is disabled and green when
@@ -30,9 +31,9 @@ const unsigned long max_flc_integration_time = 1000000; // us
 const unsigned long max_integration_time = 300000000; // us
 // For FLC check, length of test pulse (10 ms)
 const unsigned long flc_test_width = 10000; // us
+// const unsigned long jitter_half_width = 30; // us
 const unsigned long jitter_half_width = 30; // us
 // settings
-unsigned long trig_delay;
 unsigned long integration_time;
 unsigned long pulse_width;
 unsigned long flc_offset;
@@ -52,7 +53,6 @@ void setup()
     sweep_mode = false;
     loop_enabled = false;
     flc_enabled = false;
-    trig_delay = 0; // us
     pulse_width = 10; // us
     flc_offset = 20; // us
 
@@ -79,6 +79,7 @@ void setup()
 #endif
     // start serial connection
     Serial.begin(BAUDRATE);
+    Serial.setTimeout(TIMEOUT);
 }
 
 /* Main arduino loop */
@@ -118,7 +119,7 @@ void trigger_loop_flc() {
     
     
     // delaying this way works around integer overflow
-    for (start_time = micros(); micros() - start_time < flc_offset + trig_delay;) continue;
+    for (start_time = micros(); micros() - start_time < flc_offset;) continue;
     // Send camera trigger pulse
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
     for (start_time = micros(); micros() - start_time < pulse_width;) continue;
@@ -146,10 +147,10 @@ void trigger_loop_flc() {
     digitalWrite(FLC_TRIGGER_PIN, HIGH);
     // Sleep 30 micros after FLC active to create +/- 30 timing jitter
     // in addition to the FLC offset and extra delay
-    for (start_time = micros(); micros() - start_time < flc_offset + trig_delay + jitter_half_width;) continue;
+    for (start_time = micros(); micros() - start_time < flc_offset + jitter_half_width;) continue;
     // Send camera pulse
     digitalWrite(CAMERA_TRIGGER_PIN, HIGH);
-    for (;micros() - start_time < pulse_width + flc_offset + trig_delay + jitter_half_width;) continue;
+    for (;micros() - start_time < pulse_width + flc_offset + jitter_half_width;) continue;
     digitalWrite(CAMERA_TRIGGER_PIN, LOW);
     // This time we need to add a short-circuit to avoid over-exciting the FLC
     for (;micros() - start_time < max_flc_integration_time;) {
@@ -265,8 +266,8 @@ void handle_serial() {
             break;
         case 1: // SET
             // set parameters
-            // delay (us), pulse width (us), flc offset (us), trigger mode
-            set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
+            // pulse width (us), flc offset (us), trigger mode
+            set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
             Serial.println("OK");
             break;
         case 2: // DISABLE
@@ -278,7 +279,8 @@ void handle_serial() {
             Serial.println("OK");
             break;
         case 4: // FLC CHECK
-            check_flc();
+            Serial.println("ERROR - command disabled");
+            // check_flc();
             break;
         default:
             Serial.println("ERROR - invalid command");
@@ -291,8 +293,6 @@ void handle_serial() {
 void get() {
     Serial.print(loop_enabled);
     Serial.print(" ");
-    Serial.print(trig_delay);
-    Serial.print(" ");
     Serial.print(pulse_width);
     Serial.print(" ");
     Serial.print(flc_offset);
@@ -300,11 +300,7 @@ void get() {
     Serial.println(trigger_mode);
 }
 
-void set(int _trig_delay, int _pulse_width, int _flc_offset, int _trigger_mode) {
-    // argument checking
-    if (_trig_delay < 0) {
-      Serial.println("ERROR - invalid delay: must be >= 0");
-    }
+void set(int _pulse_width, int _flc_offset, int _trigger_mode) {
     if (_flc_offset < 0 || _flc_offset > 1000) {
         Serial.println("ERROR - invalid FLC offset: must be between 0 and 1000");
         return;
@@ -313,11 +309,10 @@ void set(int _trig_delay, int _pulse_width, int _flc_offset, int _trigger_mode) 
       Serial.println("ERROR - invalid pulse width: must be between 0 and 1000");
       return;
     }
-    if ((_trigger_mode & 0x1) && (_flc_offset + _trig_delay >= max_flc_integration_time)) {
+    if ((_trigger_mode & 0x1) && (_flc_offset >= max_flc_integration_time)) {
       Serial.println("ERROR - invalid delay or FLC offset: both must add up to less than 1s");
     }
     // set global variables
-    trig_delay = _trig_delay;
     pulse_width = _pulse_width;
     flc_offset = _flc_offset;
     trigger_mode = _trigger_mode;

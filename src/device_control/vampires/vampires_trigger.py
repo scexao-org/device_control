@@ -27,26 +27,22 @@ class VAMPIRESTrigger(ConfigurableDevice):
     def __init__(
         self,
         serial_kwargs=None,
-        delay: int = 0,  # us
         pulse_width: int = 10,  # us
         flc_offset: int = 20,  # us
         flc_enabled: bool = False,
         sweep_mode: bool = False,
         **kwargs,
     ):
-        def_serial_kwargs = {"baudrate": 115200}
+        def_serial_kwargs = {"baudrate": 115200, "timeout": 0.5}
         def_serial_kwargs.update(serial_kwargs)
         super().__init__(serial_kwargs=def_serial_kwargs, **kwargs)
         self.reset_switch = VAMPIRESInlineUSBReset(serial="YKD6404")
 
-        if isinstance(delay, u.Quantity):
-            self.delay = int(delay.to(u.us).value)
         if isinstance(pulse_width, u.Quantity):
             self.pulse_width = int(pulse_width.to(u.us).value)
         if isinstance(flc_offset, u.Quantity):
             self.flc_offset = int(flc_offset.to(u.us).value)
         self.enabled = False
-        self.delay = int(delay)
         self.pulse_width = int(pulse_width)
         self.flc_offset = int(flc_offset)
         self.flc_enabled = flc_enabled
@@ -110,7 +106,6 @@ class VAMPIRESTrigger(ConfigurableDevice):
         response = self.ask_command(0)
         tokens = map(int, response.split())
         self.enabled = bool(next(tokens))
-        self.delay = next(tokens)
         self.pulse_width = next(tokens)
         self.flc_offset = next(tokens)
         trigger_mode = next(tokens)
@@ -118,22 +113,18 @@ class VAMPIRESTrigger(ConfigurableDevice):
         self.sweep_mode = bool(trigger_mode & 0x2)
         params = {
             "enabled": self.enabled,
-            "delay": self.delay,
             "pulse_width": self.pulse_width,
             "flc_offset": self.flc_offset,
+            "flc_jitter": 60,
             "flc_enabled": self.flc_enabled,
             "sweep_mode": self.sweep_mode,
         }
         self.update_keys(params=params)
         return params
 
-    def set_parameters(
-        self, flc_enabled=None, delay=None, flc_offset=None, pulse_width=None, sweep_mode=None
-    ):
+    def set_parameters(self, flc_enabled=None, flc_offset=None, pulse_width=None, sweep_mode=None):
         if flc_enabled is None:
             flc_enabled = self.flc_enabled
-        if delay is None:
-            delay = self.delay
         if flc_offset is None:
             flc_offset = self.flc_offset
         if pulse_width is None:
@@ -142,11 +133,10 @@ class VAMPIRESTrigger(ConfigurableDevice):
             sweep_mode = self.sweep_mode
 
         trigger_mode = int(flc_enabled) + (int(sweep_mode) << 1)
-        cmd = "1 {:d} {:d} {:d} {:d}".format(delay, pulse_width, flc_offset, trigger_mode)
+        cmd = "1 {:d} {:d} {:d}".format(pulse_width, flc_offset, trigger_mode)
         self.send_command(cmd)
         params = dict(
             enabled=self.enabled,
-            delay=delay,
             pulse_width=pulse_width,
             flc_offset=flc_offset,
             flc_enabled=flc_enabled,
@@ -177,14 +167,14 @@ class VAMPIRESTrigger(ConfigurableDevice):
         if enabled is None:
             enabled = params["enabled"]
         flc_enabled = params["flc_enabled"]
-        delay = params["delay"]
         flc_offset = params["flc_offset"]
+        flc_jitter = params["flc_jitter"]
         pulse_width = params["pulse_width"]
         update_keys(
             U_TRIGEN=str(enabled),
             U_FLCEN=str(flc_enabled),
+            U_TRIGJT=flc_jitter,
             U_TRIGOF=flc_offset,
-            U_TRIGDL=delay,
             U_TRIGPW=pulse_width,
         )
 
@@ -325,9 +315,6 @@ def reset(obj):
     help="Enable/disable AFLC usage. Please limit AFLC usage to prevent ageing.",
 )
 @click.option(
-    "-d", "--delay", type=int, default=0, help="Add a delay (in us) to the start of each trigger."
-)
-@click.option(
     "-o", "--flc-offset", type=int, default=20, help="Use a custom FLC time delay, in us."
 )
 @click.option("-w", "--pulse-width", type=int, default=20, help="Use a custom pulse width, in us.")
@@ -338,13 +325,12 @@ def reset(obj):
     help="Enable sweep mode, which will increment the FLC offset by 1 us each loop (so two exposures).",
 )
 @click.pass_obj
-def set_parameters(obj, flc: bool, delay: int, flc_offset: int, pulse_width: int, sweep_mode: bool):
+def set_parameters(obj, flc: bool, flc_offset: int, pulse_width: int, sweep_mode: bool):
     trig_enabled = obj["trigger"].get_parameters()["enabled"]
     if trig_enabled:
         obj["trigger"].disable()
     obj["trigger"].set_parameters(
         flc_enabled=flc,
-        delay=delay,
         flc_offset=flc_offset,
         pulse_width=pulse_width,
         sweep_mode=sweep_mode,

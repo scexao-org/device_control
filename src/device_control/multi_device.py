@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 import tomli
 import tomli_w
+
 from device_control.base import ConfigurableDevice
 from device_control.drivers.conex import CONEXDevice
 from device_control.drivers.zaber import ZaberDevice
@@ -91,7 +92,7 @@ class MultiDevice(ConfigurableDevice):
                 type = "conex"
             elif isinstance(device, ZaberDevice):
                 type = "zaber"
-            devconf = {"name": key, "type": type, "serial": device.serial_kwargs}
+            devconf = {"name": key, "type": type, "serial": device.get_serial_kwargs()}
             devconf.update(device._config_extras())
             config["devices"].append(devconf)
         with path.open("wb") as fh:
