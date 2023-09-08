@@ -1,10 +1,10 @@
 import os
 import sys
 
-from device_control.multi_device import MultiDevice
-from device_control.pyro_keys import VAMPIRES
 from docopt import docopt
+from scxconf.pyrokeys import VAMPIRES
 
+from device_control.multi_device import MultiDevice
 from swmain.redis import update_keys
 
 __all__ = ["VAMPIRESFieldstop"]

@@ -1,4 +1,5 @@
 import subprocess
+
 import click
 
 __all__ = ["WPU"]
@@ -42,8 +43,11 @@ class WPU_SPP(WPUDevice):
         status = self.get_status()
         return status["position"]
 
-    def move_in(self):
-        self.send_command("spp move 55.2")
+    def move_in(self, which="LP"):
+        if which.upper() == "LP":
+            self.send_command("spp move 55.2")
+        elif which.upper() == "RLP":
+            self.send_command("spp move 90")
 
     def move_out(self):
         self.send_command("spp move 0")
@@ -176,9 +180,7 @@ class WPU_QWP(WPUDevice):
         if status is None:
             status = self.get_status()
         mapping = {
-            "RET-POS2": status["position"],
-            "RET-ANG2": status["pol_angle"],
-            "RET-MOD2": status["mode"],
+            "POL-ANG1": status["position"],
         }
         # TODO: update with redis after run
         # update_keys(**mapping)
@@ -213,7 +215,7 @@ class WPU:
 {'HWP stage':9s}: {shw_status['mode']:12s} {{ {shw_status['position']:4.01f} mm }}
 {'QWP stage':9s}: {sqw_status['mode']:12s} {{ {sqw_status['position']:4.01f} mm }}
 {'HWP':9s}: {hwp_status['mode']:12s} {{ pol={hwp_status['pol_angle']:6.02f}° wheel={hwp_status['position']:6.02f}° }}
-{'QWP':9s}: {qwp_status['mode']:12s} {{ pol={qwp_status['pol_angle']:6.02f}° wheel={qwp_status['position']:6.02f}° }}"""
+{'RLP':9s}: {qwp_status['mode']:12s} {{ pol={qwp_status['pol_angle']:6.02f}° wheel={qwp_status['position']:6.02f}° }}"""
         return status
 
 

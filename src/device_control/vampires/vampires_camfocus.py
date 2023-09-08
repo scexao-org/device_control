@@ -2,9 +2,9 @@ import os
 import sys
 
 from docopt import docopt
+from scxconf.pyrokeys import VAMPIRES
 
 from device_control.drivers import ZaberDevice
-from device_control.pyro_keys import VAMPIRES
 from swmain.redis import update_keys
 
 

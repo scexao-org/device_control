@@ -167,7 +167,7 @@ class MotionDevice(ConfigurableDevice):
         pass
 
     def move_configuration(self, idx_or_name, **kwargs):
-        if idx_or_name.isdigit():
+        if isinstance(idx_or_name, int) or idx_or_name.isdigit():
             return self.move_configuration_idx(int(idx_or_name), **kwargs)
 
         return self.move_configuration_name(idx_or_name, **kwargs)

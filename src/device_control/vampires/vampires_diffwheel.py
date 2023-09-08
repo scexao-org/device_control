@@ -1,14 +1,13 @@
 import os
 import sys
 
-from device_control.drivers import CONEXDevice
-from device_control.pyro_keys import VAMPIRES
-from device_control.vampires.cameras import connect_cameras
 from docopt import docopt
+from scxconf.pyrokeys import VAMPIRES
 
-from swmain.network.pyroclient import (
-    connect,
-)  # Requires scxconf and will fetch the IP addresses there.
+from device_control.drivers import CONEXDevice
+from device_control.vampires.cameras import connect_cameras
+from swmain.network.pyroclient import \
+    connect  # Requires scxconf and will fetch the IP addresses there.
 from swmain.redis import update_keys
 
 
@@ -45,9 +44,9 @@ class VAMPIRESDiffWheel(CONEXDevice):
             for c in self.configurations
         )
         return f"""Usage:
-    vampires_diffwheel [-h | --help]
-    vampires_diffwheel (status|position|home|goto|nudge|stop|reset) [<angle>]
-    vampires_diffwheel <configuration>
+    vampires_diff [-h | --help]
+    vampires_diff (status|position|home|goto|nudge|stop|reset) [<angle>]
+    vampires_diff <configuration>
 
 Options:
     -h, --help   Show this screen

@@ -1,8 +1,9 @@
 import re
 import time
 
-from device_control.base import MotionDevice
+import numpy as np
 
+from device_control.base import MotionDevice
 from swmain.autoretry import autoretry
 
 
@@ -14,6 +15,7 @@ class ThorlabsWheel(MotionDevice):
         )
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
         self.max_filters = 6  # self.get_count()
+        self.last_filter = None
 
     # @autoretry
     def send_command(self, cmd: str):
@@ -22,7 +24,6 @@ class ThorlabsWheel(MotionDevice):
             serial.write(f"{cmd}\r".encode())
             line = serial.readline()
             res = re.search(".+\r", line.decode())
-            print(res.group(0))
             assert res.group(0).strip() == cmd
 
     # @autoretry
@@ -33,20 +34,22 @@ class ThorlabsWheel(MotionDevice):
             line = serial.readline()
             res = re.search("(.+)\r", line.decode())
             cmd, val = res.group(0).split()
-            print(f"cmd: {cmd}")
-            print(f"val: {val}")
-            # return res.group(1)
             return val
 
     def _get_position(self):
         result = self.ask_command("pos?")
-        return int(result)
+        self.last_filter = int(result)
+        return self.last_filter
 
     def _move_absolute(self, value, **kwargs):
         if value < 1 or value > self.max_filters:
             raise ValueError(f"Filter position must be between 1 and {self.max_filters}")
         self.send_command(f"pos={value}")
-        time.sleep(4)
+        if self.last_filter is not None:
+            time.sleep(1.2 * np.abs(value - self.last_filter))
+            self.last_filter = value
+        else:
+            time.sleep(2)
 
     def get_status(self):
         posn = self.get_position()

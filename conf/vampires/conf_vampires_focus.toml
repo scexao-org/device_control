@@ -1,7 +1,9 @@
 name = "vampires_focus"
 configurations = [
-    { idx = 1, name = "Standard", value = 1.7310109769682953 },
-    { idx = 2, name = "SDI", value = 1.08 },
+    { idx = 1, name = "Standard", value = 2.5421844123238806 },
+    { idx = 2, name = "SDI", value = 1.9504272675006307 },
+    { idx = 3, name = "Pupil", value = 0.0 },
+    { idx = 4, name = "VPL", value = 0.15959146468823526 },
 ]
 unit = "mm"
 offset = 0

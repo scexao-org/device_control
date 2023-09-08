@@ -2,10 +2,10 @@ import os
 import sys
 import time
 
-from device_control.drivers import ThorlabsFlipMount
-from device_control.pyro_keys import VAMPIRES
 from docopt import docopt
+from scxconf.pyrokeys import VAMPIRES
 
+from device_control.drivers import ThorlabsFlipMount
 from swmain.redis import update_keys
 
 

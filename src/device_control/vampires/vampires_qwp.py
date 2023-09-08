@@ -1,12 +1,12 @@
 import os
 import sys
 
+from docopt import docopt
+from scxconf.pyrokeys import VAMPIRES
+
 from device_control import conf_dir
 from device_control.drivers import CONEXDevice
-from device_control.pyro_keys import VAMPIRES
 from device_control.vampires.cameras import connect_cameras
-from docopt import docopt
-
 from swmain.redis import update_keys
 
 
@@ -52,6 +52,11 @@ class VAMPIRESQWP(CONEXDevice):
         else:
             raise ValueError(f"Invalid QWP number: {num}")
         return super().connect(local, filename=filename, pyro_key=pyro_key)
+
+    def get_status(self):
+        posn = self.get_position()
+        output = self.format_str.format(self.number, posn)
+        return posn, output
 
 
 __doc__ = f"""Usage:

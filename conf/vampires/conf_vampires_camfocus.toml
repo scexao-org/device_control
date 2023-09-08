@@ -1,9 +1,10 @@
 name = "vampires_camfocus"
 configurations = [
-    { idx = 1, name = "Dual", value = 10.440895480738632 },
-    { idx = 2, name = "Single", value = 1.2999720000000001 },
-    { idx = 3, name = "Pupil", value = 23.999999625 },
+    { idx = 1, name = "Dual", value = 12.181523444537993 },
+    { idx = 2, name = "Single", value = 1.9194580148738172 },
+    { idx = 3, name = "Pupil", value = 21.9998925 },
     { idx = 4, name = "Defocus", value = 8.199989125000002 },
+    { idx = 5, name = "VPL", value = 12.43 },
 ]
 unit = "mm"
 offset = 0

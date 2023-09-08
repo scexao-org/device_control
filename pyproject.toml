@@ -40,7 +40,7 @@ wpu = "device_control.facility.wpu:main"
 # VAMPIRES devices
 vampires_bs = "device_control.vampires.vampires_beamsplitter:main"
 vampires_camfocus = "device_control.vampires.vampires_camfocus:main"
-vampires_diffwheel = "device_control.vampires.vampires_diffwheel:main"
+vampires_diff = "device_control.vampires.vampires_diffwheel:main"
 vampires_fieldstop = "device_control.vampires.vampires_fieldstop:main"
 vampires_filter = "device_control.vampires.vampires_filter:main"
 vampires_flc = "device_control.vampires.vampires_flc:main"
@@ -50,7 +50,7 @@ vampires_mbi = "device_control.vampires.vampires_mbi:main"
 vampires_pupil = "device_control.vampires.vampires_pupil:main"
 vampires_qwp = "device_control.vampires.vampires_qwp:main"
 vampires_tc = "device_control.vampires.vampires_tc:main"
-vampires_trigger = "device_control.vampires.vampires_trigger:main"
+vampires_trig = "device_control.vampires.vampires_trigger:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "device_control.__version__"}

@@ -1,11 +1,11 @@
 import os
 import sys
 
-from device_control.drivers import ThorlabsWheel
-from device_control.pyro_keys import VAMPIRES
-from device_control.vampires.cameras import connect_cameras
 from docopt import docopt
+from scxconf.pyrokeys import VAMPIRES
 
+from device_control.drivers import ThorlabsWheel
+from device_control.vampires.cameras import connect_cameras
 from swmain.network.pyroclient import connect
 from swmain.redis import update_keys
 

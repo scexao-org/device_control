@@ -6,9 +6,9 @@ import astropy.units as u
 import click
 import usb.core
 import usb.util
+from scxconf.pyrokeys import VAMPIRES
 
 from device_control.base import ConfigurableDevice
-from device_control.pyro_keys import VAMPIRES
 from swmain.redis import update_keys
 
 
@@ -69,6 +69,16 @@ class VAMPIRESTrigger(ConfigurableDevice):
                 )
             return response
 
+    def get_jitter_half_width(self) -> int:
+        return self.jitter_half_width
+
+    def set_jitter_half_width(self, value):
+        if isinstance(value, u.Quantity):
+            self.jitter_half_width = int(self.jitter_half_width.to(u.us).value)
+        else:
+            self.jitter_half_width = int(value)
+        self.set_parameters()
+
     def get_pulse_width(self) -> int:
         return self.pulse_width
 
@@ -108,6 +118,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
         self.enabled = bool(next(tokens))
         self.pulse_width = next(tokens)
         self.flc_offset = next(tokens)
+        self.jitter_half_width = next(tokens)
         trigger_mode = next(tokens)
         self.flc_enabled = bool(trigger_mode & 0x1)
         self.sweep_mode = bool(trigger_mode & 0x2)
@@ -115,33 +126,45 @@ class VAMPIRESTrigger(ConfigurableDevice):
             "enabled": self.enabled,
             "pulse_width": self.pulse_width,
             "flc_offset": self.flc_offset,
-            "flc_jitter": 60,
+            "jitter_half_width": self.jitter_half_width,
             "flc_enabled": self.flc_enabled,
             "sweep_mode": self.sweep_mode,
         }
         self.update_keys(params=params)
         return params
 
-    def set_parameters(self, flc_enabled=None, flc_offset=None, pulse_width=None, sweep_mode=None):
+    def set_parameters(
+        self,
+        flc_enabled=None,
+        flc_offset=None,
+        pulse_width=None,
+        jitter_half_width=None,
+        sweep_mode=None,
+    ):
         if flc_enabled is None:
             flc_enabled = self.flc_enabled
         if flc_offset is None:
             flc_offset = self.flc_offset
         if pulse_width is None:
             pulse_width = self.pulse_width
+        if jitter_half_width is None:
+            jitter_half_width = self.jitter_half_width
         if sweep_mode is None:
             sweep_mode = self.sweep_mode
 
         trigger_mode = int(flc_enabled) + (int(sweep_mode) << 1)
-        cmd = "1 {:d} {:d} {:d}".format(pulse_width, flc_offset, trigger_mode)
+        cmd = "1 {:d} {:d} {:d} {:d}".format(
+            pulse_width, flc_offset, jitter_half_width, trigger_mode
+        )
         self.send_command(cmd)
         params = dict(
             enabled=self.enabled,
             pulse_width=pulse_width,
             flc_offset=flc_offset,
+            jitter_half_width=jitter_half_width,
             flc_enabled=flc_enabled,
         )
-        self.update_keys(params)
+        self.update_keys(params=params)
 
     def disable(self):
         self.send_command(2)
@@ -159,7 +182,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
         time.sleep(0.1)
         self.reset_switch.enable()
         self.enabled = False
-        self.update_keys(self.enabled)
+        update_keys(U_TRIGEN=str(False))
 
     def update_keys(self, enabled=None, params=None):
         if params is None:
@@ -168,12 +191,12 @@ class VAMPIRESTrigger(ConfigurableDevice):
             enabled = params["enabled"]
         flc_enabled = params["flc_enabled"]
         flc_offset = params["flc_offset"]
-        flc_jitter = params["flc_jitter"]
+        jitter_half_width = params["jitter_half_width"]
         pulse_width = params["pulse_width"]
         update_keys(
-            U_TRIGEN=str(enabled),
-            U_FLCEN=str(flc_enabled),
-            U_TRIGJT=flc_jitter,
+            U_TRIGEN=enabled,
+            U_FLCEN=flc_enabled,
+            U_TRIGJT=jitter_half_width,
             U_TRIGOF=flc_offset,
             U_TRIGPW=pulse_width,
         )
@@ -225,29 +248,21 @@ class VAMPIRESInlineUSBReset:
         return reply
 
     def enable(self):
-        command = ["ykushcmd", "ykushxs", "-u"]
-        if self.serial is not None:
-            command.extend(("-s", self.serial))
+        subprocess.run([f"ykushcmd ykushxs -s {self.serial} -u"], shell=True, check=True)
 
-        subprocess.run(command, shell=True, check=True)
+        # subprocess.run(command, shell=True, check=True)
         # reply = self.ask_command(0x11)
         # assert reply[0] == 0x1
 
     def disable(self):
-        command = ["ykushcmd", "ykushxs", "-d"]
-        if self.serial is not None:
-            command.extend(("-s", self.serial))
-
-        subprocess.run(command, shell=True, check=True)
+        subprocess.run([f"ykushcmd ykushxs -s {self.serial} -d"], shell=True, check=True)
         # reply = self.ask_command(0x01)
         # assert reply[0] == 0x1
 
     def status(self):
-        command = ["ykushcmd", "ykushxs", "-u"]
-        if self.serial is not None:
-            command.extend(("-s", self.serial))
-
-        result = subprocess.run(command, shell=True, capture_output=True)
+        result = subprocess.run(
+            [f"ykushcmd ykushxs -s {self.serial} -g"], shell=True, capture_output=True
+        )
         retval = result.stdout.decode().strip()
         if "ON" in retval:
             return "ON"
@@ -317,6 +332,7 @@ def reset(obj):
 @click.option(
     "-o", "--flc-offset", type=int, default=20, help="Use a custom FLC time delay, in us."
 )
+@click.option("-j", "--flc-jitter", type=int, default=50, help="FLC jitter half-width, in us.")
 @click.option("-w", "--pulse-width", type=int, default=20, help="Use a custom pulse width, in us.")
 @click.option(
     "--sweep-mode",
@@ -325,13 +341,16 @@ def reset(obj):
     help="Enable sweep mode, which will increment the FLC offset by 1 us each loop (so two exposures).",
 )
 @click.pass_obj
-def set_parameters(obj, flc: bool, flc_offset: int, pulse_width: int, sweep_mode: bool):
+def set_parameters(
+    obj, flc: bool, flc_offset: int, pulse_width: int, flc_jitter: int, sweep_mode: bool
+):
     trig_enabled = obj["trigger"].get_parameters()["enabled"]
     if trig_enabled:
         obj["trigger"].disable()
     obj["trigger"].set_parameters(
         flc_enabled=flc,
         flc_offset=flc_offset,
+        jitter_half_width=flc_jitter,
         pulse_width=pulse_width,
         sweep_mode=sweep_mode,
     )

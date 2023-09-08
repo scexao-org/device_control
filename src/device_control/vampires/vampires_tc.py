@@ -1,10 +1,10 @@
 import os
 import sys
 
-from device_control.drivers import ThorlabsTC
-from device_control.pyro_keys import VAMPIRES
 from docopt import docopt
+from scxconf.pyrokeys import VAMPIRES
 
+from device_control.drivers import ThorlabsTC
 from swmain.redis import update_keys
 
 

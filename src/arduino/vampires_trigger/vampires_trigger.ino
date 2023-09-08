@@ -1,7 +1,7 @@
 
 // Here's some constants up front for easy retrieval
 #define BAUDRATE 115200
-#define TIMEOUT 500 // ms
+#define TIMEOUT 1000 // ms
 /* If true, turns LEDs on for visual debugging. The read "L" LED
  will turn on or off when the FLC is enabled/disable. The NeoPixel
  LED will be red when the trigger loop is disabled and green when
@@ -31,8 +31,7 @@ const unsigned long max_flc_integration_time = 1000000; // us
 const unsigned long max_integration_time = 300000000; // us
 // For FLC check, length of test pulse (10 ms)
 const unsigned long flc_test_width = 10000; // us
-// const unsigned long jitter_half_width = 30; // us
-const unsigned long jitter_half_width = 30; // us
+unsigned long jitter_half_width = 50; // us
 // settings
 unsigned long integration_time;
 unsigned long pulse_width;
@@ -266,8 +265,8 @@ void handle_serial() {
             break;
         case 1: // SET
             // set parameters
-            // pulse width (us), flc offset (us), trigger mode
-            set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
+            // pulse width (us), flc offset (us), flc jitter (us), trigger mode
+            set(Serial.parseInt(), Serial.parseInt(), Serial.parseInt(), Serial.parseInt());
             Serial.println("OK");
             break;
         case 2: // DISABLE
@@ -297,10 +296,12 @@ void get() {
     Serial.print(" ");
     Serial.print(flc_offset);
     Serial.print(" ");
+    Serial.print(jitter_half_width);
+    Serial.print(" ");
     Serial.println(trigger_mode);
 }
 
-void set(int _pulse_width, int _flc_offset, int _trigger_mode) {
+void set(int _pulse_width, int _flc_offset, int _jitter_half_width, int _trigger_mode) {
     if (_flc_offset < 0 || _flc_offset > 1000) {
         Serial.println("ERROR - invalid FLC offset: must be between 0 and 1000");
         return;
@@ -312,9 +313,13 @@ void set(int _pulse_width, int _flc_offset, int _trigger_mode) {
     if ((_trigger_mode & 0x1) && (_flc_offset >= max_flc_integration_time)) {
       Serial.println("ERROR - invalid delay or FLC offset: both must add up to less than 1s");
     }
+    if ((_jitter_half_width < 0) || (_jitter_half_width  > 1000)){
+      Serial.println("ERROR - inavlid FLC jitter half width: must be between 0 and 1000");
+    }
     // set global variables
     pulse_width = _pulse_width;
     flc_offset = _flc_offset;
+    jitter_half_width = _jitter_half_width;
     trigger_mode = _trigger_mode;
     // `trigger_mode` LSB is FLC flag
     if (trigger_mode & 0x1) {
@@ -326,7 +331,10 @@ void set(int _pulse_width, int _flc_offset, int _trigger_mode) {
     sweep_mode = trigger_mode & 0x2;
 }
 
-/* 
+/*
+  DEPRECATED DONT USE
+  this killed an arduino
+
   Sends a pulse to the FLC controller and waits for
   input on the return.
 */
