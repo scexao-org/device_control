@@ -1,39 +1,61 @@
-import subprocess
-
 import click
+from paramiko import AutoAddPolicy, SSHClient
+
+from swmain.redis import update_keys
 
 __all__ = ["WPU"]
 
 
 class WPUDevice:
+    def __init__(self, client: SSHClient = None) -> None:
+        if client is None:
+            self.client = SSHClient()
+            self.client.set_missing_host_key_policy(AutoAddPolicy())
+            self.client.connect(
+                hostname="garde.sum.naoj.org",
+                username="ircs",
+                disabled_algorithms={"pubkeys": ["rsa-sha2-256", "rsa-sha2-512"]},
+            )
+        else:
+            self.client = client
+
+        self.port = 18902
+
     def send_command(self, command: str):
-        cmd = f'ssh wpu "echo {command} | nc localhost 18902"'
-        response = subprocess.run([cmd], shell=True)
-        response.check_returncode()
+        cmd = f"echo {command} | nc localhost {self.port}"
+        stdin, stdout, stderr = self.client.exec_command(cmd)
 
     def ask_command(self, command: str):
-        cmd = f'ssh wpu "echo {command} | nc localhost 18902"'
-        response = subprocess.run([cmd], shell=True, capture_output=True)
-        response.check_returncode()
-        return response.stdout.decode()
+        cmd = f"echo {command} | nc localhost {self.port}"
+        stdin, stdout, stderr = self.client.exec_command(cmd)
+        return stdout.read().decode()
 
 
 class WPU_SPP(WPUDevice):
     def get_status(self):
         status = self.ask_command("spp status")
-        tokens = status.split()
-        pos_idx = tokens.index("position") + 1
-        targ_idx = tokens.index("target") + 1
-        mode_idx = tokens.index("mode") + 1
-        polang_idx = tokens.index("pol_angle") + 1
-        status = {
-            "position": float(tokens[pos_idx]),
-            "target": float(tokens[targ_idx]),
-            "mode": tokens[mode_idx],
-            "pol_angle": float(tokens[polang_idx]),
+        status_dict = {
+            "position": -1,
+            "target": -1,
+            "mode": "UNKNOWN",
+            "pol_angle": -1,
         }
-        self.update_keys(status)
-        return status
+        if len(status) > 0:
+            tokens = status.split()
+            pos_idx = tokens.index("position") + 1
+            targ_idx = tokens.index("target") + 1
+            mode_idx = tokens.index("mode") + 1
+            polang_idx = tokens.index("pol_angle") + 1
+            status_dict.update(
+                {
+                    "position": float(tokens[pos_idx]),
+                    "target": float(tokens[targ_idx]),
+                    "mode": tokens[mode_idx],
+                    "pol_angle": float(tokens[polang_idx]),
+                }
+            )
+        self.update_keys(status_dict)
+        return status_dict
 
     def update_keys(self, status=None):
         # TODO
@@ -43,11 +65,8 @@ class WPU_SPP(WPUDevice):
         status = self.get_status()
         return status["position"]
 
-    def move_in(self, which="LP"):
-        if which.upper() == "LP":
-            self.send_command("spp move 55.2")
-        elif which.upper() == "RLP":
-            self.send_command("spp move 90")
+    def move_in(self):
+        self.send_command("spp move 55.2")
 
     def move_out(self):
         self.send_command("spp move 0")
@@ -56,21 +75,28 @@ class WPU_SPP(WPUDevice):
 class WPU_SHW(WPUDevice):
     def get_status(self):
         status = self.ask_command("shw status")
-        tokens = status.split()
-        pos_idx = tokens.index("position") + 1
-        targ_idx = tokens.index("target") + 1
-        mode_idx = tokens.index("mode") + 1
-        status = {
-            "position": float(tokens[pos_idx]),
-            "target": float(tokens[targ_idx]),
-            "mode": tokens[mode_idx],
+        status_dict = {
+            "position": -1,
+            "target": -1,
+            "mode": "UNKNOWN",
         }
-        self.update_keys(status)
-        return status
+        if len(status) > 0:
+            tokens = status.split()
+            pos_idx = tokens.index("position") + 1
+            targ_idx = tokens.index("target") + 1
+            mode_idx = tokens.index("mode") + 1
+            status_dict.update(
+                {
+                    "position": float(tokens[pos_idx]),
+                    "target": float(tokens[targ_idx]),
+                    "mode": tokens[mode_idx],
+                }
+            )
+        self.update_keys(status_dict)
+        return status_dict
 
     def update_keys(self, status=None):
         pass
-        # update_keys(**mapping)
 
     def get_position(self):
         status = self.get_status()
@@ -89,21 +115,28 @@ class WPU_SHW(WPUDevice):
 class WPU_SQW(WPUDevice):
     def get_status(self):
         status = self.ask_command("sqw status")
-        tokens = status.split()
-        pos_idx = tokens.index("position") + 1
-        targ_idx = tokens.index("target") + 1
-        mode_idx = tokens.index("mode") + 1
-        status = {
-            "position": float(tokens[pos_idx]),
-            "target": float(tokens[targ_idx]),
-            "mode": tokens[mode_idx],
+        status_dict = {
+            "position": -1,
+            "target": -1,
+            "mode": "UNKNOWN",
         }
-        self.update_keys(status)
-        return status
+        if len(status) > 0:
+            tokens = status.split()
+            pos_idx = tokens.index("position") + 1
+            targ_idx = tokens.index("target") + 1
+            mode_idx = tokens.index("mode") + 1
+            status_dict.update(
+                {
+                    "position": float(tokens[pos_idx]),
+                    "target": float(tokens[targ_idx]),
+                    "mode": tokens[mode_idx],
+                }
+            )
+        self.update_keys(status_dict)
+        return status_dict
 
     def update_keys(self, status=None):
         pass
-        # update_keys(**mapping)
 
     def get_position(self):
         status = self.get_status()
@@ -122,19 +155,28 @@ class WPU_SQW(WPUDevice):
 class WPU_HWP(WPUDevice):
     def get_status(self):
         status = self.ask_command("hwp status")
-        tokens = status.split()
-        pos_idx = tokens.index("position") + 1
-        targ_idx = tokens.index("target") + 1
-        mode_idx = tokens.index("mode") + 1
-        polang_idx = tokens.index("pol_angle") + 1
-        status = {
-            "position": float(tokens[pos_idx]),
-            "target": float(tokens[targ_idx]),
-            "mode": tokens[mode_idx],
-            "pol_angle": float(tokens[polang_idx]),
+        status_dict = {
+            "position": -1,
+            "target": -1,
+            "mode": "UNKNOWN",
+            "pol_angle": -1,
         }
-        self.update_keys(status)
-        return status
+        if len(status) > 0:
+            tokens = status.split()
+            pos_idx = tokens.index("position") + 1
+            targ_idx = tokens.index("target") + 1
+            mode_idx = tokens.index("mode") + 1
+            polang_idx = tokens.index("pol_angle") + 1
+            status_dict.update(
+                {
+                    "position": float(tokens[pos_idx]),
+                    "target": float(tokens[targ_idx]),
+                    "mode": tokens[mode_idx],
+                    "pol_angle": float(tokens[polang_idx]),
+                }
+            )
+        self.update_keys(status_dict)
+        return status_dict
 
     def update_keys(self, status=None):
         if status is None:
@@ -144,8 +186,7 @@ class WPU_HWP(WPUDevice):
             "RET-ANG1": status["pol_angle"],
             "RET-MOD1": status["mode"],
         }
-        # TODO: update with redis after run
-        # update_keys(**mapping)
+        update_keys(**mapping)
 
     def get_position(self):
         status = self.get_status()
@@ -162,28 +203,38 @@ class WPU_HWP(WPUDevice):
 class WPU_QWP(WPUDevice):
     def get_status(self):
         status = self.ask_command("qwp status")
-        tokens = status.split()
-        pos_idx = tokens.index("position") + 1
-        targ_idx = tokens.index("target") + 1
-        mode_idx = tokens.index("mode") + 1
-        polang_idx = tokens.index("pol_angle") + 1
-        status = {
-            "position": float(tokens[pos_idx]),
-            "target": float(tokens[targ_idx]),
-            "mode": tokens[mode_idx],
-            "pol_angle": float(tokens[polang_idx]),
+        status_dict = {
+            "position": -1,
+            "target": -1,
+            "mode": "UNKNOWN",
+            "pol_angle": -1,
         }
-        self.update_keys(status)
-        return status
+        if len(status) > 0:
+            tokens = status.split()
+            pos_idx = tokens.index("position") + 1
+            targ_idx = tokens.index("target") + 1
+            mode_idx = tokens.index("mode") + 1
+            polang_idx = tokens.index("pol_angle") + 1
+            status_dict.update(
+                {
+                    "position": float(tokens[pos_idx]),
+                    "target": float(tokens[targ_idx]),
+                    "mode": tokens[mode_idx],
+                    "pol_angle": float(tokens[polang_idx]),
+                }
+            )
+        self.update_keys(status_dict)
+        return status_dict
 
     def update_keys(self, status=None):
         if status is None:
             status = self.get_status()
         mapping = {
-            "POL-ANG1": status["position"],
+            "RET-POS2": status["position"],
+            "RET-ANG2": status["pol_angle"],
+            "RET-MOD2": status["mode"],
         }
-        # TODO: update with redis after run
-        # update_keys(**mapping)
+        update_keys(**mapping)
 
     def get_position(self):
         status = self.get_status()
@@ -199,11 +250,19 @@ class WPU_QWP(WPUDevice):
 
 class WPU:
     def __init__(self, *args, **kwargs) -> None:
-        self.spp = WPU_SPP()
-        self.shw = WPU_SHW()
-        self.sqw = WPU_SQW()
-        self.hwp = WPU_HWP()
-        self.qwp = WPU_QWP()
+        self.client = SSHClient()
+        self.client.set_missing_host_key_policy(AutoAddPolicy())
+        self.client.load_system_host_keys()
+        self.client.connect(
+            hostname="garde.sum.naoj.org",
+            username="ircs",
+            disabled_algorithms={"pubkeys": ["rsa-sha2-256", "rsa-sha2-512"]},
+        )
+        self.spp = WPU_SPP(client=self.client)
+        self.shw = WPU_SHW(client=self.client)
+        self.sqw = WPU_SQW(client=self.client)
+        self.hwp = WPU_HWP(client=self.client)
+        self.qwp = WPU_QWP(client=self.client)
 
     def get_status(self):
         spp_status = self.spp.get_status()
@@ -215,7 +274,7 @@ class WPU:
 {'HWP stage':9s}: {shw_status['mode']:12s} {{ {shw_status['position']:4.01f} mm }}
 {'QWP stage':9s}: {sqw_status['mode']:12s} {{ {sqw_status['position']:4.01f} mm }}
 {'HWP':9s}: {hwp_status['mode']:12s} {{ pol={hwp_status['pol_angle']:6.02f}° wheel={hwp_status['position']:6.02f}° }}
-{'RLP':9s}: {qwp_status['mode']:12s} {{ pol={qwp_status['pol_angle']:6.02f}° wheel={qwp_status['position']:6.02f}° }}"""
+{'QWP':9s}: {qwp_status['mode']:12s} {{ pol={qwp_status['pol_angle']:6.02f}° wheel={qwp_status['position']:6.02f}° }}"""
         return status
 
 
@@ -229,7 +288,7 @@ def main(ctx):
 @main.command("status")
 @click.pass_obj
 def status(obj):
-    print(obj["wpu"].get_status())
+    click.echo(obj["wpu"].get_status())
 
 
 if __name__ == "__main__":
