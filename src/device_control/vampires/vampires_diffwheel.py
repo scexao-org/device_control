@@ -6,8 +6,9 @@ from scxconf.pyrokeys import VAMPIRES
 
 from device_control.drivers import CONEXDevice
 from device_control.vampires.cameras import connect_cameras
-from swmain.network.pyroclient import \
-    connect  # Requires scxconf and will fetch the IP addresses there.
+from swmain.network.pyroclient import (
+    connect,
+)  # Requires scxconf and will fetch the IP addresses there.
 from swmain.redis import update_keys
 
 
@@ -35,8 +36,8 @@ class VAMPIRESDiffWheel(CONEXDevice):
             if cam is not None:
                 cam.set_keyword("FILTER02", state)
 
-    def _move_absolute(self, value: float, wait=True):
-        return super()._move_absolute(value % 360, wait)
+    def _move_absolute(self, value: float):
+        return super()._move_absolute(value % 360)
 
     def help_message(self):
         configurations = "\n".join(

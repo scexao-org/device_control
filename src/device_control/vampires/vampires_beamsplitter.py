@@ -27,9 +27,9 @@ class VAMPIRESBeamsplitter(CONEXDevice):
         _, name = self.get_configuration(position=theta)
         update_keys(U_BS=name, U_BSTH=theta)
 
-    def _move_absolute(self, value: float, wait=True):
+    def _move_absolute(self, value: float):
         # make sure to mod360 the input value
-        return super()._move_absolute(value % 360, wait)
+        return super()._move_absolute(value % 360)
 
     def help_message(self):
         configurations = "\n".join(

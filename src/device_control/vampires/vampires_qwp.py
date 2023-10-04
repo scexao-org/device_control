@@ -23,7 +23,6 @@ class VAMPIRESQWP(CONEXDevice):
         else:
             raise ValueError(f"Invalid QWP number: {number}")
         self.number = number
-        self.cams = connect_cameras()
 
     def _config_extras(self):
         return {"number": self.number}
@@ -34,13 +33,13 @@ class VAMPIRESQWP(CONEXDevice):
             f"U_QWP{self.number:1d}TH": theta - self.offset,
         }
         update_keys(**kwargs)
-        for cam in self.cams:
+        for cam in connect_cameras():
             if cam is not None:
                 cam.set_keyword(f"U_QWP{self.number:1d}", theta)
                 cam.set_keyword(f"U_QWP{self.number:1d}TH", theta - self.offset)
 
-    def _move_absolute(self, value: float, wait=True):
-        return super()._move_absolute(value % 360, wait)
+    def _move_absolute(self, value: float):
+        return super()._move_absolute(value % 360)
 
     @classmethod
     def connect(__cls__, num: int, local=False):

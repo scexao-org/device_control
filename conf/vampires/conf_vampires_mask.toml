@@ -29,7 +29,7 @@ theta = 48.30059
 
 [[configurations]]
 idx = 4
-name = "SAM-18"
+name = "Open"
 
 [configurations.value]
 x = 8.358901874999999
@@ -38,7 +38,7 @@ theta = 73.00045
 
 [[configurations]]
 idx = 5
-name = "SAM-18-Nudged"
+name = "SAM-18"
 
 [configurations.value]
 x = 9.002791875000002
@@ -47,7 +47,7 @@ theta = 95.30121
 
 [[configurations]]
 idx = 6
-name = "SAM-Ann-Nudged"
+name = "SAM-Ann"
 
 [configurations.value]
 x = 8.30199
@@ -65,7 +65,7 @@ theta = 143.0002
 
 [[configurations]]
 idx = 8
-name = "SAM-Ann"
+name = "Open"
 
 [configurations.value]
 x = 8.107013250000001
@@ -77,18 +77,18 @@ idx = 9
 name = "LyotStop"
 
 [configurations.value]
-x = 9.254918625
-y = 4.459271625
-theta = 190.9046
+x = 8.774858625000002
+y = 4.0792241250000005
+theta = 190.9052
 
 [[configurations]]
 idx = 10
-name = "Open"
+name = "RAP"
 
 [configurations.value]
-x = 7.4170222500000005
-y = 6.8580000000000005
-theta = 217.5011
+x = 9.036939
+y = 8.85796425
+theta = 218.5011
 
 [[configurations]]
 idx = 11
@@ -124,7 +124,6 @@ unit = "mm"
 offset = 0
 
 [devices.serial]
-timeout = 0.5
 port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
 device_number = 1
 
@@ -135,7 +134,6 @@ unit = "mm"
 offset = 0
 
 [devices.serial]
-timeout = 0.5
 port = "/dev/serial/by-id/usb-FTDI_USB_Serial_Converter_FTG4YSH7-if00-port0"
 device_number = 2
 
@@ -146,7 +144,6 @@ unit = "mm"
 offset = 0
 
 [devices.serial]
-timeout = 0.5
 port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6VRT271-if00-port0"
 baudrate = 921600
 xonxoff = true

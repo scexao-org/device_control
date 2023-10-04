@@ -131,12 +131,12 @@ class MotionDevice(ConfigurableDevice):
     def _get_target_position(self):
         raise NotImplementedError()
 
-    def home(self, wait=True):
-        pos = self._home(wait=wait)
+    def home(self):
+        pos = self._home()
         self.update_keys(pos)
         return pos
 
-    def _home(self, wait=True):
+    def _home(self):
         raise NotImplementedError()
 
     def move_absolute(self, value, **kwargs):
@@ -144,15 +144,17 @@ class MotionDevice(ConfigurableDevice):
         self.update_keys(pos)
         return pos
 
-    def _move_absolute(self, value, wait=True):
+    def _move_absolute(self, value):
         raise NotImplementedError()
 
-    def move_relative(self, value, wait=True):
-        pos = self._move_relative(value, wait=wait)
+    def move_relative(self, value):
+        pos = self._move_relative(
+            value,
+        )
         self.update_keys(pos)
         return pos
 
-    def _move_relative(self, value, wait=True):
+    def _move_relative(self, value):
         raise NotImplementedError()
 
     def stop(self):
@@ -244,6 +246,7 @@ class SSHDevice:
 
     def _prepare_sshclient(self, **kwargs):
         self.client = paramiko.SSHClient()
+        self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.client.load_system_host_keys()
         self.client.connect(self.host, username=self.user, **kwargs)
 

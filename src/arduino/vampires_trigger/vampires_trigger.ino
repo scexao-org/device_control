@@ -112,7 +112,8 @@ void loop()
 */
 void trigger_loop_flc() {
     unsigned long start_time;
-    camera_one_ready = camera_two_ready = false;
+    camera_one_ready = false;
+    camera_two_ready = false;
     // First exposure FLC is relaxed
     digitalWrite(FLC_TRIGGER_PIN, LOW);
     
@@ -135,16 +136,17 @@ void trigger_loop_flc() {
 
     // In the case that we short-circuited, let's disable the loop
     // as a means of signalling the failure.
-    if (!camera_one_ready || !camera_one_ready) disable_loop();
+    if (!camera_one_ready || !camera_two_ready) disable_loop();
     
-    // Sleep 30 micros before FLC active to create +/- 30 timing jitter.
+    // sleep half the jitter width before FLC active to create asymmetric trigger.
     for (start_time = micros(); micros() - start_time < jitter_half_width;) continue;
 
     // start second half- reset variables
-    camera_one_ready = camera_two_ready = false;
-    // Second exposure FLC is active
+    camera_one_ready = false;
+    camera_two_ready = false;
+    // second exposure FLC is active
     digitalWrite(FLC_TRIGGER_PIN, HIGH);
-    // Sleep 30 micros after FLC active to create +/- 30 timing jitter
+    // sleep the other half jitter width after FLC active, this way FLC retains 50% balance
     // in addition to the FLC offset and extra delay
     for (start_time = micros(); micros() - start_time < flc_offset + jitter_half_width;) continue;
     // Send camera pulse
@@ -161,7 +163,7 @@ void trigger_loop_flc() {
     digitalWrite(FLC_TRIGGER_PIN, LOW);
     // In the case that we short-circuited, let's disable the loop
     // as a means of signalling the failure.
-    if (!camera_one_ready || !camera_one_ready) disable_loop();
+    if (!camera_one_ready || !camera_two_ready) disable_loop();
 
     // Sweep mode - increase offset until 1 ms offset
     if (sweep_mode) {
@@ -194,7 +196,7 @@ void trigger_loop_noflc() {
     }
     // In the case that we short-circuited, let's disable the loop
     // as a means of signalling the failure.
-    if (!camera_one_ready || !camera_one_ready) disable_loop();
+    if (!camera_one_ready || !camera_two_ready) disable_loop();
 }
 
 void disable_loop() {

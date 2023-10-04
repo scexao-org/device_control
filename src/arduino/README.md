@@ -2,7 +2,7 @@
 
 ## VAMPIRES
 
-VAMPIRES uses an [Adafruit Metro M4 express](https://www.adafruit.com/product/3382) for camera and FLC triggering. Physically, this micro-controller is mounted in an enclosure with 6 SMA connectors.
+VAMPIRES uses an [Adafruit Metro M4 express](https://www.adafruit.com/product/3382) for camera and FLC triggering. Physically this micro-controller is mounted in an enclosure with 6 SMA connectors.
 
 | SMA marker | Dig I/O port | Description |
 |-|-|-|

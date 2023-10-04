@@ -1,6 +1,3 @@
-import re
-import time
-
 import numpy as np
 
 from device_control.base import MotionDevice
@@ -10,46 +7,35 @@ from swmain.autoretry import autoretry
 class ThorlabsWheel(MotionDevice):
     def __init__(self, serial_kwargs, **kwargs):
         serial_kwargs = dict(
-            {"baudrate": 115200, "timeout": 0.5},
+            {"baudrate": 115200, "timeout": None},
             **serial_kwargs,
         )
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
         self.max_filters = 6  # self.get_count()
-        self.last_filter = None
 
     # @autoretry
     def send_command(self, cmd: str):
-        with self.serial as serial:
-            serial.reset_input_buffer()
-            serial.write(f"{cmd}\r".encode())
-            line = serial.readline()
-            res = re.search(".+\r", line.decode())
-            assert res.group(0).strip() == cmd
+        self.serial.write(f"{cmd}\r".encode())
+        cmd_resp = self.serial.read_until(b"\r")
+        assert cmd_resp.strip().decode() == cmd
+        self.serial.read_until(b"> ")
 
     # @autoretry
     def ask_command(self, cmd: str):
-        with self.serial as serial:
-            serial.reset_input_buffer()
-            serial.write(f"{cmd}\r".encode())
-            line = serial.readline()
-            res = re.search("(.+)\r", line.decode())
-            cmd, val = res.group(0).split()
-            return val
+        self.serial.write(f"{cmd}\r".encode())
+        cmd_resp = self.serial.read_until(b"\r")
+        assert cmd_resp.strip().decode() == cmd
+        resp = self.serial.read_until(b"\r")
+        self.serial.read_until(b"> ")
+        return resp.strip().decode()
 
     def _get_position(self):
-        result = self.ask_command("pos?")
-        self.last_filter = int(result)
-        return self.last_filter
+        return int(self.ask_command("pos?"))
 
-    def _move_absolute(self, value, **kwargs):
+    def _move_absolute(self, value):
         if value < 1 or value > self.max_filters:
             raise ValueError(f"Filter position must be between 1 and {self.max_filters}")
         self.send_command(f"pos={value}")
-        if self.last_filter is not None:
-            time.sleep(1.2 * np.abs(value - self.last_filter))
-            self.last_filter = value
-        else:
-            time.sleep(2)
 
     def get_status(self):
         posn = self.get_position()

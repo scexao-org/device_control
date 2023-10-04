@@ -1,0 +1,8 @@
+name = "scexao_polarizer"
+unit = "deg"
+offset = 90
+
+[serial]
+port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A64YHWXZ-if00-port0"
+baudrate = 921600
+xonxoff = true

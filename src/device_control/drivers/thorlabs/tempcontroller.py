@@ -1,5 +1,4 @@
 from device_control.base import ConfigurableDevice
-
 from swmain.autoretry import autoretry
 
 
@@ -28,23 +27,19 @@ class ThorlabsTC(ConfigurableDevice):
 
     # @autoretry
     def send_command(self, cmd: str):
-        with self.serial as serial:
-            serial.reset_input_buffer()
-            serial.write(f"{cmd}\r".encode())
-            cmd_resp = serial.read_until(b"\r").strip()
-            serial.reset_input_buffer()
-            assert cmd_resp.decode() == cmd
+        self.serial.write(f"{cmd}\r".encode())
+        cmd_resp = self.serial.read_until(b"\r")
+        assert cmd_resp.strip().decode() == cmd
+        self.serial.read_until(b"> ")
 
     # @autoretry
     def ask_command(self, cmd: str):
-        with self.serial as serial:
-            serial.reset_input_buffer()
-            serial.write(f"{cmd}\r".encode())
-            cmd_resp = serial.read_until(b"\r").strip()
-            assert cmd_resp.decode() == cmd
-            val_resp = serial.read_until(b"\r").strip()
-            serial.reset_input_buffer()
-            return val_resp.decode()
+        self.serial.write(f"{cmd}\r".encode())
+        cmd_resp = self.serial.read_until(b"\r")
+        assert cmd_resp.strip().decode() == cmd
+        resp = self.serial.read_until(b"\r")
+        self.serial.read_until(b"> ")
+        return resp.strip().decode()
 
     def get_target(self):
         result = self.ask_command("tset?")

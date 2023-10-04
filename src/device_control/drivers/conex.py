@@ -1,5 +1,4 @@
 import logging
-import time
 
 from swmain.autoretry import autoretry
 
@@ -89,27 +88,21 @@ class CONEXDevice(MotionDevice):
         # pad command with CRLF ending
         cmd = f"{self.device_address}{command}\r\n"
         self.logger.debug(f"sending command: {cmd[:-2]}")
-        with self.serial as serial:
-            serial.reset_input_buffer()
-            serial.reset_output_buffer()
-            serial.write(cmd.encode())
-            time.sleep(self.delay)
+        self.serial.write(cmd.encode())
+        self.serial.read_until(b"\r\n")
 
     # @autoretry(max_retries=10)
     def ask_command(self, command: str):
         # pad command with CRLF ending
         cmd = f"{self.device_address}{command}\r\n"
         self.logger.debug(f"sending command: {cmd[:-2]}")
-        with self.serial as serial:
-            serial.reset_input_buffer()
-            serial.reset_output_buffer()
-            serial.write(cmd.encode())
-            time.sleep(self.delay)
-            retval = serial.read_until(b"\r\n").decode()
-            self.logger.debug(f"received: {retval[:-2]}")
-            # strip command and \r\n from string
-            value = retval.strip().split(command.replace("?", ""))[-1]
-            return value
+        self.serial.write(cmd.encode())
+        resp = self.serial.read_until(b"\r\n")
+        retval = resp.strip().decode()
+        self.logger.debug(f"received: {retval[:-2]}")
+        # strip command and \r\n from string
+        value = retval.split(command.replace("?", ""))[-1]
+        return value
 
     def get_stage_identifier(self) -> str:
         return self.ask_command("ID?")
@@ -172,13 +165,12 @@ class CONEXDevice(MotionDevice):
     def enable(self):
         self.send_command("MM1")
 
-    def _home(self, wait=True):
+    def _home(self):
         self.send_command("OR")
-        if wait:
-            while self.is_homing():
-                self.update_keys()
+        while self.is_homing():
+            self.update_keys()
 
-    def _move_absolute(self, value: float, wait=True):
+    def _move_absolute(self, value: float):
         # check if we're not referenced
         if self.needs_homing():
             self.logger.warn("CONEX device needs to be homed.")
@@ -189,11 +181,10 @@ class CONEXDevice(MotionDevice):
         # send move command
         self.send_command(f"PA{value}")
         # if blocking, loop while moving
-        if wait:
-            while self.is_moving():
-                self.update_keys()
+        while self.is_moving():
+            self.update_keys()
 
-    def _move_relative(self, value: float, wait=True):
+    def _move_relative(self, value: float):
         # check if we're not referenced
         if self.needs_homing():
             self.logger.warn("CONEX device needs to be homed.")
@@ -204,9 +195,8 @@ class CONEXDevice(MotionDevice):
         # send move command
         self.send_command(f"PR{value}")
         # if blocking, loop while moving
-        if wait:
-            while self.is_moving():
-                self.update_keys()
+        while self.is_moving():
+            self.update_keys()
 
     def reset(self):
         self.send_command("RS")

@@ -7,6 +7,7 @@ configurations = [
     {idx=4, name="Open / Open", value=180},
     {idx=5, name="SII / SII-Cont", value=240},
     {idx=6, name="Halpha / Ha-Cont", value=300},
+    {idx=7, name="Block / Block", value=31},
 ]
 [serial]
 port = "/dev/serial/by-id/usb-FTDI_USB-RS422_Cable_FT0B42PZ-if00-port0"

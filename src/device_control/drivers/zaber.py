@@ -1,7 +1,5 @@
-import time
-
 from zaber_motion import Library, Units
-from zaber_motion.binary import BinarySettings, CommandCode, Connection
+from zaber_motion.binary import BinarySettings, CommandCode, Connection, Device
 
 from ..base import MotionDevice
 
@@ -32,7 +30,7 @@ class ZaberDevice(MotionDevice):
     def get_serial_kwargs(self):
         return {**self.serial_kwargs, "device_number": self.device_number}
 
-    def __enter__(self):
+    def __enter__(self) -> Device:
         self.connection = Connection.open_serial_port(self.serial_kwargs["port"])
         device = self.connection.get_device(self.device_number)
         device.identify()
@@ -58,32 +56,23 @@ class ZaberDevice(MotionDevice):
             retval = device.settings.get(BinarySettings(index))
         return retval
 
-    def _move_absolute(self, value, wait=True):
+    def _move_absolute(self, value):
         with self as device:
-            device.move_absolute(value, self.zab_unit)
-            if wait:
-                while device.is_busy():
-                    self.update_keys()
-                    time.sleep(self.delay)
+            posn = device.move_absolute(value, self.zab_unit)
+            self.update_keys(posn)
 
-    def _move_relative(self, value, wait=True):
+    def _move_relative(self, value):
         with self as device:
-            device.move_relative(value, self.zab_unit)
-            if wait:
-                while device.is_busy():
-                    self.update_keys()
-                    time.sleep(self.delay)
+            posn = device.move_relative(value, self.zab_unit)
+            self.update_keys(posn)
 
     def reset(self):
         self.send_command(0)
 
-    def _home(self, wait=True):
+    def _home(self):
         with self as device:
-            device.home()
-            if wait:
-                while device.is_busy():
-                    self.update_keys()
-                    time.sleep(self.delay)
+            posn = device.home()
+            self.update_keys(posn)
 
     def stop(self):
         with self as device:

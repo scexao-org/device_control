@@ -9,7 +9,6 @@ unit = "deg"
 offset = 0
 
 [serial]
-timeout = 0.5
 port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A60QBY6C-if00-port0"
 baudrate = 921600
 xonxoff = true

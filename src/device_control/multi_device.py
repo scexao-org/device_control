@@ -141,12 +141,12 @@ class MultiDevice(ConfigurableDevice):
         self.update_keys()
 
     def move_configuration(self, idx_or_name, **kwargs):
-        if idx_or_name.isdigit():
+        if isinstance(idx_or_name, int) or idx_or_name.isdigit():
             return self.move_configuration_idx(int(idx_or_name), **kwargs)
 
         return self.move_configuration_name(idx_or_name, **kwargs)
 
-    def move_configuration_idx(self, idx: int, wait=True):
+    def move_configuration_idx(self, idx: int):
         for row in self.configurations:
             if row["idx"] == idx:
                 self.current_config = row["value"]
@@ -155,10 +155,10 @@ class MultiDevice(ConfigurableDevice):
             raise ValueError(f"No configuration saved at index {idx}")
         for dev_name, value in self.current_config.items():
             # TODO async wait
-            self.devices[dev_name].move_absolute(value, wait=wait)
+            self.devices[dev_name].move_absolute(value)
             self.update_keys()
 
-    def move_configuration_name(self, name: str, wait=True):
+    def move_configuration_name(self, name: str):
         for row in self.configurations:
             if row["name"].lower() == name.lower():
                 self.current_config = row["value"]
@@ -166,7 +166,7 @@ class MultiDevice(ConfigurableDevice):
         else:
             raise ValueError(f"No configuration saved with name '{name}'")
         for dev_name, value in self.current_config.items():
-            self.devices[dev_name].move_absolute(value, wait=wait)
+            self.devices[dev_name].move_absolute(value)
             self.update_keys()
 
     def update_keys(self, positions=None):

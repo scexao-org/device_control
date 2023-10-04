@@ -17,8 +17,8 @@ class VAMPIRESMBIWheel(CONEXDevice):
         _, name = self.get_configuration(position=theta)
         update_keys(U_MBI=name, U_MBITH=theta)
 
-    def _move_absolute(self, value: float, wait=True):
-        return super()._move_absolute(value % 360, wait)
+    def _move_absolute(self, value: float):
+        return super()._move_absolute(value % 360)
 
     def help_message(self):
         configurations = "\n".join(

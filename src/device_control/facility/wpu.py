@@ -103,7 +103,7 @@ class WPU_SHW(WPUDevice):
         return status["position"]
 
     def move_absolute(self, value):
-        self.send_command(f"shw move {value}")
+        self.send_command(f"shw move {value:.02f}")
 
     def move_in(self):
         self.move_absolute(56)
@@ -143,7 +143,7 @@ class WPU_SQW(WPUDevice):
         return status["position"]
 
     def move_absolute(self, value):
-        self.send_command(f"sqw move {value}")
+        self.send_command(f"sqw move {value:.02f}")
 
     def move_in(self):
         self.move_absolute(56)
@@ -197,7 +197,7 @@ class WPU_HWP(WPUDevice):
         return status["pol_angle"]
 
     def move_absolute(self, value):
-        self.send_command(f"hwp move {value}")
+        self.send_command(f"hwp move {value:.02f}")
 
 
 class WPU_QWP(WPUDevice):
@@ -245,7 +245,7 @@ class WPU_QWP(WPUDevice):
         return status["pol_angle"]
 
     def move_absolute(self, value):
-        self.send_command(f"qwp move {value}")
+        self.send_command(f"qwp move {value:.02f}")
 
 
 class WPU:
