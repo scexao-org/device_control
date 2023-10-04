@@ -1,18 +1,16 @@
 import os
 import sys
 
-from docopt import docopt
-
 from device_control.drivers import CONEXDevice
+from docopt import docopt
+from scxconf.pyrokeys import SCEXAO
+
 from swmain.redis import update_keys
 
-# from scxconf.pyrokeys import SCEXAO
 
-
-class SCExAOPolarizer(CONEXDevice):
+class SCEXAOPolarizer(CONEXDevice):
     CONF = "scexao/conf_scexao_polarizer.toml"
-    # PYRO_KEY = SCEXAO.POLARIZER
-    PYRO_KEY = "SCEXAO_POLARIZER"
+    PYRO_KEY = SCEXAO.POL
     format_str = "{0:2d}: {1:6.2f} deg {{th={2:6.2f} deg}}"
 
     def _update_keys(self, posn):
@@ -42,17 +40,14 @@ Stage commands:
 
 # setp 4. action
 def main():
-    scexao_pol = SCExAOPolarizer.connect(os.getenv("WHICHCOMP") == "2")
+    scexao_pol = SCEXAOPolarizer.connect(os.getenv("WHICHCOMP") == "2")
     __doc__ = scexao_pol.help_message()
     args = docopt(__doc__, options_first=True)
     posns = None
     if len(sys.argv) == 1:
         print(__doc__)
         return
-    if args["status"]:
-        posn, status = scexao_pol.get_status()
-        print(status)
-    elif args["position"]:
+    if args["position"] or args["status"]:
         posn = scexao_pol.get_position()
         print(posn)
     elif args["home"]:

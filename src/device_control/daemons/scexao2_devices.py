@@ -2,10 +2,10 @@ from argparse import ArgumentParser
 from functools import partial
 
 import click
+from device_control.scexao import SCEXAOPolarizer
+from device_control.vampires import VAMPIRESFieldstop
 from scxconf import IP_SC2, PYRONS3_HOST, PYRONS3_PORT
 
-from device_control.scexao import SCExAOPolarizer
-from device_control.vampires import VAMPIRESFieldstop
 from swmain.network.pyroserver_registerable import PyroServer
 
 parser = ArgumentParser(
@@ -15,7 +15,7 @@ parser = ArgumentParser(
 
 DEVICE_MAP = {
     "vampires_fieldstop": partial(VAMPIRESFieldstop.connect, local=True),
-    "polarizer": partial(SCExAOPolarizer.connect, local=True),
+    "polarizer": partial(SCEXAOPolarizer.connect, local=True),
 }
 
 
