@@ -1,5 +1,5 @@
-from .polarizer import IRPolarizer
+from .polarizer import SCExAOPolarizer
 
 __all__ = [
-    "IRPolarizer",
+    "SCExAOPolarizer",
 ]

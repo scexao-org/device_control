@@ -15,7 +15,7 @@ parser = ArgumentParser(
 
 DEVICE_MAP = {
     "vampires_fieldstop": partial(VAMPIRESFieldstop.connect, local=True),
-    "polarizer": partial(VAMPIRESFieldstop.connect, local=True),
+    "polarizer": partial(SCExAOPolarizer.connect, local=True),
 }
 
 
