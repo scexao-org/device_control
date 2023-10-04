@@ -1,6 +1,6 @@
 name = "scexao_polarizer"
 unit = "deg"
-offset = 90
+offset = 0 # it's actually -90 but wait for changes
 
 [serial]
 port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A64YHWXZ-if00-port0"

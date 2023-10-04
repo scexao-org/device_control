@@ -1,6 +1,6 @@
 name = "vampires_fieldstop"
 configurations = [
-    { idx = 1, name = "Fieldstop", value = { x = 5.632099, y = 20.7559 } },
+    { idx = 1, name = "Fieldstop", value = { x = 5.649099, y = 20.6789 } },
     { idx = 2, name = "CLC-2", value = { x = 8.804099, y = 1.9664 } },
     { idx = 3, name = "CLC-3", value = { x = 8.804199, y = 8.212999 } },
     { idx = 4, name = "CLC-5", value = { x = 2.5483, y = 8.212999 } },
