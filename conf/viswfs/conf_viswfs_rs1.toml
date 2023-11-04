@@ -1,0 +1,13 @@
+name = "viswfs_rs1"
+configurations = [
+    { idx = 1, name = "Dichroic", value = 0.0 },
+    { idx = 2, name = "PBS", value = 109.58 },
+    { idx = 3, name = "Mirror", value = 253.0 },
+]
+unit = "deg"
+offset = 0
+
+[serial]
+port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A66UJEL5-if00-port0"
+baudrate = 921600
+xonxoff = true

@@ -1,0 +1,11 @@
+name = "viswfs_pickoffBS"
+configurations = [
+    { idx = 1, name = "in", value = 0.00001 },
+    { idx = 2, name = "out", value = 25.0 },
+]
+unit = "mm"
+offset = 0
+
+[serial]
+port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AH0616F5-if00-port0"
+device_number = 1

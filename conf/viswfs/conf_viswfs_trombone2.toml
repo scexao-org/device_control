@@ -1,0 +1,11 @@
+name = "viswfs_trombone2"
+configurations = [
+    { idx = 1, name = "WFS", value = 24.0 },
+    { idx = 2, name = "PUPIL", value = 45.0 },
+]
+unit = "mm"
+offset = 0
+
+[serial]
+port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AD0JEFIK-if00-port0"
+device_number = 2

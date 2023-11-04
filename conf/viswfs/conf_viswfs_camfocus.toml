@@ -1,0 +1,11 @@
+name = "viswfs_camfocus"
+configurations = [
+    { idx = 1, name = "WFS", value = 6.00 },
+    { idx = 2, name = "FPWFS", value = 8.40 },
+]
+unit = "mm"
+offset = 0
+
+[serial]
+port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_AD0JEFIK-if00-port0"
+device_number = 3

@@ -1,0 +1,13 @@
+name = "viswfs_hwp"
+configurations = [
+    { idx = 1, name = "NGS", value = 45.00 },
+    { idx = 2, name = "LGS", value = 70.00 },
+    { idx = 3, name = "two far-pupil", value = 25.00 },
+    { idx = 4, name = "rand", value = -24.0393 },
+]
+unit = "deg"
+offset = 0
+
+[serial]
+port = "/dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_DK0BIU3V-if00-port0"
+type = "Rotator"

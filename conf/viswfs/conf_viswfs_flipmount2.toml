@@ -1,0 +1,11 @@
+name = "viswfs_flipmount2"
+
+configurations = [
+    {idx=1, name="IN", value="up"},
+    {idx=2, name="OUT", value="down"}
+]
+
+[serial]
+port = "/dev/serial/by-id/usb-Thorlabs_APT_Filter_Flipper_37004735-if00-port0"
+baudrate = 115200
+rtscts = true
