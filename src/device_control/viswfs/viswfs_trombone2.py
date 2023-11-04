@@ -3,9 +3,15 @@ import sys
 
 from docopt import docopt
 from scxconf.pyrokeys import VISWFS
+<<<<<<< HEAD
 from swmain.redis import update_keys
 
 from device_control.drivers import ZaberDevice
+=======
+
+from device_control.drivers import ZaberDevice
+from swmain.redis import update_keys
+>>>>>>> adding device control for nlCWFS
 
 
 class VISWFSTrombone2(ZaberDevice):
@@ -61,14 +67,22 @@ def main():
         viswfs_trombone2.home()
     elif args["goto"]:
         new_pos = float(args["<pos>"])
+<<<<<<< HEAD
         if new_pos > 50:
+=======
+        if new_pos > 45:
+>>>>>>> adding device control for nlCWFS
             print("Limitted!!!!")
         else:
             viswfs_trombone2.move_absolute(new_pos)
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
         posn = viswfs_trombone2.get_position() + rel_pos
+<<<<<<< HEAD
         if posn > 50:
+=======
+        if posn > 45:
+>>>>>>> adding device control for nlCWFS
             print("Limitted!!!!")
         else:
             viswfs_trombone2.move_relative(rel_pos)

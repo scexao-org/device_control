@@ -3,9 +3,15 @@ import sys
 
 from docopt import docopt
 from scxconf.pyrokeys import VISWFS
+<<<<<<< HEAD
 from swmain.redis import update_keys
 
 from device_control.drivers import CONEXDevice
+=======
+
+from device_control.drivers import CONEXDevice
+from swmain.redis import update_keys
+>>>>>>> adding device control for nlCWFS
 
 
 class VISWFSRotStage2(CONEXDevice):
@@ -16,7 +22,11 @@ class VISWFSRotStage2(CONEXDevice):
     1. Dichroic filter
     2. Polarizing beamsplitter cube (PBS)
     3. Mirror
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> adding device control for nlCWFS
     """
 
     CONF = "viswfs/conf_viswfs_rs2.toml"
