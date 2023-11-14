@@ -4,20 +4,13 @@ from functools import partial
 import click
 from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 
-from device_control.vampires import (
-    VAMPIRESQWP,
-    VAMPIRESTC,
-    VAMPIRESBeamsplitter,
-    VAMPIRESCamFocus,
-    VAMPIRESDiffWheel,
-    VAMPIRESFilter,
-    VAMPIRESFLCStage,
-    VAMPIRESFocus,
-    VAMPIRESMaskWheel,
-    VAMPIRESMBIWheel,
-    VAMPIRESPupilLens,
-    VAMPIRESTrigger,
-)
+from device_control.vampires import (VAMPIRESQWP, VAMPIRESTC,
+                                     VAMPIRESBeamsplitter, VAMPIRESCamFocus,
+                                     VAMPIRESDiffWheel, VAMPIRESFilter,
+                                     VAMPIRESFLCStage, VAMPIRESFocus,
+                                     VAMPIRESMaskWheel, VAMPIRESMBIWheel,
+                                     VAMPIRESPupilLens, VAMPIRESTrigger)
+from swmain.infra.badsystemd.aux import auto_register_to_watchers
 from swmain.network.pyroserver_registerable import PyroServer
 
 DEVICE_MAP = {
@@ -44,6 +37,7 @@ parser = argparse.ArgumentParser(
 
 def main():
     parser.parse_args()
+    auto_register_to_watchers("VAMP_PYRO", "VAMPIRES PyRO devices")
     server = PyroServer(bindTo=(IP_VAMPIRES, 0), nsAddress=(PYRONS3_HOST, PYRONS3_PORT))
     ## create device objects
     click.echo("Initializing devices")

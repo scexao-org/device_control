@@ -2,10 +2,11 @@ from argparse import ArgumentParser
 from functools import partial
 
 import click
-from device_control.scexao import SCEXAOPolarizer
-from device_control.vampires import VAMPIRESFieldstop
 from scxconf import IP_SC2, PYRONS3_HOST, PYRONS3_PORT
 
+from device_control.scexao import SCEXAOPolarizer
+from device_control.vampires import VAMPIRESFieldstop
+from swmain.infra.badsystemd.aux import auto_register_to_watchers
 from swmain.network.pyroserver_registerable import PyroServer
 
 parser = ArgumentParser(
@@ -21,6 +22,7 @@ DEVICE_MAP = {
 
 def main():
     parser.parse_args()
+    auto_register_to_watchers("SC2_PYRO", "SC2 PyRO devices")
     server = PyroServer(bindTo=(IP_SC2, 0), nsAddress=(PYRONS3_HOST, PYRONS3_PORT))
     ## create device objects
     click.echo("Initializing devices")
