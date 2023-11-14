@@ -15,18 +15,20 @@ class ThorlabsWheel(MotionDevice):
 
     # @autoretry
     def send_command(self, cmd: str):
-        self.serial.write(f"{cmd}\r".encode())
-        cmd_resp = self.serial.read_until(b"\r")
-        assert cmd_resp.strip().decode() == cmd
-        self.serial.read_until(b"> ")
+        with self.serial as serial:
+            serial.write(f"{cmd}\r".encode())
+            cmd_resp = serial.read_until(b"\r")
+            assert cmd_resp.strip().decode() == cmd
+            serial.read_until(b"> ")
 
     # @autoretry
     def ask_command(self, cmd: str):
-        self.serial.write(f"{cmd}\r".encode())
-        cmd_resp = self.serial.read_until(b"\r")
-        assert cmd_resp.strip().decode() == cmd
-        resp = self.serial.read_until(b"\r")
-        self.serial.read_until(b"> ")
+        with self.serial as serial:
+            serial.write(f"{cmd}\r".encode())
+            cmd_resp = serial.read_until(b"\r")
+            assert cmd_resp.strip().decode() == cmd
+            resp = serial.read_until(b"\r")
+            serial.read_until(b"> ")
         return resp.strip().decode()
 
     def _get_position(self):

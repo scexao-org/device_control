@@ -88,16 +88,18 @@ class CONEXDevice(MotionDevice):
         # pad command with CRLF ending
         cmd = f"{self.device_address}{command}\r\n"
         self.logger.debug(f"sending command: {cmd[:-2]}")
-        self.serial.write(cmd.encode())
-        self.serial.read_until(b"\r\n")
+        with self.serial as serial:
+            serial.write(cmd.encode())
+            serial.read_until(b"\r\n")
 
     # @autoretry(max_retries=10)
     def ask_command(self, command: str):
         # pad command with CRLF ending
         cmd = f"{self.device_address}{command}\r\n"
         self.logger.debug(f"sending command: {cmd[:-2]}")
-        self.serial.write(cmd.encode())
-        resp = self.serial.read_until(b"\r\n")
+        with self.serial as serial:
+            serial.write(cmd.encode())
+            resp = serial.read_until(b"\r\n")
         retval = resp.strip().decode()
         self.logger.debug(f"received: {retval[:-2]}")
         # strip command and \r\n from string
