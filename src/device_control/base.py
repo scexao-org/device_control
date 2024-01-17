@@ -5,9 +5,8 @@ import numpy as np
 import paramiko
 import tomli
 import tomli_w
-from serial import Serial
-
 from device_control import conf_dir
+from serial import Serial
 from swmain.network.pyroclient import connect
 
 __all__ = ["ConfigurableDevice", "MotionDevice", "SSHDevice"]
@@ -193,6 +192,13 @@ class MotionDevice(ConfigurableDevice):
             if np.abs(position - row["value"]) <= tol:
                 return row["idx"], row["name"]
         return None, "Unknown"
+
+    def get_config_index_from_name(self, name: str) -> int:
+        for config in self.configurations:
+            if name.lower() == config["name"].lower():
+                return config["idx"]
+        msg = f"Could not find configuration with name {name}"
+        raise ValueError(msg)
 
     def save_configuration(self, position=None, index=None, name=None, tol=1e-1, **kwargs):
         if position is None:

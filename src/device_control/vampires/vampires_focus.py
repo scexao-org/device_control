@@ -1,10 +1,9 @@
 import os
 import sys
 
+from device_control.drivers import CONEXDevice
 from docopt import docopt
 from scxconf.pyrokeys import VAMPIRES
-
-from device_control.drivers import CONEXDevice
 from swmain.redis import update_keys
 
 
@@ -25,10 +24,11 @@ class VAMPIRESFocus(CONEXDevice):
         return f"""Usage:
     vampires_focus [-h | --help]
     vampires_focus (status|position|home|goto|nudge|stop|reset) [<pos>]
-    vampires_focus <configuration>
+    vampires_focus [--save] <configuration>
 
 Options:
     -h, --help   Show this screen
+    --save       Save the current position to the given configuration
 
 Stage commands:
     status          Returns the current status of the focus stage
@@ -70,7 +70,14 @@ def main():
     elif args["reset"]:
         vampires_focus.reset()
     elif args["<configuration>"]:
-        vampires_focus.move_configuration(args["<configuration>"])
+        if args["--save"]:
+            try:
+                config_idx = int(args["<configuration>"])
+            except ValueError:
+                config_idx = vampires_focus.get_config_index_from_name(args["<configuration>"])
+            vampires_focus.save_configuration(index=config_idx)
+        else:
+            vampires_focus.move_configuration(args["<configuration>"])
     vampires_focus.update_keys(posn)
 
 

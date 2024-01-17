@@ -1,10 +1,9 @@
 import os
 import sys
 
+from device_control.drivers import ZaberDevice
 from docopt import docopt
 from scxconf.pyrokeys import VAMPIRES
-
-from device_control.drivers import ZaberDevice
 from swmain.redis import update_keys
 
 
@@ -25,10 +24,11 @@ class VAMPIRESCamFocus(ZaberDevice):
         return f"""Usage:
     vampires_camfocus [-h | --help]
     vampires_camfocus (status|position|home|goto|nudge|stop|reset) [<pos>]
-    vampires_camfocus <configuration>
+    vampires_camfocus [--save] <configuration>
 
 Options:
     -h, --help   Show this screen
+    --save       Save the current position to the given configuration
 
 Wheel commands:
     status          Returns the current status of the focus stage
@@ -37,7 +37,7 @@ Wheel commands:
     goto  <pos>     Move the focus stage to the given position, in mm
     nudge <pos>     Move the focus stage relatively by the given position, in mm
     stop            Stop the focus stage
-    reset           Reset the focus stage  
+    reset           Reset the focus stage
 
 Configurations:
 {configurations}"""
@@ -70,7 +70,14 @@ def main():
     elif args["reset"]:
         vampires_camfocus.reset()
     elif args["<configuration>"]:
-        vampires_camfocus.move_configuration(args["<configuration>"])
+        if args["--save"]:
+            try:
+                config_idx = int(args["<configuration>"])
+            except ValueError:
+                config_idx = vampires_camfocus.get_config_index_from_name(args["<configuration>"])
+            vampires_camfocus.save_configuration(index=config_idx)
+        else:
+            vampires_camfocus.move_configuration(args["<configuration>"])
     vampires_camfocus.update_keys(posn)
 
 

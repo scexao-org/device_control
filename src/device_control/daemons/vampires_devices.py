@@ -2,14 +2,13 @@ import argparse
 from functools import partial
 
 import click
-from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
-
 from device_control.vampires import (VAMPIRESQWP, VAMPIRESTC,
                                      VAMPIRESBeamsplitter, VAMPIRESCamFocus,
                                      VAMPIRESDiffWheel, VAMPIRESFilter,
                                      VAMPIRESFLCStage, VAMPIRESFocus,
                                      VAMPIRESMaskWheel, VAMPIRESMBIWheel,
                                      VAMPIRESPupilLens, VAMPIRESTrigger)
+from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 from swmain.infra.badsystemd.aux import auto_register_to_watchers
 from swmain.network.pyroserver_registerable import PyroServer
 
@@ -52,7 +51,7 @@ def main():
             available.append(key)
         except:
             click.secho(
-                f" ! Failed to connect {key} : {device.PYRO_KEY}",
+                f" ! Failed to connect {key.upper()}",
                 bg=(114, 24, 23),
                 fg=(224, 224, 226),
             )

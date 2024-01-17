@@ -1,10 +1,11 @@
 name = "vampires_fieldstop"
 configurations = [
-    { idx = 1, name = "Fieldstop", value = { x = 5.649099, y = 20.6789 } },
-    { idx = 2, name = "CLC-2", value = { x = 8.804099, y = 1.9664 } },
-    { idx = 3, name = "CLC-3", value = { x = 8.804199, y = 8.212999 } },
-    { idx = 4, name = "CLC-5", value = { x = 2.5483, y = 8.212999 } },
-    { idx = 5, name = "CLC-7", value = { x = 2.5551, y = 1.9701 } },
+    { idx = 1, name = "Fieldstop", value = { x = 5.649099, y = 20.6789, f = 10.5 } },
+    { idx = 2, name = "CLC-2", value = { x = 7.100099, y = 3.2614, f = 10.5 } },
+    { idx = 3, name = "CLC-3", value = { x = 7.691199, y = 8.958098, f = 10.5 } },
+    { idx = 4, name = "CLC-5", value = { x = 6.463099, y = 3.2504, f = 10.5 } },
+    { idx = 5, name = "CLC-7", value = { x = 0.2222, y = 3.2752, f = 10.5 } },
+    { idx = 6, name = "DGVVC", value = { x = 21.2041, y = 20.6495, f = 10.5 } },
 ]
 
 [[devices]]
@@ -28,5 +29,17 @@ offset = 0
 [devices.serial]
 timeout = 0.5
 port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A60MCIFA-if00-port0"
+baudrate = 921600
+xonxoff = true
+
+[[devices]]
+name = "f"
+type = "conex"
+unit = "mm"
+offset = 0
+
+[devices.serial]
+timeout = 0.5
+port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A67H3XPH-if00-port0"
 baudrate = 921600
 xonxoff = true
