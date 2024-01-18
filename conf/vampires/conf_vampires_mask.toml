@@ -111,6 +111,7 @@ theta = 265.0002
 [[configurations]]
 idx = 13
 name = "LyotOpt"
+name = "LyotOpt"
 
 [configurations.value]
 x = 9.807940125000002
