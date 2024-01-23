@@ -1,10 +1,11 @@
 import os
 import sys
 
-from device_control.multi_device import MultiDevice
 from docopt import docopt
 from scxconf.pyrokeys import VAMPIRES
 from swmain.redis import update_keys
+
+from device_control.multi_device import MultiDevice
 
 __all__ = ["VAMPIRESFieldstop"]
 
@@ -56,7 +57,7 @@ Configurations:
 
 # setp 4. action
 def main():
-    fieldstop = VAMPIRESFieldstop.connect(local=os.getenv("WHICHCOMP", None) == "2")
+    fieldstop = VAMPIRESFieldstop.connect(local=os.getenv("WHICHCOMP", None) == "V")
     __doc__ = fieldstop.help_message()
     args = docopt(__doc__, options_first=True)
     posns = None
@@ -91,7 +92,7 @@ def main():
     elif args["stop"]:
         fieldstop.stop(substage)
     elif args["reset"]:
-        substage.reset()
+        fieldstop.reset(substage)
     fieldstop.update_keys(posns)
 
 

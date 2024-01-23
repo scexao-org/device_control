@@ -1,5 +1,4 @@
 from device_control.base import ConfigurableDevice
-from swmain.autoretry import autoretry
 
 
 def parse_status(bytevalues):

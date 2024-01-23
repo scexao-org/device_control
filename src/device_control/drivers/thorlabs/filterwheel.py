@@ -1,15 +1,9 @@
-import numpy as np
-
 from device_control.base import MotionDevice
-from swmain.autoretry import autoretry
 
 
 class ThorlabsWheel(MotionDevice):
     def __init__(self, serial_kwargs, **kwargs):
-        serial_kwargs = dict(
-            {"baudrate": 115200, "timeout": None},
-            **serial_kwargs,
-        )
+        serial_kwargs = dict({"baudrate": 115200, "timeout": None}, **serial_kwargs)
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
         self.max_filters = 6  # self.get_count()
 
@@ -36,7 +30,8 @@ class ThorlabsWheel(MotionDevice):
 
     def _move_absolute(self, value):
         if value < 1 or value > self.max_filters:
-            raise ValueError(f"Filter position must be between 1 and {self.max_filters}")
+            msg = f"Filter position must be between 1 and {self.max_filters}"
+            raise ValueError(msg)
         self.send_command(f"pos={value}")
 
     def get_status(self):

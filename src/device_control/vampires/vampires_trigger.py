@@ -7,9 +7,9 @@ import click
 import usb.core
 import usb.util
 from scxconf.pyrokeys import VAMPIRES
+from swmain.redis import update_keys
 
 from device_control.base import ConfigurableDevice
-from swmain.redis import update_keys
 
 
 class ArduinoError(RuntimeError):
@@ -53,9 +53,8 @@ class VAMPIRESTrigger(ConfigurableDevice):
             serial.write(f"{command}\n".encode())
             response = serial.readline()
             if len(response) == 0:
-                raise ArduinoTimeoutError(
-                    'Arduino did not respond within timeout, which suggests it is locked up waiting for a "ready" response from the cameras. Try resetting the trigger.'
-                )
+                msg = 'Arduino did not respond within timeout, which suggests it is locked up waiting for a "ready" response from the cameras. Try resetting the trigger.'
+                raise ArduinoTimeoutError(msg)
             if response.strip() != b"OK":
                 raise ArduinoError(response.decode().strip())
 
@@ -64,9 +63,8 @@ class VAMPIRESTrigger(ConfigurableDevice):
             serial.write(f"{command}\n".encode())
             response = serial.readline().decode().strip()
             if len(response) == 0:
-                raise ArduinoTimeoutError(
-                    'Arduino did not respond within timeout, which suggests it is locked up waiting for a "ready" response from the cameras. Try resetting the trigger.'
-                )
+                msg = 'Arduino did not respond within timeout, which suggests it is locked up waiting for a "ready" response from the cameras. Try resetting the trigger.'
+                raise ArduinoTimeoutError(msg)
             return response
 
     def get_jitter_half_width(self) -> int:
@@ -153,9 +151,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
             sweep_mode = self.sweep_mode
 
         trigger_mode = int(flc_enabled) + (int(sweep_mode) << 1)
-        cmd = "1 {:d} {:d} {:d} {:d}".format(
-            pulse_width, flc_offset, jitter_half_width, trigger_mode
-        )
+        cmd = f"1 {pulse_width:d} {flc_offset:d} {jitter_half_width:d} {trigger_mode:d}"
         self.send_command(cmd)
         params = dict(
             enabled=self.enabled,
@@ -202,11 +198,7 @@ class VAMPIRESTrigger(ConfigurableDevice):
         )
 
     def _config_extras(self):
-        return {
-            "delay": self.delay,
-            "pulse_width": self.pulse_width,
-            "flc_offset": self.flc_offset,
-        }
+        return {"delay": self.delay, "pulse_width": self.pulse_width, "flc_offset": self.flc_offset}
 
     def get_status(self):
         switch_status = self.reset_switch.status()

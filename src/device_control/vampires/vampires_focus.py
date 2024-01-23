@@ -1,10 +1,11 @@
 import os
 import sys
 
-from device_control.drivers import CONEXDevice
 from docopt import docopt
 from scxconf.pyrokeys import VAMPIRES
 from swmain.redis import update_keys
+
+from device_control.drivers import CONEXDevice
 
 
 class VAMPIRESFocus(CONEXDevice):

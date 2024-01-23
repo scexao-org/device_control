@@ -3,9 +3,9 @@ import sys
 
 from docopt import docopt
 from scxconf.pyrokeys import VAMPIRES
+from swmain.redis import update_keys
 
 from device_control.multi_device import MultiDevice
-from swmain.redis import update_keys
 
 
 class VAMPIRESMaskWheel(MultiDevice):

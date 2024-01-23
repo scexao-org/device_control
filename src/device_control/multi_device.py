@@ -51,7 +51,7 @@ class MultiDevice(ConfigurableDevice):
 
     @classmethod
     def from_config(__cls__, filename):
-        with open(filename, "rb") as fh:
+        with Path.open(filename, "rb") as fh:
             parameters = tomli.load(fh)
         name = parameters["name"]
         devices = {}
@@ -65,15 +65,13 @@ class MultiDevice(ConfigurableDevice):
             elif dev_type.lower() == "zaber":
                 device = ZaberDevice(config_file=filename, **device_config)
             else:
-                raise ValueError(f"motion stage type not recognized: {device_config['type']}")
+                msg = f"motion stage type not recognized: {device_config['type']}"
+                raise ValueError(msg)
             devices[device_name] = device
 
         configurations = parameters.get("configurations", None)
         return __cls__(
-            devices=devices,
-            name=name,
-            configurations=configurations,
-            config_file=filename,
+            devices=devices, name=name, configurations=configurations, config_file=filename
         )
 
     def save_config(self, filename=None):
@@ -81,10 +79,7 @@ class MultiDevice(ConfigurableDevice):
             filename = self.config_file
         path = Path(filename)
 
-        config = {
-            "name": self.name,
-            "configurations": self.configurations,
-        }
+        config = {"name": self.name, "configurations": self.configurations}
         config.update(self._config_extras())
         config["devices"] = []
         for key, device in self.devices.items():
@@ -104,14 +99,15 @@ class MultiDevice(ConfigurableDevice):
 
     def save_configuration(self, positions=None, index=None, name=None, tol=1e-1, **kwargs):
         if positions is None:
-            dev_posns = {k: dev.get_position() for k, dev, in self.devices.items()}
+            dev_posns = {k: dev.get_position() for k, dev in self.devices.items()}
         else:
             dev_posns = {k: pos for k, pos in zip(self.devices.keys(), positions)}
 
         current_config = self.get_configuration(positions=dev_posns.values(), tol=tol)
         if index is None:
             if current_config[0] is None:
-                raise RuntimeError("Cannot save to an unknown configuration. Please provide index.")
+                msg = "Cannot save to an unknown configuration. Please provide index."
+                raise RuntimeError(msg)
             index = current_config[0]
             if name is None:
                 name = current_config[1]
@@ -128,7 +124,8 @@ class MultiDevice(ConfigurableDevice):
                 break
         else:
             if name is None:
-                raise ValueError("Must provide name for new configuration")
+                msg = "Must provide name for new configuration"
+                raise ValueError(msg)
             self.configurations.append(dict(idx=index, name=name, values=dev_posns.values()))
             self.logger.info(
                 f"added new configuration {index} '{name}' with values {dev_posns.values()}"
@@ -152,7 +149,8 @@ class MultiDevice(ConfigurableDevice):
                 self.current_config = row["value"]
                 break
         else:
-            raise ValueError(f"No configuration saved at index {idx}")
+            msg = f"No configuration saved at index {idx}"
+            raise ValueError(msg)
         for dev_name, value in self.current_config.items():
             # TODO async wait
             self.devices[dev_name].move_absolute(value)
@@ -164,7 +162,8 @@ class MultiDevice(ConfigurableDevice):
                 self.current_config = row["value"]
                 break
         else:
-            raise ValueError(f"No configuration saved with name '{name}'")
+            msg = f"No configuration saved with name '{name}'"
+            raise ValueError(msg)
         for dev_name, value in self.current_config.items():
             self.devices[dev_name].move_absolute(value)
             self.update_keys()

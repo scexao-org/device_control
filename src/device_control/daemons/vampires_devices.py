@@ -2,15 +2,25 @@ import argparse
 from functools import partial
 
 import click
-from device_control.vampires import (VAMPIRESQWP, VAMPIRESTC,
-                                     VAMPIRESBeamsplitter, VAMPIRESCamFocus,
-                                     VAMPIRESDiffWheel, VAMPIRESFilter,
-                                     VAMPIRESFLCStage, VAMPIRESFocus,
-                                     VAMPIRESMaskWheel, VAMPIRESMBIWheel,
-                                     VAMPIRESPupilLens, VAMPIRESTrigger)
 from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 from swmain.infra.badsystemd.aux import auto_register_to_watchers
 from swmain.network.pyroserver_registerable import PyroServer
+
+from device_control.vampires import (
+    VAMPIRESQWP,
+    VAMPIRESTC,
+    VAMPIRESBeamsplitter,
+    VAMPIRESCamFocus,
+    VAMPIRESDiffWheel,
+    VAMPIRESFieldstop,
+    VAMPIRESFilter,
+    VAMPIRESFLCStage,
+    VAMPIRESFocus,
+    VAMPIRESMaskWheel,
+    VAMPIRESMBIWheel,
+    VAMPIRESPupilLens,
+    VAMPIRESTrigger,
+)
 
 DEVICE_MAP = {
     "bs": partial(VAMPIRESBeamsplitter.connect, local=True),
@@ -18,6 +28,7 @@ DEVICE_MAP = {
     "camfocus": partial(VAMPIRESCamFocus.connect, local=True),
     "flc": partial(VAMPIRESFLCStage.connect, local=True),
     "diff": partial(VAMPIRESDiffWheel.connect, local=True),
+    "fieldstop": partial(VAMPIRESFieldstop.connect, local=True),
     "mask": partial(VAMPIRESMaskWheel.connect, local=True),
     "mbi": partial(VAMPIRESMBIWheel.connect, local=True),
     "qwp1": partial(VAMPIRESQWP.connect, 1, local=True),
@@ -49,14 +60,10 @@ def main():
             globals()[key] = device
             server.add_device(device, device.PYRO_KEY, add_oneway_callables=True)
             available.append(key)
-        except:
-            click.secho(
-                f" ! Failed to connect {key.upper()}",
-                bg=(114, 24, 23),
-                fg=(224, 224, 226),
-            )
+        except Exception:
+            click.secho(f" ! Failed to connect {key.upper()}", bg=(114, 24, 23), fg=(224, 224, 226))
 
-    click.echo(f"\nThe following variables are available in the shell:")
+    click.echo("\nThe following variables are available in the shell:")
     click.secho(", ".join(available), bold=True)
     ## Start server
     server.start()

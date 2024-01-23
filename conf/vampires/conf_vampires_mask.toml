@@ -77,9 +77,9 @@ idx = 9
 name = "LyotStop"
 
 [configurations.value]
-x = 8.594836125
-y = 3.319414875
-theta = 190.2064
+x = 8.2149315
+y = 3.1593948750000003
+theta = 190.2068
 
 [[configurations]]
 idx = 10
@@ -111,12 +111,20 @@ theta = 265.0002
 [[configurations]]
 idx = 13
 name = "LyotOpt"
-name = "LyotOpt"
 
 [configurations.value]
-x = 9.807940125000002
-y = 3.758041125
-theta = 286.2
+x = 8.3879055
+y = 3.3181290000000003
+theta = 286.2001
+
+[[configurations]]
+idx = 14
+name = "PupilRef"
+
+[configurations.value]
+x = 8.5079205
+y = 4.398121125
+theta = 310.9999
 
 [[devices]]
 name = "x"

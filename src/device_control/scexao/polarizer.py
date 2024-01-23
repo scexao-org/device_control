@@ -1,11 +1,11 @@
 import os
 import sys
 
-from device_control.drivers import CONEXDevice
 from docopt import docopt
 from scxconf.pyrokeys import SCEXAO
-
 from swmain.redis import update_keys
+
+from device_control.drivers import CONEXDevice
 
 
 class SCEXAOPolarizer(CONEXDevice):
@@ -20,7 +20,7 @@ class SCEXAOPolarizer(CONEXDevice):
         return super().move_absolute(value % 360, **kwargs)
 
     def help_message(self):
-        return f"""Usage:
+        return """Usage:
     scexao_polarizer [-h | --help]
     scexao_polarizer (status|position|home|goto|nudge|stop|reset) [<angle>]
 

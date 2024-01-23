@@ -1,10 +1,11 @@
 import os
 import sys
 
-from device_control.drivers import ZaberDevice
 from docopt import docopt
 from scxconf.pyrokeys import VAMPIRES
 from swmain.redis import update_keys
+
+from device_control.drivers import ZaberDevice
 
 
 class VAMPIRESCamFocus(ZaberDevice):

@@ -3,9 +3,9 @@ import sys
 
 from docopt import docopt
 from scxconf.pyrokeys import VAMPIRES
+from swmain.redis import update_keys
 
 from device_control.drivers import CONEXDevice
-from swmain.redis import update_keys
 
 
 class VAMPIRESMBIWheel(CONEXDevice):

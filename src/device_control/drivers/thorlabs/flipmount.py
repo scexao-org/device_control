@@ -2,8 +2,6 @@ import time
 
 from device_control.base import ConfigurableDevice
 
-from swmain.autoretry import autoretry
-
 # Raw byte commands for "MGMSG_MOT_MOVE_JOG"
 COMMANDS = {
     "up": b"\x6A\x04\x00\x01\x21\x01",
@@ -37,7 +35,8 @@ class ThorlabsFlipMount(ConfigurableDevice):
         elif position.lower() == "up":
             cmd = COMMANDS["up"]
         else:
-            raise ValueError(f"Position should be either 'up' or 'down', got '{position}'")
+            msg = f"Position should be either 'up' or 'down', got '{position}'"
+            raise ValueError(msg)
 
         with self.serial as serial:
             serial.write(cmd)
@@ -63,13 +62,15 @@ class ThorlabsFlipMount(ConfigurableDevice):
         for row in self.configurations:
             if row["idx"] == idx:
                 return self.set_position(row["value"])
-        raise ValueError(f"No configuration saved at index {idx}")
+        msg = f"No configuration saved at index {idx}"
+        raise ValueError(msg)
 
     def move_configuration_name(self, name: str):
         for row in self.configurations:
             if row["name"].lower() == name.lower():
                 return self.set_position(row["value"])
-        raise ValueError(f"No configuration saved with name '{name}'")
+        msg = f"No configuration saved with name '{name}'"
+        raise ValueError(msg)
 
     def get_configuration(self, position=None):
         if position is None:

@@ -5,9 +5,10 @@ import numpy as np
 import paramiko
 import tomli
 import tomli_w
-from device_control import conf_dir
 from serial import Serial
 from swmain.network.pyroclient import connect
+
+from device_control import conf_dir
 
 __all__ = ["ConfigurableDevice", "MotionDevice", "SSHDevice"]
 
@@ -20,12 +21,7 @@ class ConfigurableDevice:
     PYRO_KEY = None
 
     def __init__(
-        self,
-        name=None,
-        configurations=None,
-        config_file=None,
-        serial_kwargs=None,
-        **kwargs,
+        self, name=None, configurations=None, config_file=None, serial_kwargs=None, **kwargs
     ):
         self.serial_kwargs = {"timeout": 0.5}
         self.serial_kwargs.update(serial_kwargs)
@@ -37,7 +33,7 @@ class ConfigurableDevice:
 
     @classmethod
     def from_config(__cls__, filename, **kwargs):
-        with open(filename, "rb") as fh:
+        with Path.open(filename, "rb") as fh:
             parameters = tomli.load(fh)
         parameters.update(kwargs)
         serial_kwargs = parameters.pop("serial", None)
@@ -90,12 +86,7 @@ class ConfigurableDevice:
 class MotionDevice(ConfigurableDevice):
     FORMAT_STR = "{0}: {1} {{{2}}}"
 
-    def __init__(
-        self,
-        unit=None,
-        offset=0,
-        **kwargs,
-    ):
+    def __init__(self, unit=None, offset=0, **kwargs):
         super().__init__(**kwargs)
         self.unit = unit
         self.offset = offset
@@ -147,9 +138,7 @@ class MotionDevice(ConfigurableDevice):
         raise NotImplementedError()
 
     def move_relative(self, value):
-        pos = self._move_relative(
-            value,
-        )
+        pos = self._move_relative(value)
         self.update_keys(pos)
         return pos
 
@@ -177,13 +166,15 @@ class MotionDevice(ConfigurableDevice):
         for row in self.configurations:
             if row["idx"] == idx:
                 return self.move_absolute(row["value"], **kwargs)
-        raise ValueError(f"No configuration saved at index {idx}")
+        msg = f"No configuration saved at index {idx}"
+        raise ValueError(msg)
 
     def move_configuration_name(self, name: str, **kwargs):
         for row in self.configurations:
             if row["name"].lower() == name.lower():
                 return self.move_absolute(row["value"], **kwargs)
-        raise ValueError(f"No configuration saved with name '{name}'")
+        msg = f"No configuration saved with name '{name}'"
+        raise ValueError(msg)
 
     def get_configuration(self, position=None, tol=1e-1):
         if position is None:
@@ -206,7 +197,8 @@ class MotionDevice(ConfigurableDevice):
         current_config = self.get_configuration(position, tol=tol)
         if index is None:
             if current_config[0] is None:
-                raise RuntimeError("Cannot save to an unknown configuration. Please provide index.")
+                msg = "Cannot save to an unknown configuration. Please provide index."
+                raise RuntimeError(msg)
             index = current_config[0]
             if name is None:
                 name = current_config[1]
@@ -223,7 +215,8 @@ class MotionDevice(ConfigurableDevice):
                 break
         else:
             if name is None:
-                raise ValueError("Must provide name for new configuration")
+                msg = "Must provide name for new configuration"
+                raise ValueError(msg)
             self.configurations.append(dict(idx=index, name=name, value=position))
             self.logger.info(f"added new configuration {index} '{name}' with value {position}")
 
@@ -265,7 +258,7 @@ class SSHDevice:
 
     @classmethod
     def from_config(__cls__, filename, **kwargs):
-        with open(filename, "rb") as fh:
+        with Path.open(filename, "rb") as fh:
             parameters = tomli.load(fh)
         parameters.update(kwargs)
         return __cls__(config_file=filename, **parameters.pop("ssh"), **parameters)

@@ -3,9 +3,9 @@ import sys
 
 from docopt import docopt
 from scxconf.pyrokeys import VAMPIRES
+from swmain.redis import update_keys
 
 from device_control.drivers import ThorlabsTC
-from swmain.redis import update_keys
 
 
 class VAMPIRESTC(ThorlabsTC):
@@ -19,7 +19,7 @@ class VAMPIRESTC(ThorlabsTC):
         update_keys(U_FLCTMP=temperature)
 
     def help_message(self):
-        return f"""Usage:
+        return """Usage:
     vampires_tc [-h | --help]
     vampires_tc (status|temp|enable|disable)
     vampires_tc <setpoint>

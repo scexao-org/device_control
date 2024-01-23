@@ -1,7 +1,7 @@
 from zaber_motion import Library, Units
 from zaber_motion.binary import BinarySettings, CommandCode, Connection, Device
 
-from ..base import MotionDevice
+from device_control.base import MotionDevice
 
 __all__ = ["ZaberDevice"]
 

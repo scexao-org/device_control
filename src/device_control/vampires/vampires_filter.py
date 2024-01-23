@@ -3,11 +3,10 @@ import sys
 
 from docopt import docopt
 from scxconf.pyrokeys import VAMPIRES
+from swmain.redis import update_keys
 
 from device_control.drivers import ThorlabsWheel
 from device_control.vampires.cameras import connect_cameras
-from swmain.network.pyroclient import connect
-from swmain.redis import update_keys
 
 
 class VAMPIRESFilter(ThorlabsWheel):

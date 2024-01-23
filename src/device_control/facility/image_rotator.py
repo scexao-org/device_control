@@ -4,10 +4,10 @@ import re
 import click
 import rich
 from scxconf.pyrokeys import VCAM1, VCAM2
-
-from device_control.base import SSHDevice
 from swmain.network.pyroclient import connect
 from swmain.redis import update_keys
+
+from device_control.base import SSHDevice
 
 logger = logging.getLogger(__name__)
 
@@ -15,10 +15,7 @@ logger = logging.getLogger(__name__)
 class ImageRotator(SSHDevice):
     CONF = "facility/conf_image_rotator.toml"
 
-    KEY_MAP = {
-        "stage angle": "D_IMRANG",
-        "stage angle (pupil, theoretical)": "D_IMRPAD",
-    }
+    KEY_MAP = {"stage angle": "D_IMRANG", "stage angle (pupil, theoretical)": "D_IMRPAD"}
 
     CAMS_TO_CHECK = (VCAM1, VCAM2)
 
@@ -58,7 +55,7 @@ class ImageRotator(SSHDevice):
                 cam_pyro = connect(cam)
                 for key, value in hdr_dict.items():
                     cam_pyro.set_keyword(key, value)
-            except:
+            except Exception:
                 logger.exception(f"Unable to push keywords to cam {cam}")
 
 

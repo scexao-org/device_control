@@ -13,16 +13,17 @@ authors = [
 dependencies = [
     "click",
     "docopt",
-    "pyserial",
-    "tomli",
-    "tomli-w",
-    "zaber-motion",
-    "tqdm",
-    "swmain",
-    "scxconf",
-    "paramiko",
-    "pyusb",
     "loguru",
+    "paramiko",
+    "pyserial",
+    "pyusb",
+    "ruff",
+    "scxconf",
+    "swmain",
+    "tomli-w",
+    "tomli",
+    "tqdm",
+    "zaber-motion",
 ]
 dynamic = ["version"]
 
@@ -61,9 +62,24 @@ version = {attr = "device_control.__version__"}
 [tool.coverage.run]
 source = ["device_control"]
 
-[tool.black]
+[tool.ruff.lint]
+# pycodestyle, pydocstyle, isort, pyupgrade, pylint, tidyimports, use-pathlib, numpy, errmsg
+select = ["E", "F", "B", "SIM", "I", "UP", "TID", "PTH", "NPY", "EM"]
+ignore = [
+    "E501", # line too long
+]
+
+[tool.ruff]
 line-length = 100
 
-[tool.isort]
-profile = "black"
-multi_line_output = 3
+[tool.ruff.format]
+skip-magic-trailing-comma = true
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "parents"
+
+[tool.ruff.lint.isort]
+split-on-trailing-comma = false
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"

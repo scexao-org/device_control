@@ -4,9 +4,9 @@ import time
 
 from docopt import docopt
 from scxconf.pyrokeys import VAMPIRES
+from swmain.redis import update_keys
 
 from device_control.drivers import ThorlabsFlipMount
-from swmain.redis import update_keys
 
 
 class VAMPIRESPupilLens(ThorlabsFlipMount):
@@ -19,7 +19,7 @@ class VAMPIRESPupilLens(ThorlabsFlipMount):
         update_keys(U_PUPST=state.upper())
 
     def help_message(self):
-        return f"""Usage:
+        return """Usage:
     vampires_pupil [-h | --help]
     vampires_pupil status
     vampires_pupil <pos>

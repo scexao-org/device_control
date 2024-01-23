@@ -1,8 +1,6 @@
 import logging
 
-from swmain.autoretry import autoretry
-
-from ..base import MotionDevice
+from device_control.base import MotionDevice
 
 __all__ = ["CONEXDevice"]
 
@@ -70,15 +68,11 @@ CONEX_STATES = {
 
 
 class CONEXDevice(MotionDevice):
-    def __init__(
-        self,
-        device_address=1,
-        delay=0.1,
-        **kwargs,
-    ):
+    def __init__(self, device_address=1, delay=0.1, **kwargs):
         super().__init__(**kwargs)
         if device_address < 1 or device_address > 31:
-            raise ValueError(f"controller address must be between 1 and 31, got {device_address}")
+            msg = f"controller address must be between 1 and 31, got {device_address}"
+            raise ValueError(msg)
         self.device_address = device_address
         self.delay = delay
         self.logger = logging.getLogger(self.__class__.__name__)

@@ -1,6 +1,5 @@
 import click
 from paramiko import AutoAddPolicy, SSHClient
-
 from swmain.redis import update_keys
 
 __all__ = ["WPU"]
@@ -34,12 +33,7 @@ class WPUDevice:
 class WPU_SPP(WPUDevice):
     def get_status(self):
         status = self.ask_command("spp status")
-        status_dict = {
-            "position": -1,
-            "target": -1,
-            "mode": "UNKNOWN",
-            "pol_angle": -1,
-        }
+        status_dict = {"position": -1, "target": -1, "mode": "UNKNOWN", "pol_angle": -1}
         if len(status) > 0:
             tokens = status.split()
             pos_idx = tokens.index("position") + 1
@@ -75,11 +69,7 @@ class WPU_SPP(WPUDevice):
 class WPU_SHW(WPUDevice):
     def get_status(self):
         status = self.ask_command("shw status")
-        status_dict = {
-            "position": -1,
-            "target": -1,
-            "mode": "UNKNOWN",
-        }
+        status_dict = {"position": -1, "target": -1, "mode": "UNKNOWN"}
         if len(status) > 0:
             tokens = status.split()
             pos_idx = tokens.index("position") + 1
@@ -115,11 +105,7 @@ class WPU_SHW(WPUDevice):
 class WPU_SQW(WPUDevice):
     def get_status(self):
         status = self.ask_command("sqw status")
-        status_dict = {
-            "position": -1,
-            "target": -1,
-            "mode": "UNKNOWN",
-        }
+        status_dict = {"position": -1, "target": -1, "mode": "UNKNOWN"}
         if len(status) > 0:
             tokens = status.split()
             pos_idx = tokens.index("position") + 1
@@ -155,12 +141,7 @@ class WPU_SQW(WPUDevice):
 class WPU_HWP(WPUDevice):
     def get_status(self):
         status = self.ask_command("hwp status")
-        status_dict = {
-            "position": -1,
-            "target": -1,
-            "mode": "UNKNOWN",
-            "pol_angle": -1,
-        }
+        status_dict = {"position": -1, "target": -1, "mode": "UNKNOWN", "pol_angle": -1}
         if len(status) > 0:
             tokens = status.split()
             pos_idx = tokens.index("position") + 1
@@ -203,12 +184,7 @@ class WPU_HWP(WPUDevice):
 class WPU_QWP(WPUDevice):
     def get_status(self):
         status = self.ask_command("qwp status")
-        status_dict = {
-            "position": -1,
-            "target": -1,
-            "mode": "UNKNOWN",
-            "pol_angle": -1,
-        }
+        status_dict = {"position": -1, "target": -1, "mode": "UNKNOWN", "pol_angle": -1}
         if len(status) > 0:
             tokens = status.split()
             pos_idx = tokens.index("position") + 1

@@ -4,12 +4,11 @@ import sys
 from docopt import docopt
 from scxconf.pyrokeys import VAMPIRES
 
+# Requires scxconf and will fetch the IP addresses there.
+from swmain.redis import update_keys
+
 from device_control.drivers import CONEXDevice
 from device_control.vampires.cameras import connect_cameras
-from swmain.network.pyroclient import (
-    connect,
-)  # Requires scxconf and will fetch the IP addresses there.
-from swmain.redis import update_keys
 
 
 class VAMPIRESDiffWheel(CONEXDevice):
@@ -27,11 +26,7 @@ class VAMPIRESDiffWheel(CONEXDevice):
             state1 = state2 = "Unknown"
         else:
             state1, state2 = status.split(" / ")
-        update_keys(
-            U_DIFFL1=state1,
-            U_DIFFL2=state2,
-            U_DIFFTH=theta,
-        )
+        update_keys(U_DIFFL1=state1, U_DIFFL2=state2, U_DIFFTH=theta)
         for cam, state in zip(self.cams, (state1, state2)):
             if cam is not None:
                 cam.set_keyword("FILTER02", state)

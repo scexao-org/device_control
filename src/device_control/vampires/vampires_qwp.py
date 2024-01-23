@@ -3,11 +3,11 @@ import sys
 
 from docopt import docopt
 from scxconf.pyrokeys import VAMPIRES
+from swmain.redis import update_keys
 
 from device_control import conf_dir
 from device_control.drivers import CONEXDevice
 from device_control.vampires.cameras import connect_cameras
-from swmain.redis import update_keys
 
 
 class VAMPIRESQWP(CONEXDevice):
@@ -21,17 +21,15 @@ class VAMPIRESQWP(CONEXDevice):
         elif number == 2:
             self.PYRO_KEY = VAMPIRES.QWP2
         else:
-            raise ValueError(f"Invalid QWP number: {number}")
+            msg = f"Invalid QWP number: {number}"
+            raise ValueError(msg)
         self.number = number
 
     def _config_extras(self):
         return {"number": self.number}
 
     def _update_keys(self, theta):
-        kwargs = {
-            f"U_QWP{self.number:1d}": theta,
-            f"U_QWP{self.number:1d}TH": theta - self.offset,
-        }
+        kwargs = {f"U_QWP{self.number:1d}": theta, f"U_QWP{self.number:1d}TH": theta - self.offset}
         update_keys(**kwargs)
         for cam in connect_cameras():
             if cam is not None:
@@ -49,7 +47,8 @@ class VAMPIRESQWP(CONEXDevice):
         elif num == 2:
             pyro_key = VAMPIRES.QWP2
         else:
-            raise ValueError(f"Invalid QWP number: {num}")
+            msg = f"Invalid QWP number: {num}"
+            raise ValueError(msg)
         return super().connect(local, filename=filename, pyro_key=pyro_key)
 
     def get_status(self):
@@ -58,7 +57,7 @@ class VAMPIRESQWP(CONEXDevice):
         return posn, output
 
 
-__doc__ = f"""Usage:
+__doc__ = """Usage:
     vampires_qwp [-h | --help]
     vampires_qwp status
     vampires_qwp 1 (status|position|home|goto|nudge|stop|reset) [<pos>]
