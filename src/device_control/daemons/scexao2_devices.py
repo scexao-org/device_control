@@ -13,10 +13,7 @@ parser = ArgumentParser(
     description="Launch the daemon for the devices controlled by the scexao2 computer.",
 )
 
-DEVICE_MAP = {
-    # "vampires_fieldstop": partial(VAMPIRESFieldstop.connect, local=True),
-    "polarizer": partial(SCEXAOPolarizer.connect, local=True)
-}
+DEVICE_MAP = {"polarizer": partial(SCEXAOPolarizer.connect, local=True)}
 
 
 def main():

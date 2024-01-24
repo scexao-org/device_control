@@ -24,19 +24,19 @@ from device_control.vampires import (
 
 DEVICE_MAP = {
     "bs": partial(VAMPIRESBeamsplitter.connect, local=True),
-    "focus": partial(VAMPIRESFocus.connect, local=True),
     "camfocus": partial(VAMPIRESCamFocus.connect, local=True),
-    "flc": partial(VAMPIRESFLCStage.connect, local=True),
     "diff": partial(VAMPIRESDiffWheel.connect, local=True),
     "fieldstop": partial(VAMPIRESFieldstop.connect, local=True),
+    "filt": partial(VAMPIRESFilter.connect, local=True),
+    "flc": partial(VAMPIRESFLCStage.connect, local=True),
+    "focus": partial(VAMPIRESFocus.connect, local=True),
     "mask": partial(VAMPIRESMaskWheel.connect, local=True),
     "mbi": partial(VAMPIRESMBIWheel.connect, local=True),
+    "puplens": partial(VAMPIRESPupilLens.connect, local=True),
     "qwp1": partial(VAMPIRESQWP.connect, 1, local=True),
     "qwp2": partial(VAMPIRESQWP.connect, 2, local=True),
-    "filt": partial(VAMPIRESFilter.connect, local=True),
     "tc": partial(VAMPIRESTC.connect, local=True),
     "trig": partial(VAMPIRESTrigger.connect, local=True),
-    "puplens": partial(VAMPIRESPupilLens.connect, local=True),
 }
 
 parser = argparse.ArgumentParser(
