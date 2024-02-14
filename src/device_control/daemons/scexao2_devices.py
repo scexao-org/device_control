@@ -36,11 +36,7 @@ def main():
             server.add_device(device, device.PYRO_KEY, add_oneway_callables=True)
             available.append(key)
         except Exception:
-            click.secho(
-                f" ! Failed to connect {key} : {device.PYRO_KEY}",
-                bg=(114, 24, 23),
-                fg=(224, 224, 226),
-            )
+            click.secho(f" ! Failed to connect {key}", bg=(114, 24, 23), fg=(224, 224, 226))
 
     click.echo("\nThe following variables are available in the shell:")
     click.secho(", ".join(available), bold=True)

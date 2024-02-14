@@ -11,7 +11,7 @@ from device_control.vampires.cameras import connect_cameras
 
 
 class VAMPIRESQWP(CONEXDevice):
-    CONF = "vampires/conf_vampires_qwp{0:d}.toml"
+    CONF = "scexao/conf_vampires_qwp{0:d}.toml"
     format_str = "QWP{0:1d}: {1:6.02f}"
 
     def __init__(self, number, *args, **kwargs):
