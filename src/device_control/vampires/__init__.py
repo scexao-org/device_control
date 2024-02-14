@@ -8,11 +8,10 @@ from .vampires_focus import VAMPIRESFocus
 from .vampires_mask import VAMPIRESMaskWheel
 from .vampires_mbi import VAMPIRESMBIWheel
 from .vampires_pupil import VAMPIRESPupilLens
-from .vampires_qwp import VAMPIRESQWP
 from .vampires_tc import VAMPIRESTC
 from .vampires_trigger import VAMPIRESTrigger
 
-__all__ = [
+__all__ = (
     "VAMPIRESBeamsplitter",
     "VAMPIRESCamFocus",
     "VAMPIRESDiffWheel",
@@ -23,7 +22,6 @@ __all__ = [
     "VAMPIRESMaskWheel",
     "VAMPIRESMBIWheel",
     "VAMPIRESPupilLens",
-    "VAMPIRESQWP",
     "VAMPIRESTC",
     "VAMPIRESTrigger",
-]
+)

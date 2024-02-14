@@ -7,7 +7,6 @@ from swmain.infra.badsystemd.aux import auto_register_to_watchers
 from swmain.network.pyroserver_registerable import PyroServer
 
 from device_control.vampires import (
-    VAMPIRESQWP,
     VAMPIRESTC,
     VAMPIRESBeamsplitter,
     VAMPIRESCamFocus,
@@ -33,8 +32,6 @@ DEVICE_MAP = {
     "mask": partial(VAMPIRESMaskWheel.connect, local=True),
     "mbi": partial(VAMPIRESMBIWheel.connect, local=True),
     "puplens": partial(VAMPIRESPupilLens.connect, local=True),
-    "qwp1": partial(VAMPIRESQWP.connect, 1, local=True),
-    "qwp2": partial(VAMPIRESQWP.connect, 2, local=True),
     "tc": partial(VAMPIRESTC.connect, local=True),
     "trig": partial(VAMPIRESTrigger.connect, local=True),
 }

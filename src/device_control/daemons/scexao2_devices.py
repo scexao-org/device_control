@@ -6,14 +6,18 @@ from scxconf import IP_SC2, PYRONS3_HOST, PYRONS3_PORT
 from swmain.infra.badsystemd.aux import auto_register_to_watchers
 from swmain.network.pyroserver_registerable import PyroServer
 
-from device_control.scexao import SCEXAOPolarizer
+from device_control.scexao import VAMPIRESQWP, SCEXAOPolarizer
 
 parser = ArgumentParser(
     prog="scexao2_devices",
     description="Launch the daemon for the devices controlled by the scexao2 computer.",
 )
 
-DEVICE_MAP = {"polarizer": partial(SCEXAOPolarizer.connect, local=True)}
+DEVICE_MAP = {
+    "polarizer": partial(SCEXAOPolarizer.connect, local=True),
+    "qwp1": partial(VAMPIRESQWP.connect, 1, local=True),
+    "qwp2": partial(VAMPIRESQWP.connect, 2, local=True),
+}
 
 
 def main():

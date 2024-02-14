@@ -8,4 +8,4 @@ configurations = [
     {idx=6, name="775-50", value=6},
 ]
 [serial]
-port = "/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A900c3rB-if00-port0"
+port = "/dev/serial/by-id/usb-THORLABS_FW102C_TP02505201-20467-if00-port0"
