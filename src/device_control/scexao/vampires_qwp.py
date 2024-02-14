@@ -83,7 +83,7 @@ def main():
     if len(sys.argv) == 1:
         print(__doc__)
         return
-    local = os.getenv("WHICHCOMP") == "V"
+    local = os.getenv("WHICHCOMP") == "2"
     if args["1"]:
         vampires_qwp = VAMPIRESQWP.connect(1, local=local)
     elif args["2"]:
