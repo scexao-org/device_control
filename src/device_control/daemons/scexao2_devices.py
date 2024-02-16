@@ -3,6 +3,7 @@ from functools import partial
 
 import click
 from scxconf import IP_SC2, PYRONS3_HOST, PYRONS3_PORT
+from superk_control.superk import SuperK
 from swmain.infra.badsystemd.aux import auto_register_to_watchers
 from swmain.network.pyroserver_registerable import PyroServer
 
@@ -14,6 +15,7 @@ parser = ArgumentParser(
 )
 
 DEVICE_MAP = {
+    "superk": partial(SuperK.connect, local=True),
     "polarizer": partial(SCEXAOPolarizer.connect, local=True),
     "qwp1": partial(VAMPIRESQWP.connect, 1, local=True),
     "qwp2": partial(VAMPIRESQWP.connect, 2, local=True),

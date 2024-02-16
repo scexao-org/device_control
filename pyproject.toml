@@ -19,6 +19,7 @@ dependencies = [
     "pyusb",
     "ruff",
     "scxconf",
+    "superk-control",
     "swmain",
     "tomli-w",
     "tomli",
