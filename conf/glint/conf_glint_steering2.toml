@@ -1,0 +1,28 @@
+name = "glint_steering2"
+configurations = [
+    { idx = 1, name = "MySave", value = { u = 0.0, v = 0.0} },
+]
+
+[[devices]]
+name = "u"
+type = "conexagap"
+unit = "asec"
+offset = 0
+
+[devices.serial]
+timeout = 0.5
+port = "/dev/serial/by-id/usb-Newport_CONEX-AGAP_A68DE9AJ-if00-port0"
+baudrate = 921600
+xonxoff = true
+
+[[devices]]
+name = "v"
+type = "conexagap"
+unit = "asec"
+offset = 0
+
+[devices.serial]
+timeout = 0.5
+port = "/dev/serial/by-id/usb-Newport_CONEX-AGAP_A68DE9AJ-if00-port0"
+baudrate = 921600
+xonxoff = true

@@ -1,0 +1,9 @@
+name = "conex_agap_test"
+unit = "deg"
+offset = 0 # it's actually -90 but wait for changes
+
+[serial]
+port = "/dev/serial/by-id/usb-Newport_CONEX-AGAP_A675ROKW-if00-port0"
+baudrate = 921600
+xonxoff = true
+  
