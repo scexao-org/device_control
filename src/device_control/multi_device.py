@@ -5,7 +5,7 @@ import tomli
 import tomli_w
 
 from device_control.base import ConfigurableDevice
-from device_control.drivers.conex import CONEXDevice
+from device_control.drivers.conex import CONEXDevice, ConexAGAPButOnlyOneAxis
 from device_control.drivers.zaber import ZaberDevice
 
 __all__ = ["MultiDevice"]
@@ -62,6 +62,8 @@ class MultiDevice(ConfigurableDevice):
             dev_type = device_config.pop("type")
             if dev_type.lower() == "conex":
                 device = CONEXDevice(config_file=filename, **device_config)
+            elif dev_type.lower() == "conexagap":
+                device = ConexAGAPButOnlyOneAxis(config_file=filename, **device_config)
             elif dev_type.lower() == "zaber":
                 device = ZaberDevice(config_file=filename, **device_config)
             else:
@@ -85,6 +87,8 @@ class MultiDevice(ConfigurableDevice):
         for key, device in self.devices.items():
             if isinstance(device, CONEXDevice):
                 type = "conex"
+            elif isinstance(device, ConexAGAPButOnlyOneAxis):
+                type = "conexagap"
             elif isinstance(device, ZaberDevice):
                 type = "zaber"
             devconf = {"name": key, "type": type, "serial": device.get_serial_kwargs()}

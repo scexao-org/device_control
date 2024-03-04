@@ -2,7 +2,7 @@ import logging
 
 from device_control.base import MotionDevice
 
-__all__ = ["CONEXDevice"]
+__all__ = ["CONEXDevice", "ConexAGAPButOnlyOneAxis"]
 
 # CONEX programmer manual
 # https://www.newport.com/mam/celum/celum_assets/resources/CONEX-AGP_-_Controller_Documentation.pdf
@@ -83,8 +83,11 @@ class CONEXDevice(MotionDevice):
         cmd = f"{self.device_address}{command}\r\n"
         self.logger.debug(f"sending command: {cmd[:-2]}")
         with self.serial as serial:
+            # opens
             serial.write(cmd.encode())
             serial.read_until(b"\r\n")
+        # closes
+        
 
     # @autoretry(max_retries=10)
     def ask_command(self, command: str):
