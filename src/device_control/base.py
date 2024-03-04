@@ -21,7 +21,12 @@ class ConfigurableDevice:
     PYRO_KEY = None
 
     def __init__(
-        self, name=None, configurations=None, config_file=None, serial_kwargs=None, **kwargs
+        self,
+        name=None,
+        configurations=None,
+        config_file=None,
+        serial_kwargs={},
+        **kwargs,
     ):
         self.serial_kwargs = {"timeout": 0.5}
         self.serial_kwargs.update(serial_kwargs)
