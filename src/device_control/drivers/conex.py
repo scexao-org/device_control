@@ -113,10 +113,10 @@ class CONEXDevice(MotionDevice):
         self.send_command(f"SA{value}")
 
     def get_lower_limit(self) -> float:
-        return float(self.ask_command("SA?"))
+        return float(self.ask_command("SL?"))
 
     def lower_limit(self, value: float):
-        self.send_command(f"SA{value}")
+        self.send_command(f"SL{value}")
 
     def get_upper_limit(self) -> float:
         return float(self.ask_command("SR?"))
@@ -209,3 +209,67 @@ class CONEXDevice(MotionDevice):
     def stop(self):
         self.send_command("ST")
         self.update_keys()
+
+
+class ConexAGAPButOnlyOneAxis(CONEXDevice):
+    U = 'u'
+    V = 'v'
+
+    def __init__(self, axis, device_address=1, delay=0.1, **kwargs):
+
+        if axis not in (0, 1, 'u', 'v', 'U', 'V'):
+            msg = f"axis must be one of 0, 1, u or v, U or V"
+            raise ValueError(msg)
+        self.axis = self.U if axis in (0, 'u', 'U') else self.V
+
+        super().__init__(device_address, delay, **kwargs)
+
+    def get_lower_limit(self) -> float:
+        return float(self.ask_command(f"SL{self.axis}?"))
+
+    def lower_limit(self, value: float):
+        self.send_command(f"SL{self.axis}{value}")
+
+    def get_upper_limit(self) -> float:
+        return float(self.ask_command(f"SR{self.axis}?"))
+
+    def set_upper_limit(self, value: float):
+        self.send_command(f"SR{self.axis}{value}")
+
+    def _move_absolute(self, value: float):
+        # check if we're not referenced
+        if not self.is_enabled():
+            self.logger.warn("CONEX AGAP device is not enabled.")
+            return
+        # wait until we're ready to move
+        while not self.is_ready():
+            pass
+        # send move command
+        self.send_command(f"PA{self.axis}{value}")
+        # if blocking, loop while moving
+        while self.is_moving():
+            self.update_keys()
+
+    def _move_relative(self, value: float):
+        # check if we're not referenced
+        if not self.is_enabled():
+            self.logger.warn("CONEX AGAP device is not enabled.")
+            return
+            # wait until we're ready to move
+        while not self.is_ready():
+            continue
+        # send move command
+        self.send_command(f"PR{self.axis}{value}")
+        # if blocking, loop while moving
+        while self.is_moving():
+            self.update_keys()
+
+    def stop(self):
+        self.send_command(f"ST{self.axis}")
+        self.update_keys()
+
+    def _get_target_position(self) -> float:
+        return float(self.ask_command(f"TH{self.axis}"))
+
+    def _get_position(self) -> float:
+        return float(self.ask_command(f"TP{self.axis}"))
