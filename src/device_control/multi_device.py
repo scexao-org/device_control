@@ -63,7 +63,7 @@ class MultiDevice(ConfigurableDevice):
             if dev_type.lower() == "conex":
                 device = CONEXDevice(config_file=filename, **device_config)
             elif dev_type.lower() == "conexagap":
-                device = ConexAGAPButOnlyOneAxis(config_file=filename, **device_config)
+                device = ConexAGAPButOnlyOneAxis(axis=device_config['agapaxis'], config_file=filename, **device_config)
             elif dev_type.lower() == "zaber":
                 device = ZaberDevice(config_file=filename, **device_config)
             else:

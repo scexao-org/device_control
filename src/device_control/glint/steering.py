@@ -20,7 +20,7 @@ class GLINTSteeringX(MultiDevice):
     '''
     # CONF = None
     # PYRO_KEY = None
-    format_str = "{0:2d}: {1:6.2f} deg {{th={2:6.2f} deg}}"
+    format_str = "{0:2d}: {1:22s} {{u={2:4.3f} unit, v={3:4.3f} unit}}"
 
         
     def _update_keys(self, posn):
@@ -29,7 +29,7 @@ class GLINTSteeringX(MultiDevice):
 
     def help_message(self) -> str:
         configurations = "\n".join(
-            f"    {self.format_str.format(c['idx'], c['name'], c['value']['x'], c['value']['y'], c['value']['f'])}"
+            f"    {self.format_str.format(c['idx'], c['name'], c['value']['u'], c['value']['v'])}"
             for c in self.configurations
         )
         return f"""

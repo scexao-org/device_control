@@ -6,6 +6,7 @@ configurations = [
 [[devices]]
 name = "u"
 type = "conexagap"
+agapaxis = "u"
 unit = "asec"
 offset = 0
 
@@ -18,6 +19,7 @@ xonxoff = true
 [[devices]]
 name = "v"
 type = "conexagap"
+agapaxis = "v"
 unit = "asec"
 offset = 0
 

@@ -100,7 +100,9 @@ class CONEXDevice(MotionDevice):
         retval = resp.strip().decode()
         self.logger.debug(f"received: {retval[:-2]}")
         # strip command and \r\n from string
-        value = retval.split(command.replace("?", ""))[-1]
+        # Remove echoed command as answer prefix
+        # Warning CONEX AGAP: if axis u/v in command is given in lowercase, the echo is uppercase
+        value = retval.split(command.replace("?", "").replace('u', 'U').replace('v', 'V'))[-1]
         return value
 
     def get_stage_identifier(self) -> str:
@@ -215,8 +217,8 @@ class CONEXDevice(MotionDevice):
 
 
 class ConexAGAPButOnlyOneAxis(CONEXDevice):
-    U = 'u'
-    V = 'v'
+    U = 'U'
+    V = 'V'
 
     def __init__(self, axis, device_address=1, delay=0.1, **kwargs):
 
