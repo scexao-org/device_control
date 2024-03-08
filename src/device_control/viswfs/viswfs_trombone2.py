@@ -61,14 +61,14 @@ def main():
         viswfs_trombone2.home()
     elif args["goto"]:
         new_pos = float(args["<pos>"])
-        if new_pos > 45:
+        if new_pos > 50:
             print("Limitted!!!!")
         else:
             viswfs_trombone2.move_absolute(new_pos)
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
         posn = viswfs_trombone2.get_position() + rel_pos
-        if posn > 45:
+        if posn > 50:
             print("Limitted!!!!")
         else:
             viswfs_trombone2.move_relative(rel_pos)
