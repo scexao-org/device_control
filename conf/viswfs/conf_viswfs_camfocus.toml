@@ -1,6 +1,6 @@
 name = "viswfs_camfocus"
 configurations = [
-    { idx = 1, name = "WFS", value = 7.50 },
+    { idx = 1, name = "WFS", value = 7.30 },
     { idx = 2, name = "FPWFS", value = 8.40 },
 ]
 unit = "mm"
