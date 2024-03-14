@@ -5,7 +5,7 @@ import time
 from docopt import docopt
 from scxconf.pyrokeys import VISWFS
 
-from device_control.drivers import ThorlabsElliptec
+from device_control.drivers.thorlabs import ThorlabsElliptec
 from swmain.redis import update_keys
 
 
