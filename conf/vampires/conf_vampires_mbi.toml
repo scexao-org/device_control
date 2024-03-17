@@ -1,7 +1,8 @@
 name = "vampires_mbi"
 configurations = [
-    { idx = 1, name = "Dichroics", value = 80.26093 },
-    { idx = 2, name = "Mirror", value = 258.8699 },
+    { idx = 1, name = "Dichroics", value = 80.46104 },
+    { idx = 2, name = "Mirror", value = 259.0008 },
+    { idx = 3, name = "Pupil", value = 259.2013 },
 ]
 unit = "deg"
 offset = 0

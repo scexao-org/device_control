@@ -41,9 +41,9 @@ idx = 5
 name = "SAM-18"
 
 [configurations.value]
-x = 8.842771875
-y = 4.212002625
-theta = 95.3015
+x = 9.242821875
+y = 4.3720226250000005
+theta = 95.30199
 
 [[configurations]]
 idx = 6
@@ -77,18 +77,18 @@ idx = 9
 name = "LyotStop"
 
 [configurations.value]
-x = 8.894873625
-y = 4.039504875
-theta = 190.508
+x = 8.294798625
+y = 2.9196506250000005
+theta = 189.9081
 
 [[configurations]]
 idx = 10
 name = "RAP"
 
 [configurations.value]
-x = 9.036939
-y = 8.85796425
-theta = 218.5011
+x = 8.677036875
+y = 8.918114625000001
+theta = 218.5013
 
 [[configurations]]
 idx = 11
@@ -113,18 +113,18 @@ idx = 13
 name = "LyotOpt"
 
 [configurations.value]
-x = 9.047988
-y = 4.558141125
-theta = 286.5815
+x = 8.5079205
+y = 3.3982818750000003
+theta = 286.1818
 
 [[configurations]]
 idx = 14
 name = "PupilRef"
 
 [configurations.value]
-x = 9.007983000000001
-y = 5.078206125
-theta = 310.9998
+x = 8.547925500000002
+y = 4.058078625
+theta = 310.6999
 
 [[devices]]
 name = "x"

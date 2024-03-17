@@ -1,11 +1,11 @@
 name = "vampires_fieldstop"
 configurations = [
-    { idx = 1, name = "Fieldstop", value = { x = 4.2473, y = 21.4188, f = 4.75 } },
-    { idx = 2, name = "CLC-2", value = { x = 7.359999, y = 2.8017, f = 4.7472 } },
-    { idx = 3, name = "CLC-3", value = { x = 7.357199, y = 9.040298, f = 4.75 } },
-    { idx = 4, name = "CLC-5", value = { x = 1.1181, y = 9.043999, f = 4.75 } },
-    { idx = 5, name = "CLC-7", value = { x = 1.1194, y = 2.7954, f = 4.75 } },
-    { idx = 6, name = "DGVVC", value = { x = 19.7633, y = 21.3777, f = 5.234299 } },
+    { idx = 1, name = "Fieldstop", value = { x = 4.798299, y = 21.8788, f = 4.75 } },
+    { idx = 2, name = "CLC-2", value = { x = 7.936999, y = 3.2727, f = 4.7472 } },
+    { idx = 3, name = "CLC-3", value = { x = 7.928199, y = 9.517299, f = 4.750099 } },
+    { idx = 4, name = "CLC-5", value = { x = 1.6871, y = 9.514998, f = 4.75 } },
+    { idx = 5, name = "CLC-7", value = { x = 1.6924, y = 3.2725, f = 4.75 } },
+    { idx = 6, name = "DGVVC", value = { x = 20.3042, y = 21.8697, f = 5.234299 } },
 ]
 
 [[devices]]
