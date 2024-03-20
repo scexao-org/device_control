@@ -19,7 +19,7 @@ xonxoff = true
 [[devices]]
 name = "v"
 type = "conexagap"
-agapaxis = "u"
+agapaxis = "v"
 unit = "asec"
 offset = 0
 
