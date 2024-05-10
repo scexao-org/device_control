@@ -1,5 +1,6 @@
 from zaber_motion import Library, Units
 from zaber_motion.binary import BinarySettings, CommandCode, Connection, Device
+import fcntl
 
 from device_control.base import MotionDevice
 
@@ -31,6 +32,9 @@ class ZaberDevice(MotionDevice):
         return {**self.serial_kwargs, "device_number": self.device_number}
 
     def __enter__(self) -> Device:
+        self._lockfile = open(self.flockpath, 'r')
+        fcntl.flock(self._lockfile.fileno(), fcntl.LOCK_EX)
+
         self.connection = Connection.open_serial_port(self.serial_kwargs["port"])
         device = self.connection.get_device(self.device_number)
         device.identify()
@@ -38,6 +42,8 @@ class ZaberDevice(MotionDevice):
 
     def __exit__(self, *args):
         self.connection.close()
+        fcntl.flock(self._lockfile.fileno(), fcntl.LOCK_UN)
+        self._lockfile.close()
 
     def _get_position(self):
         with self as dev:

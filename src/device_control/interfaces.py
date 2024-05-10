@@ -22,7 +22,8 @@ class DeviceDriver(abc.ABC):
     def set_name(self, name: str):
         self.name = name
 
-    @abc.abstractclassmethod
+    @abc.abstractmethod
+    @classmethod
     def from_dict(__cls__, config: dict[str, Any]):
         """Create this device from a dictionary"""
 

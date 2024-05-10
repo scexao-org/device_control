@@ -5,7 +5,8 @@ import numpy as np
 import paramiko
 import tomli
 import tomli_w
-from serial import Serial
+import serial
+import fcntl
 from swmain.network.pyroclient import connect
 
 from device_control import conf_dir
@@ -14,6 +15,26 @@ __all__ = ["ConfigurableDevice", "MotionDevice", "SSHDevice"]
 
 # Interface for hardware devices- all subclasses must
 # implement this!
+
+class Serial(serial.Serial):
+    
+    def __init__(self, *args, flockpath: str, **kwargs):
+        self.flockpath = flockpath
+        with open(self.flockpath, 'r') as lock:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+            super().__init__(*args, **kwargs)
+            self.close()
+            fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+
+    def __enter__(self):
+        self._file = open(self.flockpath, 'r')
+        fcntl.flock(self._file.fileno(), fcntl.LOCK_EX)
+        return super().__enter__()
+
+    def __exit__(self, type, value, traceback):
+        fcntl.flock(self._file.fileno(), fcntl.LOCK_UN)
+        self._file.close()
+        super().__exit__(type, value, traceback)
 
 
 class ConfigurableDevice:
@@ -30,7 +51,15 @@ class ConfigurableDevice:
     ):
         self.serial_kwargs = {"timeout": 0.5}
         self.serial_kwargs.update(serial_kwargs)
-        self.serial = Serial(**self.serial_kwargs)
+        # This will crash with serial.serialutil.SerialException and errno 16 if the port is busy.
+        # Now this could be detected to have calls on the same zaberchain to actually queue up.
+
+        self.flockpath = f'/tmp/' + self.serial_kwargs['port'].replace('/', '_')
+        Path(self.flockpath).touch() # If doesn't exist
+
+        # WARNING - due to the subclassing, this returns a closed port.
+        self.serial = Serial(flockpath=self.flockpath, **self.serial_kwargs)
+
         self.configurations = configurations
         self.config_file = config_file
         self.name = name
