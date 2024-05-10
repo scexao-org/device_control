@@ -1,6 +1,8 @@
+import fcntl
+from pathlib import Path
+
 from zaber_motion import Library, Units
 from zaber_motion.binary import BinarySettings, CommandCode, Connection, Device
-import fcntl
 
 from device_control.base import MotionDevice
 
@@ -28,11 +30,17 @@ class ZaberDevice(MotionDevice):
         self.zab_unit = ZABER_UNITS[self.unit]
         self.delay = delay
 
+        self.flockpath = None
+
     def get_serial_kwargs(self):
         return {**self.serial_kwargs, "device_number": self.device_number}
 
     def __enter__(self) -> Device:
-        self._lockfile = open(self.flockpath, 'r')
+        if self.flockpath is None:
+            self.flockpath = "/tmp/" + self.serial_kwargs["port"].replace("/", "_")
+            Path(self.flockpath).touch()
+
+        self._lockfile = Path.open(self.flockpath)
         fcntl.flock(self._lockfile.fileno(), fcntl.LOCK_EX)
 
         self.connection = Connection.open_serial_port(self.serial_kwargs["port"])
