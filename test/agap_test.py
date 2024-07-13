@@ -1,8 +1,7 @@
 import sys
 
-from docopt import docopt
-
 from device_control.drivers import CONEXDevice
+from docopt import docopt
 
 
 class AGAPTest(CONEXDevice):

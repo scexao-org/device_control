@@ -42,9 +42,9 @@ class Serial(serial.Serial):
             self.flockpath = Path("/tmp") / self.serial_kwargs["port"].replace("/", "_")
             Path(self.flockpath).touch()
 
-        self._file = self.flockpath.open()
+        self._file = self.flockpath.open()  # SIM441
         fcntl.flock(self._file.fileno(), fcntl.LOCK_EX)
-        yield super().__enter__()
+        return super().__enter__()
 
     def __exit__(self, type, value, traceback):
         fcntl.flock(self._file.fileno(), fcntl.LOCK_UN)

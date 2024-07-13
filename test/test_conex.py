@@ -1,6 +1,5 @@
+from device_control.interfaces import MotionDriver, SerialDriver
 from loguru import logger
-
-from .interfaces import MotionDriver, SerialDriver
 
 __all__ = "CONEXDriver"
 
