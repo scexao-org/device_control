@@ -1,3 +1,4 @@
+name="vampires_flc"
 unit = "mm"
 configurations = [
     {idx=1, name="IN", value=0},

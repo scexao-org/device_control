@@ -1,5 +1,5 @@
 import fcntl
-from logging import getLogger
+import logging
 from pathlib import Path
 
 import numpy as np
@@ -71,7 +71,7 @@ class ConfigurableDevice:
         self.configurations = configurations
         self.config_file = config_file
         self.name = name
-        self.logger = getLogger(self.__class__.__name__)
+        self.logger = logging.getLogger(self.name)
 
     @classmethod
     def from_config(__cls__, filename, **kwargs):
@@ -149,7 +149,8 @@ class MotionDevice(ConfigurableDevice):
         return {"unit": self.unit, "offset": self.offset}
 
     def get_position(self):
-        pos = self._get_position() + self.offset
+        raw = self._get_position()
+        pos = raw + self.offset
         self.update_keys(pos)
         return pos
 
@@ -158,12 +159,14 @@ class MotionDevice(ConfigurableDevice):
 
     def get_target_position(self):
         pos = self._get_target_position() + self.offset
+        self.logger.debug(pos)
         return pos
 
     def _get_target_position(self):
         raise NotImplementedError()
 
     def home(self):
+        self.logger.debug("HOMING")
         pos = self._home()
         self.update_keys(pos)
         return pos
@@ -172,6 +175,13 @@ class MotionDevice(ConfigurableDevice):
         raise NotImplementedError()
 
     def move_absolute(self, value, **kwargs):
+        self.logger.debug(
+            "MOVING to=%s unit=%s raw=%s offset=%s",
+            value,
+            self.unit,
+            value - self.offset,
+            self.offset,
+        )
         pos = self._move_absolute(value - self.offset, **kwargs)
         self.update_keys(pos)
         return pos
@@ -180,6 +190,7 @@ class MotionDevice(ConfigurableDevice):
         raise NotImplementedError()
 
     def move_relative(self, value):
+        self.logger.debug("MOVING relative=%s unit=%s", value, self.unit)
         pos = self._move_relative(value)
         self.update_keys(pos)
         return pos
@@ -193,6 +204,9 @@ class MotionDevice(ConfigurableDevice):
     def update_keys(self, position=None):
         if position is None:
             position = self.get_position()
+        self.logger.info(
+            "%s unit=%s raw=%s offset=%s", position, self.unit, position - self.offset, self.offset
+        )
         return self._update_keys(position)
 
     def _update_keys(self, position):
@@ -264,6 +278,7 @@ class MotionDevice(ConfigurableDevice):
 
         # sort configurations dictionary in-place by index
         self.configurations.sort(key=lambda d: d["idx"])
+        self.logger.debug("Saving configuration filename=%s", self.config_file)
         # save configurations to file
         self.save_config(**kwargs)
         self.update_keys()

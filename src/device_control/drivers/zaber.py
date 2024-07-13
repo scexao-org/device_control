@@ -61,6 +61,7 @@ class ZaberDevice(MotionDevice):
         return self._position
 
     def send_command(self, index: int, values=0):
+        self.logger.debug("sending command index=%d value=%s", index, values)
         with self as device:
             message = device.generic_command(CommandCode(index), values)
         return message.data
@@ -81,6 +82,7 @@ class ZaberDevice(MotionDevice):
             self.update_keys(posn)
 
     def reset(self):
+        self.logger.debug("RESET")
         self.send_command(0)
 
     def _home(self):
@@ -89,6 +91,7 @@ class ZaberDevice(MotionDevice):
             self.update_keys(posn)
 
     def stop(self):
+        self.logger.debug("STOP")
         with self as device:
             device.stop()
         self.update_keys()

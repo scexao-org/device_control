@@ -1,5 +1,3 @@
-import logging
-
 from device_control.base import MotionDevice
 
 __all__ = ["CONEXDevice", "ConexAGAPButOnlyOneAxis"]
@@ -75,13 +73,12 @@ class CONEXDevice(MotionDevice):
             raise ValueError(msg)
         self.device_address = device_address
         self.delay = delay
-        self.logger = logging.getLogger(self.__class__.__name__)
 
     # @autoretry(max_retries=10)
     def send_command(self, command: str):
         # pad command with CRLF ending
         cmd = f"{self.device_address}{command}\r\n"
-        self.logger.debug(f"sending command: {cmd[:-2]}")
+        self.logger.debug("sending command %s", cmd[:-2])
         with self.serial as serial:
             # opens
             serial.write(cmd.encode())
@@ -92,16 +89,17 @@ class CONEXDevice(MotionDevice):
     def ask_command(self, command: str):
         # pad command with CRLF ending
         cmd = f"{self.device_address}{command}\r\n"
-        self.logger.debug(f"sending command: {cmd[:-2]}")
+        self.logger.debug("sending command %s", cmd[:-2])
         with self.serial as serial:
             serial.write(cmd.encode())
             resp = serial.read_until(b"\r\n")
         retval = resp.strip().decode()
-        self.logger.debug(f"received: {retval[:-2]}")
+        self.logger.debug("received %s", retval[:-2])
         # strip command and \r\n from string
         # Remove echoed command as answer prefix
         # Warning CONEX AGAP: if axis u/v in command is given in lowercase, the echo is uppercase
         value = retval.split(command.replace("?", "").replace("u", "U").replace("v", "V"))[-1]
+        self.logger.debug("parsed %s", value)
         return value
 
     def get_stage_identifier(self) -> str:
@@ -160,9 +158,11 @@ class CONEXDevice(MotionDevice):
         return isinstance(self.get_state(), NotReferenced)
 
     def disable(self):
+        self.logger.debug("DISABLING")
         self.send_command("MM0")
 
     def enable(self):
+        self.logger.debug("ENABLING")
         self.send_command("MM1")
 
     def _home(self):
@@ -199,9 +199,11 @@ class CONEXDevice(MotionDevice):
             self.update_keys()
 
     def reset(self):
+        self.logger.debug("RESET")
         self.send_command("RS")
 
     def reset_address(self, value: int):
+        self.logger.debug("RESET ADDRESS address=%s", value)
         self.send_command(f"RS{value}")
 
     def _get_target_position(self) -> float:
@@ -211,6 +213,7 @@ class CONEXDevice(MotionDevice):
         return float(self.ask_command("TP"))
 
     def stop(self):
+        self.logger.debug("STOP")
         self.send_command("ST")
         self.update_keys()
 
