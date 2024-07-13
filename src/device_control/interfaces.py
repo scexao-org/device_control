@@ -100,6 +100,9 @@ class MotionDriver(DeviceDriver, abc.ABC):
     unit: str
     offset: Number = 0
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def get_unit(self):
         return self.unit
 
@@ -113,56 +116,63 @@ class MotionDriver(DeviceDriver, abc.ABC):
         self.offset = value
 
     def get_position(self):
+        """Return position (with offsets) and update keywords"""
         pos = self._get_position() + self.offset
         self.update_keys(pos)
         return pos
 
     def get_target_position(self):
+        """Return target position (with offsets) and update keywords"""
         pos = self._get_target_position() + self.offset
         return pos
 
     def home(self):
+        """Home device and update keywords"""
         pos = self._home()
         self.update_keys(pos)
         return pos
 
     def move_absolute(self, value, **kwargs):
+        """Move device to absolute position (including offsets) and update keywords"""
         pos = self._move_absolute(value - self.offset, **kwargs)
         self.update_keys(pos)
         return pos
 
     def move_relative(self, value):
+        """Move device by relative value and update keywords"""
         pos = self._move_relative(value)
         self.update_keys(pos)
         return pos
 
     def stop(self):
+        """Stop all motion from device"""
         self._stop()
         self.update_keys()
 
+    # abstract methods
     @abc.abstractmethod
     def _get_position(self):
-        pass
+        """Device-specific method for getting the current position"""
 
     @abc.abstractmethod
     def _get_target_position(self):
-        pass
+        """Device-specific method for getting the target position"""
 
     @abc.abstractmethod
     def _home(self):
-        pass
+        """Device-specific method for homing"""
 
     @abc.abstractmethod
     def _move_absolute(self, value):
-        pass
+        """Device-specific method for moving to absolute position"""
 
     @abc.abstractmethod
     def _move_relative(self, value):
-        pass
+        """Device-specific method for moving by relative position"""
 
     @abc.abstractmethod
     def _stop(self):
-        pass
+        """Device-specific method for stopping"""
 
 
 ##################################################################################
@@ -207,11 +217,14 @@ class ConfigurableDevice(abc.ABC):
         name = config_dict.pop("name", "")
         drivers = {}
         for device in config_dict.pop("devices", []):
-            match device.pop("driver"):
-                case "serial":
-                    driver = SerialDriver.from_dict(device)
-                case "ssh":
-                    driver = SSHDriver.from_dict(device)
+            driver_type = device.pop("driver")
+            if driver_type == "serial":
+                driver = SerialDriver.from_dict(device)
+            elif driver_type == "ssh":
+                driver = SSHDriver.from_dict(device)
+            else:
+                msg = f"Did not recognize device driver type {driver!r}"
+                raise ValueError(msg)
             drivers[driver.name] = driver
 
         configurations = []

@@ -87,7 +87,6 @@ class CONEXDevice(MotionDevice):
             serial.write(cmd.encode())
             serial.read_until(b"\r\n")
         # closes
-        
 
     # @autoretry(max_retries=10)
     def ask_command(self, command: str):
@@ -102,7 +101,7 @@ class CONEXDevice(MotionDevice):
         # strip command and \r\n from string
         # Remove echoed command as answer prefix
         # Warning CONEX AGAP: if axis u/v in command is given in lowercase, the echo is uppercase
-        value = retval.split(command.replace("?", "").replace('u', 'U').replace('v', 'V'))[-1]
+        value = retval.split(command.replace("?", "").replace("u", "U").replace("v", "V"))[-1]
         return value
 
     def get_stage_identifier(self) -> str:
@@ -217,15 +216,14 @@ class CONEXDevice(MotionDevice):
 
 
 class ConexAGAPButOnlyOneAxis(CONEXDevice):
-    U = 'U'
-    V = 'V'
+    U = "U"
+    V = "V"
 
     def __init__(self, axis, device_address=1, delay=0.1, **kwargs):
-
-        if axis not in (0, 1, 'u', 'v', 'U', 'V'):
-            msg = f"axis must be one of 0, 1, u or v, U or V"
+        if axis not in (0, 1, "u", "v", "U", "V"):
+            msg = "axis must be one of 0, 1, u or v, U or V"
             raise ValueError(msg)
-        self.axis = self.U if axis in (0, 'u', 'U') else self.V
+        self.axis = self.U if axis in (0, "u", "U") else self.V
 
         super().__init__(device_address, delay, **kwargs)
 

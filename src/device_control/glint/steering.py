@@ -1,31 +1,26 @@
 from __future__ import annotations
 
-import typing as typ
-
 import os
 import sys
 
 from docopt import docopt
-from scxconf.pyrokeys import SCEXAO
-from swmain.redis import update_keys
-
 
 from device_control.multi_device import MultiDevice
 
 
 class GLINTSteeringX(MultiDevice):
-    '''
+    """
     Beware: this class used for steering 1 AND steering 2
     Class attributes to be set in connect overload
-    '''
+    """
+
     # CONF = None
     # PYRO_KEY = None
     format_str = "{0:2d}: {1:22s} {{u={2:4.3f} unit, v={3:4.3f} unit}}"
 
-        
     def _update_keys(self, posn):
         ...
-        #update_keys(X_POLARP=posn)
+        # update_keys(X_POLARP=posn)
 
     def help_message(self) -> str:
         configurations = "\n".join(
@@ -56,10 +51,9 @@ Stage commands:
 Configurations:
 {configurations}"""
 
-
     @classmethod
     def connect(cls, index: int, local=False, filename=None, pyro_key=None):
-        cls.PYRO_KEY = f"GLINT_STEER_{index}" # FIXME WHEN PYRO
+        cls.PYRO_KEY = f"GLINT_STEER_{index}"  # FIXME WHEN PYRO
         cls.CONF = f"glint/conf_glint_steering{index}.toml"
         return super().connect(local, filename, pyro_key)
 
@@ -103,16 +97,19 @@ def main(index: int):
         glint_steering.reset(substage)
     glint_steering.update_keys(posns)
 
+
 def main1():
     return main(1)
+
 
 def main2():
     return main(2)
 
+
 if __name__ == "__main__":
-    
-    if len(sys.argv) < 1 or sys.argv[0] in ('1', '2'):
-        raise ValueError('First argument to steering.py must be "1" or "2" to dispatch to GLINT steering 1 or steering 2.')
-    index = int(sys.argv[0]) # Parse stage index.
-    sys.argv = sys.argv[1:] # Bump one arg out.
+    if len(sys.argv) < 1 or sys.argv[0] in ("1", "2"):
+        msg = 'First argument to steering.py must be "1" or "2" to dispatch to GLINT steering 1 or steering 2.'
+        raise ValueError(msg)
+    index = int(sys.argv[0])  # Parse stage index.
+    sys.argv = sys.argv[1:]  # Bump one arg out.
     main(index)

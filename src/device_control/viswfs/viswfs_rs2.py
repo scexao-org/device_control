@@ -3,9 +3,9 @@ import sys
 
 from docopt import docopt
 from scxconf.pyrokeys import VISWFS
+from swmain.redis import update_keys
 
 from device_control.drivers import CONEXDevice
-from swmain.redis import update_keys
 
 
 class VISWFSRotStage2(CONEXDevice):
@@ -16,7 +16,7 @@ class VISWFSRotStage2(CONEXDevice):
     1. Dichroic filter
     2. Polarizing beamsplitter cube (PBS)
     3. Mirror
-    
+
     """
 
     CONF = "viswfs/conf_viswfs_rs2.toml"

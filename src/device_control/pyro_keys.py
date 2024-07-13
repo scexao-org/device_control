@@ -1,4 +1,4 @@
-__all__ = ["VAMPIRES", "PYRO_KEYS", "VISWFS"]
+__all__ = ("VAMPIRES", "PYRO_KEYS", "VISWFS")
 
 
 class VAMPIRES:
@@ -17,6 +17,7 @@ class VAMPIRES:
     TC: str = "VAMPIRES_TC"
     TRIG: str = "VAMPIRES_TRIG"
 
+
 class VISWFS:
     PICKOFFBS: str = "VISWFS_PICKOFFBS"
     CAMFCS: str = "VISWFS_CAMFCS"
@@ -27,6 +28,7 @@ class VISWFS:
     FLIPMOUNT1: str = "VISWFS_FLIPMOUNT1"
     FLIPMOUNT2: str = "VISWFS_FLIPMOUNT2"
     HWP: str = "VISWFS_HWP"
+
 
 class PYRO_KEYS:
     VAMPIRES = VAMPIRES

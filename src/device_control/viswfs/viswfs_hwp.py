@@ -4,9 +4,9 @@ import time
 
 from docopt import docopt
 from scxconf.pyrokeys import VISWFS
+from swmain.redis import update_keys
 
 from device_control.drivers.thorlabs import ThorlabsElliptec
-from swmain.redis import update_keys
 
 
 class VISWFSHWP(ThorlabsElliptec):
@@ -36,7 +36,6 @@ Stage commands:
 
 Configurations:
 {configurations}"""
-
 
 
 # setp 4. action

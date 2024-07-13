@@ -11,7 +11,7 @@ from device_control.multi_device import MultiDevice
 class VAMPIRESMaskWheel(MultiDevice):
     CONF = "vampires/conf_vampires_mask.toml"
     PYRO_KEY = VAMPIRES.MASK
-    format_str = "{0:2d}: {1:17s} {{x={2:6.3f} mm, y={3:6.3f} mm, th={4:6.2f} deg}}"
+    format_str = "{0:}: {1:17s} {{x={2:6.3f} mm, y={3:6.3f} mm, th={4:6.2f} deg}}"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

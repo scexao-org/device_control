@@ -1,28 +1,29 @@
 import time
+
 import elliptec
+
 from device_control.base import ConfigurableDevice
 
-from swmain.autoretry import autoretry
-
-'''
+"""
 Please refer to this github repo for the detailed information about the Elliptec package:
-https://github.com/roesel/elliptec
-'''
+https://github.com/roesel/elliptec NOTE this needs to be added as a dependency!!
+"""
+
 
 class ThorlabsElliptec(ConfigurableDevice):
     def __init__(self, serial_kwargs, **kwargs):
         serial_kwargs = dict({"baudrate": 9600, "rtscts": True}, **serial_kwargs)
-        self.controller = elliptec.Controller(serial_kwargs['port'], debug=False)
-        if serial_kwargs['type'] == 'Rotator':
+        self.controller = elliptec.Controller(serial_kwargs["port"], debug=False)
+        if serial_kwargs["type"] == "Rotator":
             self.device = elliptec.Rotator(self.controller)
-        elif serial_kwargs['type'] == 'Shutter':
+        elif serial_kwargs["type"] == "Shutter":
             self.device = elliptec.Shutter(self.controller)
-        elif serial_kwargs['type'] == 'Slider':
+        elif serial_kwargs["type"] == "Slider":
             self.device = elliptec.Slider(self.controller)
-        elif serial_kwargs['type'] == 'Linear':
+        elif serial_kwargs["type"] == "Linear":
             self.device = elliptec.Linear(self.controller)
-        del[serial_kwargs['type']]
-        self.configurations = kwargs['configurations']
+        del [serial_kwargs["type"]]
+        self.configurations = kwargs["configurations"]
         # super().__init__(serial_kwargs=serial_kwargs, **kwargs)
 
     def update_keys(self, position=None):
@@ -65,13 +66,15 @@ class ThorlabsElliptec(ConfigurableDevice):
         for row in self.configurations:
             if row["idx"] == idx:
                 return self.set_position(row["value"])
-        raise ValueError(f"No configuration saved at index {idx}")
+        msg = f"No configuration saved at index {idx}"
+        raise ValueError(msg)
 
     def move_configuration_name(self, name: str):
         for row in self.configurations:
             if row["name"].lower() == name.lower():
                 return self.set_position(row["value"])
-        raise ValueError(f"No configuration saved with name '{name}'")
+        msg = f"No configuration saved with name '{name}'"
+        raise ValueError(msg)
 
     def get_configuration(self, position=None):
         if position is None:
@@ -91,6 +94,6 @@ class ThorlabsElliptec(ConfigurableDevice):
         device = self.device
         print(device)
         result = device.home()
-        time.sleep(1)        
+        time.sleep(1)
         self.update_keys(result)
         return result

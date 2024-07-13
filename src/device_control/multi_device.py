@@ -5,7 +5,7 @@ import tomli
 import tomli_w
 
 from device_control.base import ConfigurableDevice
-from device_control.drivers.conex import CONEXDevice, ConexAGAPButOnlyOneAxis
+from device_control.drivers.conex import ConexAGAPButOnlyOneAxis, CONEXDevice
 from device_control.drivers.zaber import ZaberDevice
 
 __all__ = ["MultiDevice"]
@@ -63,7 +63,9 @@ class MultiDevice(ConfigurableDevice):
             if dev_type.lower() == "conex":
                 device = CONEXDevice(config_file=filename, **device_config)
             elif dev_type.lower() == "conexagap":
-                device = ConexAGAPButOnlyOneAxis(axis=device_config['agapaxis'], config_file=filename, **device_config)
+                device = ConexAGAPButOnlyOneAxis(
+                    axis=device_config["agapaxis"], config_file=filename, **device_config
+                )
             elif dev_type.lower() == "zaber":
                 device = ZaberDevice(config_file=filename, **device_config)
             else:
@@ -195,6 +197,6 @@ class MultiDevice(ConfigurableDevice):
 
     def get_status(self):
         posns = [dev.get_position() for dev in self.devices.values()]
-        idx, name = self.get_configuration(posns)
+        idx, name = self.get_configuration(posns)  # This may return (None, 'Unknown')
         output = self.format_str.format(idx, name, *posns)
         return posns, output

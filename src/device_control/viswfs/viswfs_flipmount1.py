@@ -4,9 +4,9 @@ import time
 
 from docopt import docopt
 from scxconf.pyrokeys import VISWFS
+from swmain.redis import update_keys
 
 from device_control.drivers import ThorlabsFlipMount
-from swmain.redis import update_keys
 
 
 class VISWFSFlipMount1(ThorlabsFlipMount):
@@ -19,7 +19,7 @@ class VISWFSFlipMount1(ThorlabsFlipMount):
         update_keys(U_FM1ST=state.upper())
 
     def help_message(self):
-        return f"""Usage:
+        return """Usage:
     viswfs_flipmount1 [-h | --help]
     viswfs_flipmount1 status
     viswfs_flipmount1 <pos>

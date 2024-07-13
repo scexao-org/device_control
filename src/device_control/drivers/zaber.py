@@ -37,10 +37,10 @@ class ZaberDevice(MotionDevice):
 
     def __enter__(self) -> Device:
         if self.flockpath is None:
-            self.flockpath = "/tmp/" + self.serial_kwargs["port"].replace("/", "_")
-            Path(self.flockpath).touch()
+            self.flockpath = Path("/tmp") / self.serial_kwargs["port"].replace("/", "_")
+            self.flockpath.touch()
 
-        self._lockfile = Path.open(self.flockpath)
+        self._lockfile = self.flockpath.open()  # SIM115
         fcntl.flock(self._lockfile.fileno(), fcntl.LOCK_EX)
 
         self.connection = Connection.open_serial_port(self.serial_kwargs["port"])

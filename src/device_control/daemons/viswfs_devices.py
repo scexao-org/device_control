@@ -3,18 +3,18 @@ from functools import partial
 
 import click
 from scxconf import IP_AORTS_SUMMIT, PYRONS3_HOST, PYRONS3_PORT
+from swmain.network.pyroserver_registerable import PyroServer
 
 from device_control.viswfs import (
-    VISWFSPickoffBS,
     VISWFSCamFocus,
-    VISWFSTrombone1,
-    VISWFSTrombone2,
-    VISWFSRotStage1,
-    VISWFSRotStage2,
     VISWFSFlipMount1,
     VISWFSFlipMount2,
+    VISWFSPickoffBS,
+    VISWFSRotStage1,
+    VISWFSRotStage2,
+    VISWFSTrombone1,
+    VISWFSTrombone2,
 )
-from swmain.network.pyroserver_registerable import PyroServer
 
 DEVICE_MAP = {
     "pickoff": partial(VISWFSPickoffBS.connect, local=True),
@@ -47,14 +47,14 @@ def main():
             globals()[key] = device
             server.add_device(device, device.PYRO_KEY, add_oneway_callables=True)
             available.append(key)
-        except:
+        except Exception:
             click.secho(
                 f" ! Failed to connect {key} : {device.PYRO_KEY}",
                 bg=(114, 24, 23),
                 fg=(224, 224, 226),
             )
 
-    click.echo(f"\nThe following variables are available in the shell:")
+    click.echo("\nThe following variables are available in the shell:")
     click.secho(", ".join(available), bold=True)
     ## Start server
     server.start()

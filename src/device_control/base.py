@@ -26,9 +26,9 @@ class Serial(serial.Serial):
             port = kwargs["port"]
 
         if port:
-            self.flockpath = "/tmp/" + kwargs["port"].replace("/", "_")
-            Path(self.flockpath).touch()  # If doesn't exist
-            with Path.open(self.flockpath) as lock:
+            self.flockpath = Path("/tmp") / kwargs["port"].replace("/", "_")
+            self.flockpath.touch()  # If doesn't exist
+            with self.flockpath.open() as lock:
                 fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
                 super().__init__(*args, **kwargs)
                 self.close()
@@ -39,12 +39,12 @@ class Serial(serial.Serial):
 
     def __enter__(self):
         if self.flockpath is None:
-            self.flockpath = "/tmp/" + self.serial_kwargs["port"].replace("/", "_")
+            self.flockpath = Path("/tmp") / self.serial_kwargs["port"].replace("/", "_")
             Path(self.flockpath).touch()
 
-        self._file = Path.open(self.flockpath)
+        self._file = self.flockpath.open()
         fcntl.flock(self._file.fileno(), fcntl.LOCK_EX)
-        return super().__enter__()
+        yield super().__enter__()
 
     def __exit__(self, type, value, traceback):
         fcntl.flock(self._file.fileno(), fcntl.LOCK_UN)
@@ -57,10 +57,11 @@ class ConfigurableDevice:
     PYRO_KEY = None
 
     def __init__(
-        self, name=None, configurations=None, config_file=None, serial_kwargs={}, **kwargs
+        self, name=None, configurations=None, config_file=None, serial_kwargs=None, **kwargs
     ):
         self.serial_kwargs = {"timeout": 0.5}
-        self.serial_kwargs.update(serial_kwargs)
+        if serial_kwargs is not None:
+            self.serial_kwargs.update(serial_kwargs)
         # This will crash with serial.serialutil.SerialException and errno 16 if the port is busy.
         # Now this could be detected to have calls on the same zaberchain to actually queue up.
 
@@ -74,7 +75,7 @@ class ConfigurableDevice:
 
     @classmethod
     def from_config(__cls__, filename, **kwargs):
-        with Path.open(filename, "rb") as fh:
+        with Path(filename).open("rb") as fh:
             parameters = tomli.load(fh)
         parameters.update(kwargs)
         serial_kwargs = parameters.pop("serial", None)

@@ -1,16 +1,13 @@
-import os
 import sys
 
-from device_control.drivers import CONEXDevice
 from docopt import docopt
-from scxconf.pyrokeys import SCEXAO
 
-from swmain.redis import update_keys
+from device_control.drivers import CONEXDevice
 
 
 class AGAPTest(CONEXDevice):
     CONF = "scexao/conf_conex_agap_test.toml"
-    PYRO_KEY = ''
+    PYRO_KEY = ""
     format_str = "{0:2d}: {1:6.2f} deg {{th={2:6.2f} deg}}"
 
     def _update_keys(self, posn):
@@ -20,14 +17,14 @@ class AGAPTest(CONEXDevice):
         return super().move_absolute(value % 360, **kwargs)
 
     def help_message(self):
-        return f"""Usage:
+        return """Usage:
     TEST unclear
 """
 
 
 # setp 4. action
 def main():
-    scexao_pol = SCEXAOPolarizer.connect(local=True)
+    scexao_pol = AGAPTest.connect(local=True)
     __doc__ = scexao_pol.help_message()
     args = docopt(__doc__, options_first=True)
     posns = None

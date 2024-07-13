@@ -2,6 +2,7 @@ import argparse
 from functools import partial
 
 import click
+import Pyro4
 from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 from swmain.infra.badsystemd.aux import auto_register_to_watchers
 from swmain.network.pyroserver_registerable import PyroServer
@@ -40,6 +41,8 @@ parser = argparse.ArgumentParser(
     "vampires_devices",
     description="Launch the daemon for the devices controlled by the VAMPIRES computer.",
 )
+
+Pyro4.config.SERVERTYPE = "thread"  # Override from multiplex default.
 
 
 def main():

@@ -3,9 +3,9 @@ import sys
 
 from docopt import docopt
 from scxconf.pyrokeys import VISWFS
+from swmain.redis import update_keys
 
 from device_control.drivers import ZaberDevice
-from swmain.redis import update_keys
 
 
 class VISWFSTrombone2(ZaberDevice):
