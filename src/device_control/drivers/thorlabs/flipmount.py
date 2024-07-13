@@ -23,6 +23,7 @@ class ThorlabsFlipMount(ConfigurableDevice):
     def update_keys(self, position=None):
         if position is None:
             position = self.get_position()
+        self.logger.info(position)
         return self._update_keys(position)
 
     def _update_keys(self, position):
@@ -30,6 +31,7 @@ class ThorlabsFlipMount(ConfigurableDevice):
 
     # @autoretry
     def set_position(self, position: str):
+        self.logger.debug("setting position %s", position)
         if position.lower() == "down":
             cmd = COMMANDS["down"]
         elif position.lower() == "up":
@@ -38,6 +40,7 @@ class ThorlabsFlipMount(ConfigurableDevice):
             msg = f"Position should be either 'up' or 'down', got '{position}'"
             raise ValueError(msg)
 
+        self.logger.debug("sending command %s", cmd)
         with self.serial as serial:
             serial.write(cmd)
             time.sleep(1)
@@ -45,16 +48,20 @@ class ThorlabsFlipMount(ConfigurableDevice):
 
     # @autoretry
     def get_position(self):
+        cmd = COMMANDS["status"]
+        self.logger.debug("sending command %s", cmd)
         with self.serial as serial:
-            serial.write(COMMANDS["status"])
+            serial.write(cmd)
             time.sleep(0.1)
             response = serial.read(12)
+        self.logger.debug("received %s", response)
         if response == STATUSES["down"]:
             result = "down"
         elif response == STATUSES["up"]:
             result = "up"
         else:
             result = "unknown"
+        self.logger.debug("result %s", result)
         self.update_keys(result)
         return result
 

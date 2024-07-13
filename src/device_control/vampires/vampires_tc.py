@@ -16,6 +16,7 @@ class VAMPIRESTC(ThorlabsTC):
     def update_keys(self, temperature=None):
         if temperature is None:
             temperature = self.get_temp()
+        self.logger.info("%f unit=degC target=%s", temperature, self.get_target())
         update_keys(U_FLCTMP=temperature)
 
     def help_message(self):

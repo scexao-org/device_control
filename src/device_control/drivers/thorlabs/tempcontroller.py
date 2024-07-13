@@ -25,22 +25,29 @@ class ThorlabsTC(ConfigurableDevice):
         self.set_target(temp)
 
     def send_command(self, cmd: str):
+        self.logger.debug("sending command %s", cmd)
         with self.serial as serial:
             serial.write(f"{cmd}\r".encode())
             # time.sleep(0.5)
             cmd_resp = serial.read_until(b"\r")
+            self.logger.debug("received %s", cmd_resp)
             assert cmd_resp.strip().decode() == cmd
             serial.read_until(b"> ")
 
     def ask_command(self, cmd: str):
+        self.logger.debug("sending command %s", cmd)
         with self.serial as serial:
             serial.write(f"{cmd}\r".encode())
             # time.sleep(0.5)
             cmd_resp = serial.read_until(b"\r")
+            self.logger.debug("received %s", cmd_resp)
             assert cmd_resp.strip().decode() == cmd
             resp = serial.read_until(b"\r")
+            self.logger.debug("response %s", resp)
             serial.read_until(b"> ")
-        return resp.strip().decode()
+        value = resp.strip().decode()
+        self.logger.debug("parsed %s", value)
+        return value
 
     def get_target(self):
         result = self.ask_command("tset?")
@@ -51,17 +58,22 @@ class ThorlabsTC(ConfigurableDevice):
 
     def get_temp(self):
         result = self.ask_command("tact?")
-        return float(result.split()[0])
+        temp = float(result.split()[0])
+        self.update_keys(temp)
+        return temp
 
     def get_aux_temp(self):
         result = self.ask_command("taux?")
         return float(result.split()[0])
 
     def status(self):
+        cmd = "stat?"
+        self.logger.debug("sending command %s", cmd)
         with self.serial as serial:
-            serial.write(b"stat?\r")
+            serial.write(f"{cmd}\r".encode())
             serial.read_until(b"\r")
             result = serial.read(2)
+            self.logger.debug("received %s", result)
         return parse_status(result)
 
     def get_id(self):

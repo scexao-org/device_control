@@ -9,7 +9,10 @@ import tomli
 import tomli_w
 from swmain.network.pyroclient import connect
 
-from device_control import conf_dir
+from device_control import (
+    conf_dir,
+    logging_config,  # noqa: F401
+)
 
 __all__ = ["ConfigurableDevice", "MotionDevice", "SSHDevice"]
 

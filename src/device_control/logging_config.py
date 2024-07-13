@@ -9,8 +9,8 @@ LOGGING_CONFIG = {
     "disable_existing_loggers": False,
     "formatters": {
         "file": {
-            "format": "%(asctime)s|%(thread)d|%(name)s|%(funcName)s|%(message)s",
-            "datefmt": "%Y-%m-%dT%H:%M:%SZ",
+            "format": "%(asctime)s.%(msecs)03d|%(thread)d|%(name)s|%(funcName)s|%(message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%S",
         }
     },
     "handlers": {
