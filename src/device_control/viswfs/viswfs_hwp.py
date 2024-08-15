@@ -31,7 +31,8 @@ Options:
     -h, --help   Show this screen
 
 Stage commands:
-    status       Returns the current mount position
+    status          Prints the mount position and configuration
+    position        Returns the current mount position
     home            Homes the rotation stage wheel
     goto  <angle>   Move the rotation stage wheel to the given angle, in deg
     nudge <angle>   Move the rotation stage wheel relatively by the given angle, in deg
