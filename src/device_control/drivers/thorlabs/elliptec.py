@@ -11,6 +11,8 @@ https://github.com/roesel/elliptec
 
 
 class ThorlabsElliptec(ConfigurableDevice):
+    FORMAT_STR = "{0}: {1} {{{2}}}"
+
     def __init__(self, serial_kwargs, unit=None, **kwargs):
         serial_kwargs = dict({"baudrate": 9600, "rtscts": True}, **serial_kwargs)
         self.controller = elliptec.Controller(serial_kwargs["port"], debug=False)
