@@ -11,7 +11,7 @@ https://github.com/roesel/elliptec
 
 
 class ThorlabsElliptec(ConfigurableDevice):
-    FORMAT_STR = "{0}: {1} {{{2}}}"
+    FORMAT_STR = "{0}: {1} {{{2} {3}}}"
 
     def __init__(self, serial_kwargs, unit=None, **kwargs):
         serial_kwargs = dict({"baudrate": 9600, "rtscts": True}, **serial_kwargs)
@@ -102,5 +102,5 @@ class ThorlabsElliptec(ConfigurableDevice):
     def get_status(self):
         posn = self.get_position()
         idx, config = self.get_configuration(posn)
-        output = self.FORMAT_STR.format(idx, config, posn)
+        output = self.FORMAT_STR.format(idx, config, posn, self.unit)
         return posn, output
