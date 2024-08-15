@@ -1,3 +1,4 @@
+# flipmount2 -> lens for the WFSing mode
 name = "viswfs_flipmount2"
 
 configurations = [

@@ -1,12 +1,7 @@
 name = "viswfs_trombone2"
 configurations = [
-<<<<<<< HEAD
-    { idx = 1, name = "WFS", value = 29.0 },
+    { idx = 1, name = "WFS", value = 23.0 },
     { idx = 2, name = "PUPIL", value = 50.0 },
-=======
-    { idx = 1, name = "WFS", value = 24.0 },
-    { idx = 2, name = "PUPIL", value = 45.0 },
->>>>>>> adding device control for nlCWFS
 ]
 unit = "mm"
 offset = 0

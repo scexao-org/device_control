@@ -1,6 +1,6 @@
 name = "viswfs_trombone1"
 configurations = [
-    { idx = 1, name = "WFS", value = 21.0 },
+    { idx = 1, name = "WFS", value = 27.0 },
     { idx = 2, name = "PUPIL", value = 0.0 },
 ]
 unit = "mm"

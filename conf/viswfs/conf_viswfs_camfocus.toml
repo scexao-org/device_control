@@ -1,11 +1,7 @@
 name = "viswfs_camfocus"
 configurations = [
-<<<<<<< HEAD
-    { idx = 1, name = "WFS", value = 7.40 },
-=======
-    { idx = 1, name = "WFS", value = 6.00 },
->>>>>>> adding device control for nlCWFS
-    { idx = 2, name = "FPWFS", value = 8.40 },
+    { idx = 1, name = "WFS", value = 7.00 },
+    { idx = 2, name = "FPWFS", value = 7.40 },
 ]
 unit = "mm"
 offset = 0

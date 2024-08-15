@@ -1,3 +1,4 @@
+# flipmount1 -> lens for the focal plane mode
 name = "viswfs_flipmount1"
 
 configurations = [

@@ -1,5 +1,5 @@
 from .conex import ConexAGAPButOnlyOneAxis, CONEXDevice
-from .thorlabs import ThorlabsFlipMount, ThorlabsTC, ThorlabsWheel
+from .thorlabs import ThorlabsFlipMount, ThorlabsTC, ThorlabsWheel, ThorlabsElliptec
 from .zaber import ZaberDevice
 
 __all__ = [
@@ -9,4 +9,5 @@ __all__ = [
     "ThorlabsFlipMount",
     "ThorlabsTC",
     "ThorlabsWheel",
+    "ThorlabsElliptec",
 ]

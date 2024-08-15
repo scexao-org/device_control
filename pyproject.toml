@@ -8,7 +8,8 @@ description = "SCExAO device control"
 readme = "README.md"
 authors = [
     {name = "Miles Lucas", email = "mdlucas@hawaii.edu"},
-    {name = "Vincent Deo", email = "vdeo@naoj.org"}
+    {name = "Vincent Deo", email = "vdeo@naoj.org"},
+    {name = "Kyohoon Ahn", email = "kyohoon@naoj.org"},
 ]
 dependencies = [
     "click",
@@ -25,6 +26,7 @@ dependencies = [
     #"scxconf", # Commenting out the stuff that doesn't come from pypi?
     #"superk-control",
     #"swmain",
+    "elliptec",
 ]
 dynamic = ["version"]
 
