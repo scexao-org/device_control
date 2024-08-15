@@ -4,15 +4,14 @@ import time
 
 from docopt import docopt
 from scxconf.pyrokeys import VISWFS
+from device_control.drivers import ThorlabsElliptec
 from swmain.redis import update_keys
-
-from device_control.drivers.thorlabs import ThorlabsElliptec
 
 
 class VISWFSHWP(ThorlabsElliptec):
     CONF = "viswfs/conf_viswfs_hwp.toml"
     PYRO_KEY = VISWFS.HWP
-    format_str = "{0}: {1}"
+    format_str = "{0}: {1} {{ {2:4.1f} deg }}"
 
     def _update_keys(self, position):
         _, state = self.get_configuration(position)
@@ -25,14 +24,19 @@ class VISWFSHWP(ThorlabsElliptec):
         )
         return f"""Usage:
     viswfs_hwp [-h | --help]
-    viswfs_hwp (status|home|goto|nudge) [<pos>]
+    viswfs_hwp (status|home|goto|nudge|stop|reset) [<angle>]
     viswfs_hwp <configuration>
 
 Options:
     -h, --help   Show this screen
 
 Stage commands:
-    status       Returns the current mount position  
+    status       Returns the current mount position
+    home            Homes the rotation stage wheel
+    goto  <angle>   Move the rotation stage wheel to the given angle, in deg
+    nudge <angle>   Move the rotation stage wheel relatively by the given angle, in deg
+    stop            Stop the rotation stage wheel
+    reset           Reset the rotation stage wheel
 
 Configurations:
 {configurations}"""
@@ -53,10 +57,10 @@ def main():
     elif args["home"]:
         viswfs_hwp.home()
     elif args["goto"]:
-        new_pos = float(args["<pos>"])
+        new_pos = float(args["<angle>"])
         viswfs_hwp.set_position(new_pos)
     elif args["nudge"]:
-        new_pos = float(args["<pos>"])
+        new_pos = float(args["<angle>"])
         viswfs_hwp.move_relative(new_pos)
     elif args["<configuration>"]:
         viswfs_hwp.move_configuration(args["<configuration>"])

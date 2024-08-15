@@ -1,29 +1,28 @@
 import time
-
 import elliptec
-
 from device_control.base import ConfigurableDevice
 
-"""
-Please refer to this github repo for the detailed information about the Elliptec package:
-https://github.com/roesel/elliptec NOTE this needs to be added as a dependency!!
-"""
+from swmain.autoretry import autoretry
 
+'''
+Please refer to this github repo for the detailed information about the Elliptec package:
+https://github.com/roesel/elliptec
+'''
 
 class ThorlabsElliptec(ConfigurableDevice):
     def __init__(self, serial_kwargs, **kwargs):
         serial_kwargs = dict({"baudrate": 9600, "rtscts": True}, **serial_kwargs)
-        self.controller = elliptec.Controller(serial_kwargs["port"], debug=False)
-        if serial_kwargs["type"] == "Rotator":
+        self.controller = elliptec.Controller(serial_kwargs['port'], debug=False)
+        if serial_kwargs['type'] == 'Rotator':
             self.device = elliptec.Rotator(self.controller)
-        elif serial_kwargs["type"] == "Shutter":
+        elif serial_kwargs['type'] == 'Shutter':
             self.device = elliptec.Shutter(self.controller)
-        elif serial_kwargs["type"] == "Slider":
+        elif serial_kwargs['type'] == 'Slider':
             self.device = elliptec.Slider(self.controller)
-        elif serial_kwargs["type"] == "Linear":
+        elif serial_kwargs['type'] == 'Linear':
             self.device = elliptec.Linear(self.controller)
-        del [serial_kwargs["type"]]
-        self.configurations = kwargs["configurations"]
+        del[serial_kwargs['type']]
+        self.configurations = kwargs['configurations']
         # super().__init__(serial_kwargs=serial_kwargs, **kwargs)
 
     def update_keys(self, position=None):
@@ -45,6 +44,7 @@ class ThorlabsElliptec(ConfigurableDevice):
     def get_position(self):
         device = self.device
         result = device.get_angle()
+        print(result)
         time.sleep(0.1)
         self.update_keys(result)
         return result
@@ -55,6 +55,10 @@ class ThorlabsElliptec(ConfigurableDevice):
         result = device.get_angle()
         self.update_keys(result)
         return result
+    
+    def home(self):
+        device = self.device
+        device.home()
 
     def move_configuration(self, idx_or_name, **kwargs):
         if isinstance(idx_or_name, int) or idx_or_name.isdigit():
@@ -85,15 +89,8 @@ class ThorlabsElliptec(ConfigurableDevice):
         return None, "Unknown"
 
     def get_status(self):
-        posn = int(self.get_position())
+        posn = self.get_position()
         idx, config = self.get_configuration(posn)
         output = self.format_str.format(idx, config)
         return posn, output
 
-    def home(self):
-        device = self.device
-        print(device)
-        result = device.home()
-        time.sleep(1)
-        self.update_keys(result)
-        return result
