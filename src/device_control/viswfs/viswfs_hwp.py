@@ -28,7 +28,7 @@ class VISWFSHWP(ThorlabsElliptec):
     viswfs_hwp <configuration>
 
 Options:
-    -h, --help   Show this scree
+    -h, --help   Show this screen
 
 Stage commands:
     status       Returns the current mount position
