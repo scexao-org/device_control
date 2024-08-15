@@ -25,6 +25,7 @@ class ThorlabsElliptec(ConfigurableDevice):
             self.device = elliptec.Slider(self.controller)
         elif ser_type == "linear":
             self.device = elliptec.Linear(self.controller)
+        print(self.device.get("info"))
         self.unit = unit
         super().__init__(serial_kwargs=serial_kwargs, **kwargs)
 
