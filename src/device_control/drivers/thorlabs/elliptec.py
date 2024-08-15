@@ -56,6 +56,7 @@ class ThorlabsElliptec(ConfigurableDevice):
     # @autoretry
     def get_position(self):
         result = self.device.get_angle()
+        self.logger.debug("RECEIVED position=%s", result)
         time.sleep(0.1)
         self.update_keys(result)
         return result
