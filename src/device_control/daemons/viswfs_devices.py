@@ -6,7 +6,6 @@ from scxconf import IP_AORTS_SUMMIT, PYRONS3_HOST, PYRONS3_PORT
 from swmain.network.pyroserver_registerable import PyroServer
 
 from device_control.viswfs import (
-    VISWFSHWP,
     VISWFSCamFocus,
     VISWFSFlipMount1,
     VISWFSFlipMount2,
@@ -26,7 +25,7 @@ DEVICE_MAP = {
     "rs2": partial(VISWFSRotStage2.connect, local=True),
     "flipmount1": partial(VISWFSFlipMount1.connect, local=True),
     "flipmount2": partial(VISWFSFlipMount2.connect, local=True),
-    "hwp": partial(VISWFSHWP.connect, local=True),
+    # "hwp": partial(VISWFSHWP.connect, local=True),
 }
 
 parser = argparse.ArgumentParser(
