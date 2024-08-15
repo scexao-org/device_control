@@ -62,14 +62,14 @@ class ConfigurableDevice:
     def __init__(
         self, name=None, configurations=None, config_file=None, serial_kwargs=None, **kwargs
     ):
-        self.serial_kwargs = {"timeout": 0.5}
         if serial_kwargs is not None:
+            self.serial_kwargs = {"timeout": 0.5}
             self.serial_kwargs.update(serial_kwargs)
+            self.serial = Serial(**self.serial_kwargs)
         # This will crash with serial.serialutil.SerialException and errno 16 if the port is busy.
         # Now this could be detected to have calls on the same zaberchain to actually queue up.
 
         # WARNING - due to the subclassing, this returns a closed port.
-        self.serial = Serial(**self.serial_kwargs)
 
         self.configurations = configurations
         self.config_file = config_file
