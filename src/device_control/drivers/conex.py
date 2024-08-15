@@ -1,3 +1,5 @@
+import click
+
 from device_control.base import MotionDevice
 
 __all__ = ["CONEXDevice", "ConexAGAPButOnlyOneAxis"]
@@ -173,7 +175,9 @@ class CONEXDevice(MotionDevice):
     def _move_absolute(self, value: float):
         # check if we're not referenced
         if self.needs_homing():
-            self.logger.warn("CONEX device needs to be homed.")
+            msg = "CONEX device needs to be homed."
+            self.logger.warn(msg)
+            click.secho(msg, bg="red", fg="black")
             return
         # wait until we're ready to move
         while not self.is_ready():
@@ -187,7 +191,9 @@ class CONEXDevice(MotionDevice):
     def _move_relative(self, value: float):
         # check if we're not referenced
         if self.needs_homing():
-            self.logger.warn("CONEX device needs to be homed.")
+            msg = "CONEX device needs to be homed."
+            self.logger.warn(msg)
+            click.secho(msg, bg="red", fg="black")
             return
             # wait until we're ready to move
         while not self.is_ready():
@@ -245,7 +251,9 @@ class ConexAGAPButOnlyOneAxis(CONEXDevice):
     def _move_absolute(self, value: float):
         # check if we're not referenced
         if not self.is_enabled():
-            self.logger.warn("CONEX AGAP device is not enabled.")
+            msg = "CONEX AGAP device is not enabled."
+            self.logger.warn(msg)
+            click.secho(msg, bg="red", fg="black")
             return
         # wait until we're ready to move
         while not self.is_ready():
@@ -259,7 +267,9 @@ class ConexAGAPButOnlyOneAxis(CONEXDevice):
     def _move_relative(self, value: float):
         # check if we're not referenced
         if not self.is_enabled():
-            self.logger.warn("CONEX AGAP device is not enabled.")
+            msg = "CONEX AGAP device is not enabled."
+            self.logger.warn(msg)
+            click.secho(msg, bg="red", fg="black")
             return
             # wait until we're ready to move
         while not self.is_ready():
