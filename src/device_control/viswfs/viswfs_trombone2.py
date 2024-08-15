@@ -3,8 +3,9 @@ import sys
 
 from docopt import docopt
 from scxconf.pyrokeys import VISWFS
-from device_control.drivers import ZaberDevice
 from swmain.redis import update_keys
+
+from device_control.drivers import ZaberDevice
 
 
 class VISWFSTrombone2(ZaberDevice):
@@ -44,7 +45,7 @@ Configurations:
 
 # setp 4. action
 def main():
-    viswfs_trombone2 = VISWFSTrombone2.connect(os.getenv("WHICHCOMP"))
+    viswfs_trombone2 = VISWFSTrombone2.connect(os.getenv("WHICHCOMP", "") == "AORTS")
     __doc__ = viswfs_trombone2.help_message()
     args = docopt(__doc__, options_first=True)
     posn = None

@@ -34,7 +34,7 @@ Stage commands:
 
 # setp 4. action
 def main():
-    viswfs_flip = VISWFSFlipMount2.connect(os.getenv("WHICHCOMP"))
+    viswfs_flip = VISWFSFlipMount2.connect(os.getenv("WHICHCOMP", "") == "AORTS")
     __doc__ = viswfs_flip.help_message()
     args = docopt(__doc__, options_first=True)
     posn = None

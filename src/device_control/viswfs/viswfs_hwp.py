@@ -45,7 +45,7 @@ Configurations:
 
 # setp 4. action
 def main():
-    viswfs_hwp = VISWFSHWP.connect(os.getenv("WHICHCOMP"))
+    viswfs_hwp = VISWFSHWP.connect(os.getenv("WHICHCOMP", "") == "AORTS")
     __doc__ = viswfs_hwp.help_message()
     args = docopt(__doc__, options_first=True)
     posn = None

@@ -62,7 +62,7 @@ Configurations:
 
 
 def main():
-    rotation_stage = VISWFSRotStage1.connect(local=os.getenv("WHICHCOMP"))
+    rotation_stage = VISWFSRotStage1.connect(local=os.getenv("WHICHCOMP", "") == "AORTS")
     __doc__ = rotation_stage.help_message()
     args = docopt(__doc__, options_first=True)
     posn = None

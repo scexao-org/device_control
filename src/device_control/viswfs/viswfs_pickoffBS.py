@@ -45,7 +45,7 @@ Configurations:
 
 # setp 4. action
 def main():
-    viswfs_pickoff = VISWFSPickoffBS.connect(os.getenv("WHICHCOMP"))
+    viswfs_pickoff = VISWFSPickoffBS.connect(os.getenv("WHICHCOMP", "") == "AORTS")
     __doc__ = viswfs_pickoff.help_message()
     args = docopt(__doc__, options_first=True)
     posn = None
