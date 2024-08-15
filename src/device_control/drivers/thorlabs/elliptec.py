@@ -102,5 +102,5 @@ class ThorlabsElliptec(ConfigurableDevice):
     def get_status(self):
         posn = self.get_position()
         idx, config = self.get_configuration(posn)
-        output = self.FORMAT_STR.format(idx, config)
+        output = self.FORMAT_STR.format(idx, config["name"], posn)
         return posn, output
