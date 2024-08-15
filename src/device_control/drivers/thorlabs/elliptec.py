@@ -56,7 +56,6 @@ class ThorlabsElliptec(ConfigurableDevice):
     # @autoretry
     def get_position(self):
         result = self.device.get_angle()
-        print(f"RECEIVED {result=}")
         time.sleep(0.1)
         self.update_keys(result)
         return result
@@ -103,5 +102,5 @@ class ThorlabsElliptec(ConfigurableDevice):
     def get_status(self):
         posn = self.get_position()
         idx, config = self.get_configuration(posn)
-        output = self.format_str.format(idx, config)
+        output = self.FORMAT_STR.format(idx, config)
         return posn, output
