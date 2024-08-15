@@ -55,6 +55,9 @@ def main():
     elif args["status"]:
         posn, status = viswfs_hwp.get_status()
         print(status)
+    elif args["position"]:
+        posn = viswfs_hwp.get_position()
+        print(posn)
     elif args["home"]:
         viswfs_hwp.home()
     elif args["goto"]:
