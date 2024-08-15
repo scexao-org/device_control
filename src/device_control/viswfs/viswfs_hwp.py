@@ -19,7 +19,7 @@ class VISWFSHWP(ThorlabsElliptec):
 
     def help_message(self):
         configurations = "\n".join(
-            f"    {self.format_str.format(c['idx'], c['name'], c['value'])}"
+            f"    {self.FORMAT_STR.format(c['idx'], c['name'], c['value'])}"
             for c in self.configurations
         )
         return f"""Usage:
