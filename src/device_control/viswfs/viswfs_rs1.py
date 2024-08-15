@@ -3,30 +3,24 @@ import sys
 
 from docopt import docopt
 from scxconf.pyrokeys import VISWFS
-<<<<<<< HEAD
 from swmain.redis import update_keys
 
 from device_control.drivers import CONEXDevice
-=======
-
-from device_control.drivers import CONEXDevice
-from swmain.redis import update_keys
->>>>>>> adding device control for nlCWFS
 
 
 class VISWFSRotStage1(CONEXDevice):
     """
-    VISWFS Rotation Stage 1
+        VISWFS Rotation Stage 1
 
-    Controls the CONEX rotation stage for the rotation stage cube wheel. Inside this wheel there are three optics installed:
-    1. Dichroic filter
-    2. Polarizing beamsplitter cube (PBS)
-    3. Mirror
-<<<<<<< HEAD
+        Controls the CONEX rotation stage for the rotation stage cube wheel. Inside this wheel there are three optics installed:
+        1. Dichroic filter
+        2. Polarizing beamsplitter cube (PBS)
+        3. Mirror
+    <<<<<<< HEAD
 
-=======
-    
->>>>>>> adding device control for nlCWFS
+    =======
+
+    >>>>>>> adding device control for nlCWFS
     """
 
     CONF = "viswfs/conf_viswfs_rs1.toml"

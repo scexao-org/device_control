@@ -3,15 +3,9 @@ import sys
 
 from docopt import docopt
 from scxconf.pyrokeys import VISWFS
-<<<<<<< HEAD
 from swmain.redis import update_keys
 
 from device_control.drivers import ZaberDevice
-=======
-
-from device_control.drivers import ZaberDevice
-from swmain.redis import update_keys
->>>>>>> adding device control for nlCWFS
 
 
 class VISWFSPickoffBS(ZaberDevice):

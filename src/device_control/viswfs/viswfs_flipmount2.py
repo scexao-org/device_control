@@ -4,15 +4,9 @@ import time
 
 from docopt import docopt
 from scxconf.pyrokeys import VISWFS
-<<<<<<< HEAD
 from swmain.redis import update_keys
 
 from device_control.drivers import ThorlabsFlipMount
-=======
-
-from device_control.drivers import ThorlabsFlipMount
-from swmain.redis import update_keys
->>>>>>> adding device control for nlCWFS
 
 
 class VISWFSFlipMount2(ThorlabsFlipMount):
@@ -25,11 +19,7 @@ class VISWFSFlipMount2(ThorlabsFlipMount):
         update_keys(U_FM2ST=state.upper())
 
     def help_message(self):
-<<<<<<< HEAD
         return """Usage:
-=======
-        return f"""Usage:
->>>>>>> adding device control for nlCWFS
     viswfs_flipmount2 [-h | --help]
     viswfs_flipmount2 status
     viswfs_flipmount2 <pos>
