@@ -1,6 +1,6 @@
 name = "vampires_mbi"
 configurations = [
-    { idx = 1, name = "Dichroics", value = 80.5705 },
+    { idx = 1, name = "Dichroics", value = 79.98048 },
     { idx = 2, name = "Mirror", value = 258.7218 },
     { idx = 3, name = "Pupil", value = 259.2013 },
 ]

@@ -2,21 +2,21 @@ name = "vampires_mask"
 
 [[configurations]]
 idx = 1
-name = "Open"
+name = "JEWEL4x5"
 
 [configurations.value]
-x = 7.799974875000001
-y = 5.858017875000001
-theta = 0.0004953764
+x = 9.719929125
+y = 4.77802575
+theta = 0.0005944517
 
 [[configurations]]
 idx = 2
 name = "SAM-7"
 
 [configurations.value]
-x = 8.693086500000001
-y = 7.843837500000001
-theta = 26.90181
+x = 9.613058625
+y = 8.02386
+theta = 26.90241
 
 [[configurations]]
 idx = 3
@@ -50,8 +50,8 @@ idx = 6
 name = "SAM-Ann"
 
 [configurations.value]
-x = 8.30199
-y = 4.9120425
+x = 8.86206
+y = 4.092082875
 theta = 120.0005
 
 [[configurations]]
@@ -77,18 +77,18 @@ idx = 9
 name = "LyotStop"
 
 [configurations.value]
-x = 8.29465575
-y = 1.7397888750000001
-theta = 189.9116
+x = 8.49468075
+y = 1.8998088750000002
+theta = 189.9126
 
 [[configurations]]
 idx = 10
 name = "RAP"
 
 [configurations.value]
-x = 9.0569415
+x = 8.8169115
 y = 7.858125
-theta = 218.502
+theta = 218.5024
 
 [[configurations]]
 idx = 11

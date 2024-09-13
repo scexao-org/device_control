@@ -7,6 +7,7 @@ from scxconf import IP_VAMPIRES, PYRONS3_HOST, PYRONS3_PORT
 from swmain.infra.badsystemd.aux import auto_register_to_watchers
 from swmain.network.pyroserver_registerable import PyroServer
 
+from device_control.scexao import VisBlock
 from device_control.vampires import (
     VAMPIRESTC,
     VAMPIRESBeamsplitter,
@@ -35,6 +36,7 @@ DEVICE_MAP = {
     "puplens": partial(VAMPIRESPupilLens.connect, local=True),
     "tc": partial(VAMPIRESTC.connect, local=True),
     "trig": partial(VAMPIRESTrigger.connect, local=True),
+    "block": partial(VisBlock.connect, local=True),
 }
 
 parser = argparse.ArgumentParser(

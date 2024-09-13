@@ -2,26 +2,25 @@ import os
 import sys
 
 from docopt import docopt
-from scxconf.pyrokeys import VAMPIRES
 from swmain.redis import update_keys
 
 from device_control.drivers import ThorlabsFlipMount
 
 
-class VAMPIRESPupilLens(ThorlabsFlipMount):
-    CONF = "vampires/conf_vampires_pupil.toml"
-    PYRO_KEY = VAMPIRES.PUPIL
+class VisBlock(ThorlabsFlipMount):
+    CONF = "scexao/conf_vis_block.toml"
+    PYRO_KEY = "VIS_BLOCK"
     format_str = "{0}: {1}"
 
     def _update_keys(self, position):
         _, state = self.get_configuration(position)
-        update_keys(U_PUPST=state.upper())
+        update_keys(X_VISBLK=state.upper())
 
     def help_message(self):
         return """Usage:
-    vampires_pupil [-h | --help]
-    vampires_pupil status
-    vampires_pupil <pos>
+    vis_block [-h | --help]
+    vis_block status
+    vis_block <pos>
 
 Options:
     -h, --help   Show this screen
@@ -33,19 +32,19 @@ Stage commands:
 
 # setp 4. action
 def main():
-    vampires_pupil = VAMPIRESPupilLens.connect(os.getenv("WHICHCOMP") == "V")
-    __doc__ = vampires_pupil.help_message()
+    vis_block = VisBlock.connect(os.getenv("WHICHCOMP") == "V")
+    __doc__ = vis_block.help_message()
     args = docopt(__doc__, options_first=True)
     posn = None
     if len(sys.argv) == 1:
         print(__doc__)
         return
     elif args["status"]:
-        posn, status = vampires_pupil.get_status()
+        posn, status = vis_block.get_status()
         print(status)
     elif args["<pos>"]:
-        vampires_pupil.move_configuration_name(args["<pos>"])
-    vampires_pupil.update_keys(posn)
+        vis_block.move_configuration_name(args["<pos>"])
+    vis_block.update_keys(posn)
 
 
 if __name__ == "__main__":
