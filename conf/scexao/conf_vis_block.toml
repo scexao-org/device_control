@@ -8,4 +8,3 @@ configurations = [
 [serial]
 port = "/dev/serial/by-id/usb-Thorlabs_APT_Filter_Flipper_37004853-if00-port0"
 baudrate = 115200
-rtscts = true

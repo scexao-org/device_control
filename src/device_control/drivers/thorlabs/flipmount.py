@@ -43,7 +43,8 @@ class ThorlabsFlipMount(ConfigurableDevice):
         self.logger.debug("sending command %s", cmd)
         with self.serial as serial:
             serial.write(cmd)
-            time.sleep(1)
+            # we know flip is finished after collecting bytes
+            serial.read(20)
         self.update_keys()
 
     # @autoretry

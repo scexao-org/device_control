@@ -77,9 +77,9 @@ idx = 9
 name = "LyotStop"
 
 [configurations.value]
-x = 8.49468075
-y = 1.8998088750000002
-theta = 189.9126
+x = 9.654682875
+y = 2.119836375
+theta = 189.9129
 
 [[configurations]]
 idx = 10
