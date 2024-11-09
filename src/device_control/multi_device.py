@@ -200,3 +200,12 @@ class MultiDevice(ConfigurableDevice):
         idx, name = self.get_configuration(posns)  # This may return (None, 'Unknown')
         output = self.format_str.format(idx, name, *posns)
         return posns, output
+
+    def needs_homing(self, name):
+        if name not in self.devices:
+            msg = f"Invalid sub-device '{name}'"
+            raise ValueError(msg)
+        try:
+            return self.devices[name].needs_homing()
+        except AttributeError:  # not all subdevices have a needs_homing methods
+            pass
