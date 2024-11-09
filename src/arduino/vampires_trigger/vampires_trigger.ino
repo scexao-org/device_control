@@ -2,7 +2,7 @@
 // Here's some constants up front for easy retrieval
 #define BAUDRATE 115200
 #define TIMEOUT 1000 // ms
-/* If true, turns LEDs on for visual debugging. The read "L" LED
+/* If true, turns LEDs on for visual debugging. The red "L" LED
  will turn on or off when the FLC is enabled/disable. The NeoPixel
  LED will be red when the trigger loop is disabled and green when
  the trigger loop is enabled. */
@@ -31,7 +31,7 @@ const unsigned long max_flc_integration_time = 1000000; // us
 const unsigned long max_integration_time = 300000000; // us
 // For FLC check, length of test pulse (10 ms)
 const unsigned long flc_test_width = 10000; // us
-unsigned long jitter_half_width = 50; // us
+unsigned long jitter_half_width = 500; // us
 // settings
 unsigned long integration_time;
 unsigned long pulse_width;

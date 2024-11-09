@@ -324,7 +324,7 @@ def reset(obj):
 @click.option(
     "-o", "--flc-offset", type=int, default=20, help="Use a custom FLC time delay, in us."
 )
-@click.option("-j", "--flc-jitter", type=int, default=50, help="FLC jitter half-width, in us.")
+@click.option("-j", "--flc-jitter", type=int, default=500, help="FLC jitter half-width, in us.")
 @click.option("-w", "--pulse-width", type=int, default=20, help="Use a custom pulse width, in us.")
 @click.option(
     "--sweep-mode",
