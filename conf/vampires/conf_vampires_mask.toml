@@ -5,18 +5,18 @@ idx = 1
 name = "JEWEL4x5"
 
 [configurations.value]
-x = 9.719929125
-y = 4.77802575
-theta = 0.0005944517
+x = 9.879949125000001
+y = 4.898040750000001
+theta = 0.00168428
 
 [[configurations]]
 idx = 2
 name = "SAM-7"
 
 [configurations.value]
-x = 9.613058625
-y = 8.02386
-theta = 26.90241
+x = 9.773078625
+y = 8.383762125
+theta = 26.9029
 
 [[configurations]]
 idx = 3
@@ -41,9 +41,9 @@ idx = 5
 name = "SAM-18"
 
 [configurations.value]
-x = 8.82291225
-y = 3.1718726250000002
-theta = 95.30269
+x = 9.802891875
+y = 3.6317872500000004
+theta = 95.30299
 
 [[configurations]]
 idx = 6
@@ -77,9 +77,9 @@ idx = 9
 name = "LyotStop"
 
 [configurations.value]
-x = 9.654682875
-y = 2.119836375
-theta = 189.9129
+x = 9.394650375000001
+y = 2.079831375
+theta = 189.9134
 
 [[configurations]]
 idx = 10

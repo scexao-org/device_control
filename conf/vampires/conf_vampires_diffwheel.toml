@@ -6,7 +6,6 @@ configurations = [
     { idx = 4, name = "Open / Open", value = 180 },
     { idx = 5, name = "SII / SII-Cont", value = 240 },
     { idx = 6, name = "Halpha / Ha-Cont", value = 301.981037 },
-    { idx = 7, name = "Block / Block", value = 31 },
 ]
 unit = "deg"
 offset = 0
