@@ -26,8 +26,8 @@ from device_control.vampires import (
 DEVICE_MAP = {
     "bs": partial(VAMPIRESBeamsplitter.connect, local=True),
     "camfocus": partial(VAMPIRESCamFocus.connect, local=True),
-    "diff": partial(VAMPIRESDiffWheel.connect, local=True),
     "fieldstop": partial(VAMPIRESFieldstop.connect, local=True),
+    "diff": partial(VAMPIRESDiffWheel.connect, local=True),
     "filt": partial(VAMPIRESFilter.connect, local=True),
     "flc": partial(VAMPIRESFLCStage.connect, local=True),
     "focus": partial(VAMPIRESFocus.connect, local=True),
@@ -62,6 +62,7 @@ def main():
             globals()[key] = device
             server.add_device(device, device.PYRO_KEY, add_oneway_callables=True)
             available.append(key)
+
         except Exception:
             click.secho(f" ! Failed to connect {key.upper()}", bg=(114, 24, 23), fg=(224, 224, 226))
 
