@@ -11,7 +11,6 @@ from device_control.scexao import VisBlock
 from device_control.vampires import (
     VAMPIRESTC,
     VAMPIRESBeamsplitter,
-    VAMPIRESCamFocus,
     VAMPIRESDiffWheel,
     VAMPIRESFieldstop,
     VAMPIRESFilter,
@@ -25,7 +24,6 @@ from device_control.vampires import (
 
 DEVICE_MAP = {
     "bs": partial(VAMPIRESBeamsplitter.connect, local=True),
-    "camfocus": partial(VAMPIRESCamFocus.connect, local=True),
     "fieldstop": partial(VAMPIRESFieldstop.connect, local=True),
     "diff": partial(VAMPIRESDiffWheel.connect, local=True),
     "filt": partial(VAMPIRESFilter.connect, local=True),
