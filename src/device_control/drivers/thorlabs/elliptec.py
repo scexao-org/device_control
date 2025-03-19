@@ -6,7 +6,7 @@ from device_control.base import ConfigurableDevice
 
 """
 Please refer to this github repo for the detailed information about the Elliptec package:
-https://github.com/roesel/elliptec
+https://github.com/roesel/elliptec NOTE this needs to be added as a dependency!!
 """
 
 
