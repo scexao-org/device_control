@@ -45,7 +45,6 @@ imr = "device_control.facility.image_rotator:main"
 wpu = "device_control.facility.wpu:main"
 # VAMPIRES devices
 vampires_bs = "device_control.vampires.vampires_beamsplitter:main"
-vampires_camfocus = "device_control.vampires.vampires_camfocus:main"
 vampires_diff = "device_control.vampires.vampires_diffwheel:main"
 vampires_fieldstop = "device_control.vampires.vampires_fieldstop:main"
 vampires_filter = "device_control.vampires.vampires_filter:main"
