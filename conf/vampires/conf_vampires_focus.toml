@@ -1,7 +1,7 @@
 name = "vampires_focus"
 configurations = [
-    { idx = 1, name = "Standard", value = { lens = 7.490199, cam = 2.8497371250000003 } },
-    { idx = 2, name = "Single", value = { lens = 13.204, cam = 0.0 } },
+    { idx = 1, name = "Standard", value = { lens = 7.25, cam = 2.85892875 } },
+    { idx = 2, name = "Single", value = { lens = 15.0, cam = 2.0633055000000002 } },
     { idx = 3, name = "SDI", value = { lens = 6.486399, cam = 3.1889700000000003 } },
     { idx = 4, name = "Pupil", value = { lens = 0, cam = 23.000017500000002 } },
     { idx = 5, name = "VPL", value = { lens = 5.2163, cam = 2.8734543750000006 } },

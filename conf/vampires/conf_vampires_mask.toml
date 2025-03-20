@@ -44,9 +44,6 @@ name = "SAM-18"
 x = 9.802891875
 y = 5.0919697500000005
 theta = 95.30249
-x = 9.962911875000001
-y = 3.7718047500000003
-theta = 95.30348
 
 [[configurations]]
 idx = 6
@@ -63,7 +60,6 @@ name = "Mirror"
 
 [configurations.value]
 x = 9.252918375
-x = 9.252918375
 y = 4.152947625
 theta = 142.0003
 
@@ -73,9 +69,7 @@ name = "Open"
 
 [configurations.value]
 x = 9.106995375
-x = 9.106995375
 y = 0.10001250000000002
-theta = 164.0004
 theta = 164.001
 
 [[configurations]]
@@ -83,9 +77,6 @@ idx = 9
 name = "LyotStop"
 
 [configurations.value]
-x = 9.31478325
-y = 2.5997535
-theta = 189.9094
 x = 9.454657875
 y = 1.919811375
 theta = 189.7143
@@ -95,9 +86,6 @@ idx = 10
 name = "RAP"
 
 [configurations.value]
-x = 9.3369765
-y = 8.858107125
-theta = 218.5016
 x = 9.756886125000001
 y = 8.298037125
 theta = 218.503
