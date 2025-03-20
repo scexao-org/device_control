@@ -11,7 +11,7 @@ from device_control.multi_device import MultiDevice
 class VAMPIRESFocus(MultiDevice):
     CONF = "vampires/conf_vampires_focus.toml"
     PYRO_KEY = VAMPIRES.FOCUS
-    format_str = "{0}: {1:10s} {{lens={2:5.02f} mm, cam={2:5.02f} mm}}"
+    format_str = "{0}: {1:10s} {{lens={2:5.02f} mm, cam={3:5.02f} mm}}"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
