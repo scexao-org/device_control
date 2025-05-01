@@ -35,7 +35,7 @@ class VAMPIRESMaskWheel(MultiDevice):
         )
         return f"""Usage:
     vampires_mask [-h | --help]
-    vampires_mask status
+    vampires_mask (status|home|stop)
     vampires_mask x (status|position|home|goto|nudge|stop|reset) [<pos>]
     vampires_mask y (status|position|home|goto|nudge|stop|reset) [<pos>]
     vampires_mask theta (status|position|home|goto|nudge|stop|reset) [<pos>]
@@ -44,6 +44,12 @@ class VAMPIRESMaskWheel(MultiDevice):
 Options:
     -h, --help   Show this screen
 
+    
+Commands:
+    status          Returns the status of all stages
+    home            Homes all stages
+    stop            Immediately stops all stages
+    
 Stage commands:
     status          Returns the status of the stage
     position        Returns the current position of the stage
@@ -70,6 +76,12 @@ def main():
         posns, status = vampires_mask.get_status()
         print(status)
         vampires_mask.update_keys(posns)
+        return
+    elif len(sys.argv) == 2 and args["home"]:
+        vampires_mask.home_all()
+        return
+    elif len(sys.argv) == 2 and args["stop"]:
+        vampires_mask.stop_all()
         return
     elif args["x"]:
         substage = "x"

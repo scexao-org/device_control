@@ -1,3 +1,4 @@
+from concurrent import futures
 from pathlib import Path
 
 import numpy as np
@@ -31,6 +32,12 @@ class MultiDevice(ConfigurableDevice):
         self.update_keys()
         return result
 
+    def home_all(self, **kwargs):
+        with futures.ThreadPoolExecutor() as executor:
+            tasks = [executor.submit(self.devices[name].home, **kwargs) for name in self.devices]
+            results = [task.result() for task in tasks]
+        return results
+
     def move_absolute(self, name, value, **kwargs):
         result = self.devices[name].move_absolute(value, **kwargs)
         self.update_keys()
@@ -48,6 +55,12 @@ class MultiDevice(ConfigurableDevice):
         else:
             self.devices[name].stop()
         self.update_keys()
+
+    def stop_all(self, **kwargs):
+        with futures.ThreadPoolExecutor() as executor:
+            tasks = [executor.submit(self.stop, name, **kwargs) for name in self.devices]
+            results = [task.result() for task in tasks]
+        return results
 
     @classmethod
     def from_config(__cls__, filename):
@@ -157,9 +170,12 @@ class MultiDevice(ConfigurableDevice):
         else:
             msg = f"No configuration saved at index {idx}"
             raise ValueError(msg)
-        for dev_name, value in self.current_config.items():
-            # TODO async wait
-            self.devices[dev_name].move_absolute(value)
+        with futures.ThreadPoolExecutor() as executor:
+            tasks = []
+            for dev_name, value in self.current_config.items():
+                # TODO async wait
+                tasks.append(executor.submit(self.devices[dev_name].move_absolute, value))
+            [task.result() for task in tasks]
             self.update_keys()
 
     def move_configuration_name(self, name: str):
@@ -170,8 +186,11 @@ class MultiDevice(ConfigurableDevice):
         else:
             msg = f"No configuration saved with name '{name}'"
             raise ValueError(msg)
-        for dev_name, value in self.current_config.items():
-            self.devices[dev_name].move_absolute(value)
+        with futures.ThreadPoolExecutor() as executor:
+            tasks = []
+            for dev_name, value in self.current_config.items():
+                tasks.append(executor.submit(self.devices[dev_name].move_absolute, value))
+            [task.result() for task in tasks]
             self.update_keys()
 
     def update_keys(self, positions=None):

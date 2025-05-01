@@ -33,7 +33,7 @@ class VAMPIRESFieldstop(MultiDevice):
         )
         return f"""Usage:
     vampires_fieldstop [-h | --help]
-    vampires_fieldstop status
+    vampires_fieldstop (status|home|stop)
     vampires_fieldstop x (status|target|home|goto|nudge|stop|reset) [<pos>]
     vampires_fieldstop y (status|target|home|goto|nudge|stop|reset) [<pos>]
     vampires_fieldstop f (status|target|home|goto|nudge|stop|reset) [<pos>]
@@ -41,6 +41,11 @@ class VAMPIRESFieldstop(MultiDevice):
 
 Options:
     -h, --help   Show this screen
+
+Commands:
+    status          Returns the status of all stages
+    home            Homes all stages
+    stop            Immediately stops all stages
 
 Stage commands:
     status          Returns the current position of the stage
@@ -57,17 +62,23 @@ Configurations:
 
 # setp 4. action
 def main():
-    fieldstop = VAMPIRESFieldstop.connect(local=os.getenv("WHICHCOMP", None) == "V")
-    __doc__ = fieldstop.help_message()
+    vampires_fieldstop = VAMPIRESFieldstop.connect(local=os.getenv("WHICHCOMP", None) == "V")
+    __doc__ = vampires_fieldstop.help_message()
     args = docopt(__doc__, options_first=True)
     posns = None
     if len(sys.argv) == 1:
         print(__doc__)
         return
     elif len(sys.argv) == 2 and args["status"]:
-        posns, status = fieldstop.get_status()
+        posns, status = vampires_fieldstop.get_status()
         print(status)
-        fieldstop.update_keys(posns)
+        vampires_fieldstop.update_keys(posns)
+        return
+    elif len(sys.argv) == 2 and args["home"]:
+        vampires_fieldstop.home_all()
+        return
+    elif len(sys.argv) == 2 and args["stop"]:
+        vampires_fieldstop.stop_all()
         return
     elif args["x"]:
         substage = "x"
@@ -77,23 +88,23 @@ def main():
         substage = "f"
     elif args["<configuration>"]:
         index = args["<configuration>"]
-        return fieldstop.move_configuration(index)
+        return vampires_fieldstop.move_configuration(index)
 
     if args["status"]:
-        print(fieldstop.get_position(substage))
+        print(vampires_fieldstop.get_position(substage))
     elif args["home"]:
-        fieldstop.home(substage)
+        vampires_fieldstop.home(substage)
     elif args["goto"]:
         new_pos = float(args["<pos>"])
-        fieldstop.move_absolute(substage, new_pos)
+        vampires_fieldstop.move_absolute(substage, new_pos)
     elif args["nudge"]:
         rel_pos = float(args["<pos>"])
-        fieldstop.move_relative(substage, rel_pos)
+        vampires_fieldstop.move_relative(substage, rel_pos)
     elif args["stop"]:
-        fieldstop.stop(substage)
+        vampires_fieldstop.stop(substage)
     elif args["reset"]:
-        fieldstop.reset(substage)
-    fieldstop.update_keys(posns)
+        vampires_fieldstop.reset(substage)
+    vampires_fieldstop.update_keys(posns)
 
 
 if __name__ == "__main__":

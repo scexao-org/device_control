@@ -29,7 +29,7 @@ class VAMPIRESFocus(MultiDevice):
         )
         return f"""Usage:
     vampires_focus [-h | --help]
-    vampires_focus status
+    vampires_focus (status|home|stop)
     vampires_focus lens (status|position|home|goto|nudge|stop|reset) [<pos>]
     vampires_focus cam  (status|position|home|goto|nudge|stop|reset) [<pos>]
     vampires_focus [--save] <configuration>
@@ -39,6 +39,11 @@ Options:
     -h, --help   Show this screen
     --save       Save the current position to the given configuration
 
+Commands:
+    status          Returns the status of both focus stages
+    home            Homes both focus stages
+    stop            Immediately stops both focus stages
+
 Stage commands:
     status          Returns the current status of the focus stage
     position        Returns the current position of the focus stage, in mm
@@ -47,7 +52,7 @@ Stage commands:
     nudge <pos>     Move the focus stage relatively by the given position, in mm
     stop            Stop the focus stage
     reset           Reset the focus stage
-    
+
 Configurations:
 {configurations}"""
 
@@ -64,7 +69,12 @@ def main():
     elif len(sys.argv) == 2 and args["status"]:
         posns, status = vampires_focus.get_status()
         print(status)
-        vampires_focus.update_keys(posns)
+        return
+    elif len(sys.argv) == 2 and args["home"]:
+        vampires_focus.home_all()
+        return
+    elif len(sys.argv) == 2 and args["stop"]:
+        vampires_focus.stop_all()
         return
     elif args["lens"]:
         substage = "lens"
