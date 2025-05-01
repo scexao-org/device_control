@@ -29,12 +29,12 @@ theta = 48.30059
 
 [[configurations]]
 idx = 4
-name = "Open"
+name = "JEWEL7x6"
 
 [configurations.value]
-x = 8.358901874999999
-y = 6.279975375
-theta = 73.00045
+x = 10.359009
+y = 5.799915375
+theta = 73.00065
 
 [[configurations]]
 idx = 5
