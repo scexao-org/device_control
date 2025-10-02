@@ -8,6 +8,7 @@ import tomli_w
 from device_control.base import ConfigurableDevice
 from device_control.drivers.conex import ConexAGAPButOnlyOneAxis, CONEXDevice
 from device_control.drivers.zaber import ZaberDevice
+from device_control.drivers.thorlabs import ThorlabsElliptec
 
 __all__ = ["MultiDevice"]
 
@@ -72,15 +73,18 @@ class MultiDevice(ConfigurableDevice):
             device_name = device_config["name"]
             device_config["name"] = f"{name}_{device_name}"
             device_config["serial_kwargs"] = device_config.pop("serial")
-            dev_type = device_config.pop("type")
-            if dev_type.lower() == "conex":
+            dev_type = device_config.pop("type").lower()
+            if dev_type == "conex":
                 device = CONEXDevice(config_file=filename, **device_config)
-            elif dev_type.lower() == "conexagap":
+            elif dev_type == "conexagap":
                 device = ConexAGAPButOnlyOneAxis(
                     axis=device_config["agapaxis"], config_file=filename, **device_config
                 )
-            elif dev_type.lower() == "zaber":
+            elif dev_type == "zaber":
                 device = ZaberDevice(config_file=filename, **device_config)
+            elif dev_type.startswith("elliptec"):
+                elliptec_type = dev_type.split("-")[-1]
+                device = ThorlabsElliptec(config_file=filename, type=elliptec_type, **device_config)
             else:
                 msg = f"motion stage type not recognized: {device_config['type']}"
                 raise ValueError(msg)

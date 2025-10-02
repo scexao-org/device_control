@@ -13,19 +13,20 @@ https://github.com/roesel/elliptec NOTE this needs to be added as a dependency!!
 class ThorlabsElliptec(ConfigurableDevice):
     FORMAT_STR = "{0}: {1} {{{2} {3}}}"
 
-    def __init__(self, serial_kwargs, unit=None, **kwargs):
-        serial_kwargs = dict({"baudrate": 9600, "rtscts": True}, **serial_kwargs)
+    def __init__(self, serial_kwargs: dict, type: str, unit: str=None, offset=0, **kwargs):
+        serial_kwargs = dict({"baudrate": 9600, "rtscts": True, "address": "0"}, **serial_kwargs)
         self.controller = elliptec.Controller(serial_kwargs["port"], debug=False)
-        ser_type = serial_kwargs.pop("type").lower()
+        ser_type = type.lower()
         if ser_type == "rotator":
-            self.device = elliptec.Rotator(self.controller)
+            self.device = elliptec.Rotator(self.controller, address=str(serial_kwargs["address"]))
         elif ser_type == "shutter":
-            self.device = elliptec.Shutter(self.controller)
+            self.device = elliptec.Shutter(self.controller, address=str(serial_kwargs["address"]))
         elif ser_type == "slider":
-            self.device = elliptec.Slider(self.controller)
+            self.device = elliptec.Slider(self.controller, address=str(serial_kwargs["address"]))
         elif ser_type == "linear":
-            self.device = elliptec.Linear(self.controller)
+            self.device = elliptec.Linear(self.controller, address=str(serial_kwargs["address"]))
         self.unit = unit
+        self.offset = offset
         super().__init__(serial_kwargs=None, **kwargs)
 
     def _config_extras(self):
@@ -47,7 +48,7 @@ class ThorlabsElliptec(ConfigurableDevice):
         raise NotImplementedError()
 
     # @autoretry
-    def set_position(self, position: float):
+    def move_absolute(self, position: float):
         self.logger.debug("MOVING to=%s unit=%s", position, self.unit)
         self.device.set_angle(position)
         time.sleep(1)

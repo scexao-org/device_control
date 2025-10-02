@@ -1,0 +1,24 @@
+name = "vis_qwp"
+configurations = [
+    { idx = 1, name = "default", value = { 1 = 0.0, 2 = 0.0 } },
+]
+
+[[devices]]
+name = "1"
+type = "elliptec-rotator"
+unit = "deg"
+offset = 0
+
+[devices.serial]
+port = "/dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_DP06TV9W-if00-port0"
+address = "1"
+
+[[devices]]
+name = "2"
+type = "elliptec-rotator"
+unit = "deg"
+offset = 0
+
+[devices.serial]
+port = "/dev/serial/by-id/usb-FTDI_FT230X_Basic_UART_DP06TV9W-if00-port0"
+address = "2"

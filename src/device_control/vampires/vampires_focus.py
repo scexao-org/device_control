@@ -30,9 +30,9 @@ class VAMPIRESFocus(MultiDevice):
         return f"""Usage:
     vampires_focus [-h | --help]
     vampires_focus (status|home|stop)
+    vampires_focus [--save] <configuration>
     vampires_focus lens (status|position|home|goto|nudge|stop|reset) [<pos>]
     vampires_focus cam  (status|position|home|goto|nudge|stop|reset) [<pos>]
-    vampires_focus [--save] <configuration>
 
 
 Options:

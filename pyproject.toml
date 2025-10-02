@@ -23,14 +23,16 @@ dependencies = [
     "tomli",
     "tqdm",
     "zaber-motion",
-    #"scxconf", # Commenting out the stuff that doesn't come from pypi?
-    #"superk-control",
-    #"swmain",
     "elliptec",
 ]
 dynamic = ["version"]
 
 [project.optional-dependencies]
+scexao = [
+    "swmain",
+    "superk-control",
+    "scxconf",
+]
 test = [
     "pytest",
 ]
