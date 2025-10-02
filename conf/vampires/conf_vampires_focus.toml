@@ -1,12 +1,12 @@
 name = "vampires_focus"
 configurations = [
-    { idx = 1, name = "Dual", value = { lens = 5.379999, cam = 2.879979 } },
-    { idx = 2, name = "Single", value = { lens = 15.0, cam = 2.0633055000000002 } },
+    { idx = 1, name = "Dual", value = { lens = 7.610999, cam = 2.808398625 } },
+    { idx = 2, name = "Single", value = { lens = 12.8256, cam = 0.0 } },
     { idx = 3, name = "SDI", value = { lens = 6.486399, cam = 3.1889700000000003 } },
     { idx = 4, name = "Pupil", value = { lens = 5.379999, cam = 10.00001175 } },
-    { idx = 5, name = "VPL", value = { lens = 5.2163, cam = 2.8734543750000006 } },
-    { idx = 6, name = "VPL-SDI", value = { lens = 0, cam = 7.402163250000001 } },
-    { idx = 7, name = "VPL-Single", value = { lens = 12.2041, cam = 1.373457375 } },
+    { idx = 5, name = "VPL", value = { lens = 5.390899, cam = 2.8598812500000004 } },
+    { idx = 6, name = "VPL-SDI", value = { lens = 5.1001, cam = 2.8350210000000002 } },
+    { idx = 7, name = "VPL-Single", value = { lens = 10.5103, cam = 0.0 } },
     { idx = 8, name = "Defocus", value = { lens = 7.490199, cam = 8.199989125000002 } },
 ]
 
