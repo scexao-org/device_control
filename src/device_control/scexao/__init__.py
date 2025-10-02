@@ -1,5 +1,5 @@
 from .polarizer import SCEXAOPolarizer
-from .vampires_qwp import VAMPIRESQWP
 from .vis_block import VisBlock
+from .vis_qwp import VisQWP
 
-__all__ = ("SCEXAOPolarizer", "VAMPIRESQWP", "VisBlock")
+__all__ = ("SCEXAOPolarizer", "VisQWP", "VisBlock")

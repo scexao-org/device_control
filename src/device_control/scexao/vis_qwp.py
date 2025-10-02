@@ -1,42 +1,27 @@
-import os
 import sys
 
 from docopt import docopt
-from scxconf.pyrokeys import VAMPIRES
 from swmain.redis import update_keys
 
-from device_control import conf_dir
 from device_control.multi_device import MultiDevice
-from device_control.drivers.thorlabs import ThorlabsElliptec
-from device_control.vampires.cameras import connect_cameras
 
 
-def _update_qwp(qwp, position):
-    {
-        f"U_QWP{qwp_num:1d}"
-    }
-
-class VISQWP(MultiDevice):
+class VisQWP(MultiDevice):
     CONF = "scexao/conf_vis_qwp.toml"
     format_str = "{0}: {1:10s} {{QWP1={2:5.02f}°, QWP2={3:5.02f}°}}"
     PYRO_KEY = "SCEXAO_QWP"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.devices["1"]._update_keys = lambda p: update_keys(U_QWP1=p, U_QWP1TH=p - self.devices["1"].offset)
-        self.devices["2"]._update_keys = lambda p: update_keys(U_QWP2=p, U_QWP2TH=p - self.devices["2"].offset)
-
+        self.devices["1"]._update_keys = lambda p: update_keys(
+            U_QWP1=p, U_QWP1TH=p - self.devices["1"].offset
+        )
+        self.devices["2"]._update_keys = lambda p: update_keys(
+            U_QWP2=p, U_QWP2TH=p - self.devices["2"].offset
+        )
 
     def _update_keys(self, positions):
         _, name = self.get_configuration(positions=positions)
-        
-        
-        # kwargs = {f"U_QWP{self.number:1d}": theta, f"U_QWP{self.number:1d}TH": theta - self.offset}
-        # update_keys(**kwargs)
-        # for cam in connect_cameras():
-        #     if cam is not None:
-        #         cam.set_keyword(f"U_QWP{self.number:1d}", theta)
-        #         cam.set_keyword(f"U_QWP{self.number:1d}TH", theta - self.offset)
-
 
     def help_message(self):
         configurations = "\n".join(
@@ -72,7 +57,7 @@ Configurations:
 def main():
     # local = os.getenv("WHICHCOMP") == "2"
     local = True
-    vis_qwp = VISQWP.connect(local=local)
+    vis_qwp = VisQWP.connect(local=local)
     __doc__ = vis_qwp.help_message()
     args = docopt(__doc__, options_first=True)
     posns = None
