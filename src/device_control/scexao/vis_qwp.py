@@ -1,3 +1,4 @@
+import os
 import sys
 
 from docopt import docopt
@@ -55,8 +56,7 @@ Configurations:
 
 # setp 4. action
 def main():
-    # local = os.getenv("WHICHCOMP") == "2"
-    local = True
+    local = os.getenv("WHICHCOMP") == "2"
     vis_qwp = VisQWP.connect(local=local)
     __doc__ = vis_qwp.help_message()
     args = docopt(__doc__, options_first=True)
