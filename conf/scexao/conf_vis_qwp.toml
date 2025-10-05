@@ -1,6 +1,6 @@
 name = "vis_qwp"
 configurations = [
-    { idx = 1, name = "default", value = { 1 = 0.0, 2 = 0.0 } },
+    { idx = 1, name = "VAMP_MBI", value = { 1 = 8.05, 2 = 30.32 } },
 ]
 
 [[devices]]
