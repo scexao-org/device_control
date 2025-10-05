@@ -39,6 +39,12 @@ class ThorlabsElliptec(ConfigurableDevice):
     def set_unit(self, value):
         self.unit = value
 
+    def get_offset(self):
+        return self.offset
+
+    def set_offset(self, value):
+        self.offset = value
+
     def update_keys(self, position=None):
         if position is None:
             position = self.get_position()
