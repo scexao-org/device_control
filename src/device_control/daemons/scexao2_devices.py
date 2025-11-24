@@ -7,7 +7,7 @@ from superk_control.superk import SuperK
 from swmain.infra.badsystemd.aux import auto_register_to_watchers
 from swmain.network.pyroserver_registerable import PyroServer
 
-from device_control.scexao import SCEXAOPolarizer, VisQWP
+from device_control.scexao import SCEXAOPolarizer, VisQWP, FIRSTPLPickoff
 
 parser = ArgumentParser(
     prog="scexao2_devices",
@@ -18,6 +18,7 @@ DEVICE_MAP = {
     "superk": partial(SuperK.connect, local=True),
     "polarizer": partial(SCEXAOPolarizer.connect, local=True),
     "qwp": partial(VisQWP.connect, local=True),
+    "firstpl_pickoff": partial(FIRSTPLPickoff.connect, local=True),
 }
 
 

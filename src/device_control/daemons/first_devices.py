@@ -9,12 +9,12 @@ from swmain.network.pyroserver_registerable import PyroServer
 
 from device_control.first import (
     FIRSTPLInjection,
-    FIRSTPLWollaston,
+    FIRSTPLWollaston
 )
 
 DEVICE_MAP = {
     "injection": partial(FIRSTPLInjection.connect, local=True),
-    "wollaston": partial(FIRSTPLWollaston.connect, local=True),
+    "wollaston": partial(FIRSTPLWollaston.connect, local=True)
 }
 
 parser = argparse.ArgumentParser(
