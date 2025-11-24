@@ -75,6 +75,10 @@ viswfs_rs2 = "device_control.viswfs.viswfs_rs2:main"
 viswfs_flipmount1 = "device_control.viswfs.viswfs_flipmount1:main"
 viswfs_flipmount2 = "device_control.viswfs.viswfs_flipmount2:main"
 viswfs_hwp = "device_control.viswfs.viswfs_hwp:main"
+# FIRST-PL
+first_devices = "device_control.daemons.first_devices:main"
+firstpl_inj = "device_control.first.firstpl_injection:main"
+firstpl_wollaston = "device_control.first.firstpl_wollaston:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "device_control.__version__"}

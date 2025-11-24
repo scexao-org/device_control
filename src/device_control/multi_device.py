@@ -153,7 +153,6 @@ class MultiDevice(ConfigurableDevice):
             self.logger.info(
                 f"added new configuration {index} '{name}' with values {dev_posns.values()}"
             )
-
         # sort configurations dictionary in-place by index
         self.configurations.sort(key=lambda d: d["idx"])
         # save configurations to file

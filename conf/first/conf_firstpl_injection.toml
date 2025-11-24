@@ -1,0 +1,41 @@
+name = "firstpl_inj"
+
+configurations = [
+    { idx = 1, name = "SMF", value = {x = 103248, y = 25412, f=6.2}},
+    { idx = 2, name = "PL", value = {x = 107156, y = 258901, f=4.5}},
+]
+
+[[devices]]
+name = "x"
+type = "zaber"
+unit = "step" # change to mm if want in mm
+offset = 0
+
+[devices.serial]
+timeout = 0.5
+port = "/dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Controller_D-if00-port0"
+device_number = 1
+
+[[devices]]
+name = "y"
+type = "zaber"
+unit = "step"
+offset = 0
+
+[devices.serial]
+timeout = 0.5
+port = "/dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Controller_D-if00-port0"
+device_number = 2
+
+
+[[devices]]
+name = "f"
+type = "conex"
+unit = "mm"
+offset = 0
+
+[devices.serial]
+port = "/dev/serial/by-id/usb-Newport_CONEX-AGP_A6Z9D925-if00-port0"
+baudrate = 921600
+xonxoff = true
+timeout = 0.5
