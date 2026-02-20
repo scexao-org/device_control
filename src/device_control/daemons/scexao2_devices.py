@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 from functools import partial
 
 import click
-from scxconf import IP_SC2, PYRONS3_HOST, PYRONS3_PORT
+from scxconf import IP_SC_CTRL, PYRONS3_HOST, PYRONS3_PORT
 from superk_control.superk import SuperK
 from swmain.infra.badsystemd.aux import auto_register_to_watchers
 from swmain.network.pyroserver_registerable import PyroServer
@@ -25,7 +25,7 @@ DEVICE_MAP = {
 def main():
     parser.parse_args()
     auto_register_to_watchers("SC2_PYRO", "SC2 PyRO devices")
-    server = PyroServer(bindTo=(IP_SC2, 0), nsAddress=(PYRONS3_HOST, PYRONS3_PORT))
+    server = PyroServer(bindTo=(IP_SC_CTRL, 0), nsAddress=(PYRONS3_HOST, PYRONS3_PORT))
     ## create device objects
     click.echo("Initializing devices")
     available = []
